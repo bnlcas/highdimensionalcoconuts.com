@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <title>Random Art</title>
+  </head>
+  <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      let max_index = 32000;
+      let random_index = String(Math.floor(Math.random() * max_index));
+      let api_url = "https://openaccess-api.clevelandart.org/api/artworks/?q=&skip=" + random_index + "&limit=1&indent=1&has_image=1/";
+      console.log(api_url);
+      $.get(api_url, function(data, status)
+      {
+        let response = data;
+        let img_url = response.data[0].images.web.url;
+        let img_element = document.createElement("img");
+        img_element.style.width = "95vw"
+        img_element.src = img_url;
+        document.body.appendChild(img_element);
+      });
+    </script>
+    <p>Images are courtesy of the Cleveland Museum of Art's <a href = "https://openaccess-api.clevelandart.org"> Open Access Program</a>
+      <br>(cc license)
+    <br>takes a moment to load...</p>
+  </body>
+</html>

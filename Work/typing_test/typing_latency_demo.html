@@ -1,0 +1,11 @@
+<script src = "jquery-3.3.1.min.js"></script>
+<script src="latency_text_input_simulation.js"></script>
+
+
+<body onload="start()">
+<p>Basic simulation of latency and frame rate for typing applications. Both the frame rate and the latency can be adjusted. Press "RETURN" to clear the output. This simulation assumes that the actual latency of the browser is much less than the set values</p>
+	Frame Time (ms) <input type="text" id="FrameTime" onchange="editFrameRate()" value="100"><br>
+	Latency (ms) <input type="text" id="Latency" value="50" onchange="editLatency()"><br>
+    Text input <input type="text" id="textEntry"/>
+	<p id="p">Output: </p>
+</body>

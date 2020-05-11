@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Topological Asteroids</title>
+    <style>
+			.main {
+		    	position: relative;
+		    	height: 100vh;
+		    	width: 100%;
+		    	margin: 0px;
+		    	padding: 0px;
+				}
+			.main::before {
+		      content: "";
+		      background-image: url("../../Assets/coconut_edge.jpg");
+		      background-size: cover;
+		      position: fixed;
+		      top: 0px;
+		      right: 0px;
+		      bottom: 0px;
+		      left: 0px;
+		      opacity: 0.2;
+				}
+				.content
+				{
+		  	padding-top: 2px;
+		  	padding-left: 25px;
+		  	text-align: left;
+		  	position: relative;
+		  	z-index: 1;
+			}
+		 </style>
+  </head>
+  <body>
+    <div class="main">
+      <div class="content">
+				<h1>Topological Asteroids</h1>
+							<p>The classic arcade game asteroids is played on a torus. The top and the bottom of the screen are connected, as are the left and the right sides of the screen. This helps facilitate continuous game play by eliminating edges. If we think about the surface as a 2D manifold, then it is also possible to imagine other variations on this theme. Klein bottles, projective planes, etc... </p>
+
+							<ul>
+									<li><a href = "./kleinbottle_asteroids.html">Play Klein Bottle Asteroids</a></li>
+									<li><a href = "./spherical_asteroids.html">Play Spherical Asteroids</a></li>
+									<li><a href = "./hyperboloid_asteroids.html">Play Hyperboloid Asteroids</a></li>
+							</ul>
+                            <p> Initially I had hoped that these variations might help people develop an intuition for strange topologies. Sadly I don't think that these variations did not end up being very educational, but some of them are pretty entertaining. You can play the games through the links below. The bulk of the code was lifted from <u><a href = "https://github.com/dmcinnes">Doug McInnes</a></u> - I just tweaked the boundary conditions. If you want to make further tweaks, source code is available on (<u><a href = "https://github.com/bnlcas/TopologicalAsteroids">github</a></u>).
+                            </p>
+      </div>
+    </div>
+  </body>
+</html>

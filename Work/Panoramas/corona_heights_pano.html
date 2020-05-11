@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corona Heights Panorama</title>
+    <link rel="stylesheet" href="./pannellum.css"/>
+    <script type="text/javascript" src="./pannellum.js"></script>
+    <style>
+    #panorama {
+        width: 1200px;
+        height: 600px;
+    }
+    </style>
+</head>
+<body>
+
+<div id="panorama"></div>
+<script>
+var pano = pannellum.viewer('panorama', {
+    "type": "equirectangular",
+    "panorama": "./corona_heights.jpg",
+    "autoLoad": true,
+    "autoRotate": -2,
+});
+</script>
+
+</body>
+</html>

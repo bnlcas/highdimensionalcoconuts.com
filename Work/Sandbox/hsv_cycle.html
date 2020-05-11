@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body style="margin: 0; padding:0;">
+  <canvas id = "mainCanvas" height="1200" width="1000"></canvas>
+<body>
+
+<script>
+var _frameNum = 0;
+var _canvas = document.getElementById("mainCanvas");
+var _ctx = _canvas.getContext("2d");
+
+_ctx.fillStyle = 'hsl(,' + 0 + ', 90%, 90%)';
+_ctx.fillRect(0,0,1200,1200);
+
+setInterval(ChangeColor, 10);
+
+function ChangeColor()
+{
+  _frameNum += 1;
+  _ctx.fillStyle = 'hsl(' + _frameNum % 360 + ', 90%, 90%)';
+  _ctx.fillRect(0,0,1200,1200);
+}
+</script>
+
+</html>

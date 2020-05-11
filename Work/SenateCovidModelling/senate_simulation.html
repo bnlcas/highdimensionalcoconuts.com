@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <title>Senate Covid-19 Mortality</title>
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body onload= "RunSimulation()">
+    <script src = "./js/simulation.js"></script>
+    <h2>Senate Covid-19 Mortality Simulation</h2>
+    <div class="interface">
+        <p>Simulate the effect of the Covid-19 pandemic on the US Senate</p>
+        <p id="infection_rate_readout">Infection Rate: 50%</p>
+        <input type="range" min="1" max="100" value="50" id="infection_rate_slider" oninput="UpdateInfectionRate(this.value)">
+        <br>
+        <input type="submit"  value="Run Simulation" onclick="RunSimulation()">
+      </div>
+
+      <div class="output">
+          <p id="fatality_list">Some Dude - He's gone</p>
+      </div>
+  </body>
+</html>

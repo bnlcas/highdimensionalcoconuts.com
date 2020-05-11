@@ -1,0 +1,42 @@
+.main {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-family: Garamond, Times, serif;
+    font-weight: lighter;
+
+}
+
+.main::before {
+      content: "";
+      background-image: url('../Assets/X-rayHand.jpg');
+      background-size: cover;
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      opacity: 0.8;
+}
+
+.content
+{
+  padding-top: 2px;
+  padding-left: 25px;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+a
+{
+  color:white;
+}
+
+ul
+{
+  list-style-type:none;
+}

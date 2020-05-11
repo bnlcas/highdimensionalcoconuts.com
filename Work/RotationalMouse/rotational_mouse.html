@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Rotational Mouse</title>
+    <style>
+			.main {
+		    	position: relative;
+		    	height: 100vh;
+		    	width: 100%;
+		    	margin: 0px;
+		    	padding: 0px;
+				}
+			.main::before {
+		      content: "";
+		      background-image: url("../../Assets/coconut_edge.jpg");
+		      background-size: cover;
+		      position: fixed;
+		      top: 0px;
+		      right: 0px;
+		      bottom: 0px;
+		      left: 0px;
+		      opacity: 0.1;
+				}
+				.content
+				{
+		  	padding-top: 2px;
+		  	padding-left: 25px;
+		  	text-align: left;
+		  	position: relative;
+		  	z-index: 1;
+			}
+		 </style>
+  </head>
+  <body>
+    <div class="main">
+      <div class="content">
+
+				<h2>Rotational Mouse</h2>
+
+				<p>The mouse is the leading input device for desktop computing. It offers excellent speed and accuracy for most desktop computer interactions. In spite of its good performance, a 2DoF controller can be limiting for 3d interactions. Most 3d applications that use a mouse rely on azimuth/declension which can require complicated maneuvers to achieve certain perspectives. With an optical mouse, it is possible, in principle, to track rotation in addition to translation to provide a 3DoF controller (x, y, theta). This could be useful for 3D interactions that invovle a mouse, since proper rotations require three degrees of freedom.</p>
+
+				<p>Following up on this idea, I have created an early prototype implementation of how this might work and feel using a web camera duct taped onto the side of a mouse. The source code is available on (<u><a href = "https://github.com/bnlcas/rotational_mouse">github</a></u>).
+				</p>
+
+				<p>The tracking on this prototype is still limited, but you can see a demo below:
+
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/4Tbreo0kbu0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+
+
+				<br></br>
+      </div>
+    </div>
+  </body>
+</html>

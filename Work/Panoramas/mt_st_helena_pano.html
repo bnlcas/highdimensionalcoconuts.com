@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mount St Helena Panorama</title>
+    <link rel="stylesheet" href="./pannellum.css"/>
+    <script type="text/javascript" src="./pannellum.js"></script>
+    <style>
+    #panorama {
+        width: 100VW;
+        height: 100VH;
+    }
+    </style>
+</head>
+<body>
+
+<div id="panorama"></div>
+<script>
+var pano = pannellum.viewer('panorama', {
+    "type": "equirectangular",
+    "panorama": "./Mt_St_Helena_Pano_360.jpg",
+    "autoLoad": true,
+    "autoRotate": -2,
+    "pitch": 5,
+    "yaw": 170,
+});
+</script>
+
+</body>
+</html>

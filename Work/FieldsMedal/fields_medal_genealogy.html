@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Fields Medalist Genealogy</title>
+    <style>
+			.main {
+		    	position: relative;
+		    	height: 100vh;
+		    	width: 100%;
+		    	margin: 0px;
+		    	padding: 0px;
+				}
+			.main::before {
+		      content: "";
+		      background-image: url("../../Assets/coconut_edge.jpg");
+		      background-size: cover;
+		      position: fixed;
+		      top: 0px;
+		      right: 0px;
+		      bottom: 0px;
+		      left: 0px;
+		      opacity: 0.1;
+				}
+				.content
+				{
+		  	padding-top: 2px;
+		  	padding-left: 25px;
+		  	text-align: left;
+		  	position: relative;
+		  	z-index: 1;
+			}
+		 </style>
+  </head>
+  <body>
+    <div class="main">
+      <div class="content">
+				<h2>Academic Lineage of Fields Medalists</h2>
+				<p>Networks often follow a pattern of <u><a href = "https://en.wikipedia.org/wiki/Preferential_attachment">preferential attachment</a></u> that naturally leads to a very skewed distribution. Human knowledge is no exception to this pattern - especially when we consider the sociological dimensions of knowledge. The <u><a href = "https://www.genealogy.math.ndsu.nodak.edu">Mathematics Genealogy Project</a></u> offers a rare glimpse into the network of masters and apprentices that characterize the history of modern mathematics. I was surpised to learn that Leibniz is the academic great-great-great-great grandson of Copernius. Naturally this led to the question of how concentrated are the academic lineages of fields medalists - the top prize in mathematics.</p>
+
+				<p>Using data that was taken from the Mathematics Genealogy Project by <u><a href = "https://jeremykun.com">Jeremy Kun's </a></u> <u><a href = "https://github.com/j2kun/math-genealogy-scraper">webscrapper</a></u> I built a script to look at where the fields medalists education originates.</p>
+
+				<p>The results are interesting. The community of top mathematicians is very concentrated. Of course this is not too surprising if we consider that the best students look for the best teachers and the best teachers want to teach the best students. Some examples are:
+
+				<ul>
+				    <li>32% of Fields Medalists have a lineage that contains Gauss</li>
+					<li>50% of Fields Medalists have a lineage that contains Liebniz</li>
+					<li>59% of Fields Medalists have a lineage that contains Euler</li>
+				</ul>
+
+				<p>As you look back further in time the origins of modern mathematics become more concentrated at less scientific. The most prolific people in the genealogy are theologians, Zoroastrians, and Kabbalists
+				<ul>
+				    <li>64% of Fields Medalist have a lineage that contains Shams ad-Din Al-Bukhar</li>
+				    <li>64% of Fields Medalist have a lineage that contains Moses Perez</li>
+				</ul>
+
+
+				<u><a href = "http://islamsci.mcgill.ca/RASI/BEA/Shams_al-Din_al-Bukhari_BEA.htm">Shams ad-Din Al-Bukhari</a></u>, for instance was medieval astronomer from modern day Uzbekistan. A single Greek came to Bukharin to study astronmy under him in Central Asia. Had it not been for this voyage, the history of then this line would have never been brought into Western Europe, and modern thought may have been quite different.</p>
+
+				<p>For further explorations on this subject, the source code is available on (<u><a href = "https://github.com/bnlcas/FieldsMedalistGenealogyAnalysisy">github</a></u>).
+				</p>
+      </div>
+    </div>
+  </body>
+</html>

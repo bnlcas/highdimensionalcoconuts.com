@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supernova Petroglyph Panorama</title>
+    <link rel="stylesheet" href="./pannellum.css"/>
+    <script type="text/javascript" src="./pannellum.js"></script>
+    <style>
+    #panorama {
+        width: 900px;
+        height: 800px;
+    }
+    </style>
+</head>
+<body>
+
+<div id="panorama"></div>
+<script>
+var pano = pannellum.viewer('panorama', {
+    "type": "equirectangular",
+    "panorama": "./supernova_petroglyph.jpg",
+    "autoLoad": true,
+    "autoRotate": -2,
+    "pitch": 30.431561791524352,
+    "yaw": -25.620382887398868,
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+  background-color: #eee;
+  padding: 5px;
+}
+
+.interface {
+  float: left;
+  width: 30%;
+  height:100%;
+  background-color:#eee;
+  padding: 10px;
+}
+
+.output:right {
+  overflow: hidden;
+  background-color:#eee;
+  width: 65%;
+  heigh: 100%;
+  float: left;
+  padding: 10px;
+}
