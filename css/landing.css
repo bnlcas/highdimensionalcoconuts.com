@@ -4,8 +4,10 @@
     width: 100%;
     margin: 0px;
     padding: 0px;
-    font-family: Garamond, Times, serif;
+
+    font-family: 'Cormorant Garamond', Arial, Garamond, Times, serif;
     font-weight: lighter;
+    font-size: 24;
 
 }
 
