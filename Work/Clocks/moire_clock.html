@@ -1,0 +1,94 @@
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>Moire Fonts</title>
+        <script>
+            var canvas;
+            var ctx;
+            
+            var canvas_width;
+            var canvas_height;
+            var max_canvas_dim;
+            
+            var ring_spacing = 8;
+            
+            function SetupCanvas()
+            {
+                canvas = document.getElementById("mainCanvas");
+                ctx = canvas.getContext("2d");
+                
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+                
+                ctx.fillRect(0,0,canvas_width, canvas_height);
+                ctx.fillStyle = "rgba(255,255,255, 1.0)";
+                ctx.strokeStyle = "black";
+                requestAnimationFrame(UpdateMoire);
+            }
+        
+            function UpdateCanvas()
+            {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+            }
+
+            function UpdateMoire()
+            {
+                DrawClock();
+                requestAnimationFrame(UpdateMoire);
+            }
+
+            function DrawClock()
+            {
+                ctx.clearRect(0,0,canvas.width, canvas.height);
+                ctx.clear;
+                var d = new Date();
+                DrawBaseRings(ring_spacing);
+                
+                var seconds = d.getSeconds() + d.getMilliseconds() / 1000.0;
+                DrawCycleRings(ring_spacing, seconds / 60, 0.6, 1);
+                
+                var minutes = d.getMinutes() + seconds / 60;
+                DrawCycleRings(ring_spacing, minutes / 60, 0.4 ,2);
+                
+                var hours = d.getHours() % 12 + minutes / 60;
+                DrawCycleRings(ring_spacing, hours / 12, 0.2, 4);
+            }
+
+            function DrawBaseRings(spacing)
+            {
+                ctx.lineWidth = 1;
+                for(var r = spacing; r < 0.6 * max_canvas_dim; r += spacing)
+                {
+                    ctx.beginPath();
+                    ctx.arc(canvas_width/2, canvas_height/2, r, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+            }
+
+            function DrawCycleRings(spacing, cycle_fraction, cycle_extent, lineWidth)
+            {
+                ctx.lineWidth = lineWidth;
+                var offset_x = (canvas_width / 2) + 0.5 * spacing * Math.sin(cycle_fraction * 2 * Math.PI);
+                var offset_y = (canvas_height / 2) + 1.5 * spacing * Math.cos(cycle_fraction * 2 * Math.PI);
+                var start_angle = 1.5 * Math.PI;
+                var arc_angle = start_angle + cycle_fraction * 2 * Math.PI;
+                for(var r = spacing; r < (cycle_extent * max_canvas_dim); r += spacing)
+                {
+                    ctx.beginPath();
+                    ctx.arc(offset_x, offset_y, r, start_angle, arc_angle);
+                    ctx.stroke();
+                }
+            }
+        </script>
+    </head>
+    <body onload="SetupCanvas()" onresize="UpdateCanvas()">
+        <canvas id ="mainCanvas" height="1000" width="1000"></canvas>
+    </body>
+</html>

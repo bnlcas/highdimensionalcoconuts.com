@@ -18,19 +18,18 @@
 <body>
   <div class="main">
     <h1>Programming Fonts</h1>
-    <p><b>TL;DR</b><br>Computer programming requires a specialized form of reading. Programmers use a lot of different fonts for reading and writing code. In spite of this diversity, monospace kerning and lightly styled san-serif glyphs are almost universally prefered.</p>
+    <p><b>TL;DR</b><br>Computer programming requires a specialized form of reading. Programmers use a lot of different fonts for reading and writing code. In spite of this variety, monospace kerning and lightly styled san-serif typefaces are almost universally prefered.</p>
 
-    <p>In many ways typography is the soul of graphic design. A good font must find a balance between style and clarity given the constraints of display/printing technology.</p>
-
-    <p>I recently had an opportunity to think about how type is used in computer programming environments. When confronted with an open space of possibility, I usually find basic research to be a helpful starting point. The results are not shocking but, I think these are worth sharing nonetheless.</p>
+    <h2>Design Study:</h2>
+    <p>In many ways typography is the soul of graphic design. A good font must find a balance between style and clarity given the constraints of display/printing technology. I recently had an opportunity to think about how typography is used in computer programming environments. When confronted with an open ended problem, I usually find a basic survey to be a helpful starting point. The results of this research are not shocking but, I think they are mildly interesting worth sharing.</p>
 
     <h2>The Data</h2>
-    <p>The basic question of what fonts programmers use comes up every ~2 years on Hacker News [<a href="https://news.ycombinator.com/item?id=18271871">1</a>], [<a href="https://news.ycombinator.com/item?id=11651146">2</a>], [<a href="https://news.ycombinator.com/item?id=8218347">3</a>], [<a href="https://news.ycombinator.com/item?id=4511197">4</a>]. This offers a relatively rich dataset (n = 98), and it is relatively easy to collect and tabulate this data to get a sense of what sort of fonts people use when writing code. So what kind of typefaces do people use for reading and writing computer code?</p>
+    <p>The basic question of what fonts programmers use comes up every ~2 years on Hacker News [<a href="https://news.ycombinator.com/item?id=18271871">1</a>], [<a href="https://news.ycombinator.com/item?id=11651146">2</a>], [<a href="https://news.ycombinator.com/item?id=8218347">3</a>], [<a href="https://news.ycombinator.com/item?id=4511197">4</a>]. This offers a relatively rich dataset (n = 98) on people's actual practice. It is relatively easy to collect and <a href='https://github.com/bnlcas/highdimensionalcoconuts.com/blob/master/Work/FontResearch/Analysis/ProgrammingFonts.csv'>tabulate this data</a> to get a sense of what sort of fonts people use when writing code. Based on this <a href='https://github.com/bnlcas/highdimensionalcoconuts.com/tree/master/Work/FontResearch/Analysis'>analysis</a>, what kind of typefaces do people use for reading and writing computer code?</p>
     <center>
         <img width="400VW" src="./Analysis/font_preference_breakdown.jpg" alt="Chart of font preference"></img>
     </center>
-    <p>As you can see there is a lot of variety when it comes to font preferences - allowing people to choose their own font is clearly a good idea for an IDE. There is probably some self-selection bias in this data. However people who care enough to change the default settings are also generally a good group to listen to.</p>
-    <p>While there is a lot of variety in the total number of fonts people use, a deeper look suggests that the diversity is largely superficial.
+    <p>As you can see there is a lot of variety when it comes to font preferences - allowing people to choose their own font is clearly a good idea for an IDE. There is probably some self-selection bias in this data. Default fonts like SF Mono are probably under represented here, however people who care enough to change the default settings are also generally a good group to listen to.</p>
+    <p>Moreover, while there is a lot of variety in the total number of fonts people use, a deeper look suggests that this diversity is largely superficial.
     </p>
 
     <h2>Kerning</h2>
@@ -44,18 +43,18 @@
     <center>
         <img width="400VW" src="./Analysis/serif_preference.jpg" alt="Chart of serif preference"></img>
     </center>
-    <p>Similarly san-serif fonts are strongly prefered by 90% of respondents. This may have to do with the need to read very small letters. While serifs may have a slight advantage in reading speed, for very small glyphs, serifs can become blurry.
+    <p>Similarly san-serif fonts are strongly prefered by 90% of respondents. This may have to do with the need to read very small letters. While serifs may have a slight advantage in reading speed, serifs can become blurry for very small glyphs.
     </p>
 
-    <p>While there is a strong preference for san-serif fonts, this does not mean helvetica clones are always appropriate. Certain glyphs (i, j, m, n) are often used idiomatically in programming. A good programming font needs to provide some additional ornamentation on these characters.
+    <p>Additionally, while there is a strong preference for san-serif fonts, this does not mean helvetica clones are always appropriate. Certain glyphs (i, j, m, n) are often used idiomatically in programming contexts.
     </p>
     <center>
         <img width="400VW" src="./Analysis/serifed_i_preference.jpg" alt="Chart of serif preference for letter i"></img>
     </center>
-    <p>92% of the respondents used a font which had serifs on the lower case 'i'.</p>
+    <p>92% of the respondents used a font which had serifs on the lower case 'i'. The implication here is that a good programming font needs to provide additional styling on these characters.</p>
 
     <h2>Conclusions</h2>
-    <p>Computer programming requires a lot of reading (sometimes >8 hours a day). While traditional prose writing is concerned with large tracts of text, computer code focuses more on punctuation and formatting. A single character can change the meaning of a line of code, and indentation reveals logical structure. Looking at the preferences of computer programmers, a good font should:
+    <p>Computer programming requires a lot of reading (sometimes >8 hours a day). While traditional prose writing is concerned with large tracts of text, computer code focuses more on punctuation and formatting. A single character can change the meaning of a line of code, and indentation reveals logical structure. Looking at the preferences of computer programmers, a good programming font should:
       <ul>
         <li>Have monospaced letters</li>
         <li>Have clean letters that are readable when small</li>
@@ -67,5 +66,6 @@
       <center>
           <img width="400VW" src="./Images/inconsolata_example.png" alt="example of inconsolata"></img>
   </div>
+  <p>Data and scripts can be found <a href="https://github.com/bnlcas/highdimensionalcoconuts.com/tree/master/Work/FontResearch/Analysis">here</a>.
 </body>
 </html>
