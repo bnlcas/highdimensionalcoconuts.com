@@ -15,7 +15,7 @@ var cones = [];
 for(var i = 0; i < 4; i ++)
 {
   var geometry = new THREE.ConeGeometry(cone_radius, cone_height, 50, 10);
-  var texture = new THREE.TextureLoader().load('../Textures/Tetracono.png');
+  var texture = new THREE.TextureLoader().load('./Textures/Tetracono.png');
   var material = new THREE.MeshLambertMaterial( { map: texture } );
   var cone = new THREE.Mesh( geometry, material );
   cones.push(cone);
