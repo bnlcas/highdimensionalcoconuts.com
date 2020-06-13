@@ -114,3 +114,17 @@ function UpdateTexture(texture_file)
     cone => (cone.material.map = new THREE.TextureLoader().load(texture_file))
   );
 }
+
+function UploadFile() {
+  console.log('upload');
+  const file = document.querySelector('input[type=file]').files[0];
+  const reader = new FileReader();
+
+  reader.addEventListener("load", function () {
+    UpdateTexture(reader.result);
+  }, false);
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
