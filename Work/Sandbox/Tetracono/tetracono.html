@@ -2,13 +2,22 @@
   <head>
     <meta charset="utf-8">
     <title>Tetracono</title>
-    <style>
-      body {margin: 0;}
-      canvas {width:100%; heigh:100%}
-    </style>
+    <link rel="stylesheet" href='./css/style.css'>
   </head>
   <body>
       <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
       <script src = "./js/tetracono.js"></script>
+      <div class="options">
+        <label for="speed">Cycle Period:</label>
+          <select name="speed" id="rotation_period" onChange="UpdateRotationRate(this.options[this.selectedIndex].value)">
+            <option value=1>18 Minutes</option>
+            <option value=10 selected>108 Seconds</option>
+            <option value=100>10.8 Seconds</option>
+          </select>
+
+        <p>Select Texture:</p>
+        <img src = "./Textures/Tetracono.png" onclick="UpdateTexture('../Textures/Tetracono.png')"></img>
+        <img src = "./Textures/Tetracono_alt.png" onclick="UpdateTexture('../Textures/Tetracono_alt.png')"></img>
+      </div>
   </body>
 </html>
