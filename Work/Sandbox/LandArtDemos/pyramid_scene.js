@@ -59,7 +59,7 @@ function init() {
 
    //Pyramid:
    const pyramid_geometry = new THREE.ConeGeometry( 60 , 60, 4 );
-   var concreteTexture = new THREE.TextureLoader().load( 'Assets/concrete_texture2.jpg' );
+   var concreteTexture = new THREE.TextureLoader().load( 'Assets/concrete_texture.jpg' );
    concreteTexture.wrapS = concreteTexture.wrapT = THREE.RepeatWrapping;
    concreteTexture.repeat.set( 2, 2 );
    concreteTexture.anisotropy = 16;
