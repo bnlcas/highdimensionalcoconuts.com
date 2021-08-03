@@ -1,3 +1,16 @@
+var isFullScreen = false;
+function toggleFullScreen()
+{
+  var elem = document.getElementsByTagName("canvas")[0];
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(15, window.innerWidth/window.innerHeight, 0.1,100);
 
@@ -23,7 +36,7 @@ scene.add(orb);
 //Lighting:
 var sun_color = 0xfafae3;//0xf2f2c2;
 
-var light_distance = 25;
+var light_distance = 50;
 var sun = new THREE.DirectionalLight(sun_color, 1.5);
 sun.position.set(0 ,0,light_distance);
 scene.add(sun);
