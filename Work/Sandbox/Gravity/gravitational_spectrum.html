@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>Gravitational Spectra</title>
+        <script>
+            var canvas;
+            var ctx;
+            
+            var canvas_width;
+            var canvas_height;
+            var max_canvas_dim;
+                        
+            function SetupCanvas()
+            {
+                canvas = document.getElementById("mainCanvas");
+                ctx = canvas.getContext("2d");
+                
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+                
+                ctx.fillRect(0,0,canvas_width, canvas_height);
+                ctx.fillStyle = "rgba(0,0,0, 1.0)";
+                ctx.strokeStyle = "white";
+
+                for(var i = 0; i < (2 + 12*Math.random()); i++)
+                {
+                    DrawParabola();
+                }
+                //requestAnimationFrame(UpdateMoire);
+            }
+        
+            function ResizeCanvas()
+            {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+            }
+
+            function DrawParabola()
+            {     
+                var start_y = canvas_height;
+                var start_x = 0.1 * canvas_width;
+                var range = 0.8* canvas_width;
+                var height = 0.8 * canvas_height;
+                var g = +0.2;
+
+                var v_y = -Math.sqrt(2*height * g) * (0.95+ 0.05*Math.random());
+                var v_x = range * g/ (-v_y * 2) * (0.95+0.05*Math.random());
+
+
+                ctx.lineWidth = 1;
+                //                
+                var t_end = -2* v_y/g + 2;
+                ctx.beginPath(start_x, start_y);
+                for(var t = 0; t < t_end; t++)
+                {
+                    ctx.lineTo(start_x + v_x * t, start_y + v_y * t + 0.5*g*Math.pow(t,2));
+                }
+                ctx.stroke();
+            }
+
+
+        </script>
+    </head>
+    <body style="background-color:black;" onload="SetupCanvas()" onresize="ResizeCanvas()">
+        <canvas id ="mainCanvas" height="1000" width="1000"></canvas>
+    </body>
+</html>

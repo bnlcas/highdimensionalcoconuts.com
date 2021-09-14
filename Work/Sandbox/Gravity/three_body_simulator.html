@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>ThreeBodySimulation</title>
+        <script>
+            var canvas;
+            var ctx;
+            
+            var canvas_width;
+            var canvas_height;
+            var max_canvas_dim;
+            
+            var pos1 = [100,100];
+            var v1 = [RandomZeroed(), RandomZeroed()];
+
+            var pos2 = [500,500];
+            var v2 = [RandomZeroed(), RandomZeroed()];
+
+            var pos3 = [800, 100]
+            var v3 = [RandomZeroed(), RandomZeroed()];
+
+            var M1 = 10;
+            var M2 = 10;
+            var M3 = 10;
+            var G = 10;
+
+            var t = 0;
+
+            function SetupCanvas()
+            {
+                canvas = document.getElementById("mainCanvas");
+                ctx = canvas.getContext("2d");
+                
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+                
+                ctx.fillRect(0,0,canvas_width, canvas_height);
+                ctx.fillStyle = "rgba(0,0,0, 1.0)";
+                ctx.strokeStyle = "white";
+
+                requestAnimationFrame(RunSimulation);
+                //RunSimulation();
+            }
+        
+            function ResizeCanvas()
+            {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas_width = window.innerWidth;
+                canvas_height = window.innerHeight;
+                max_canvas_dim = Math.max(canvas_width,canvas_height)
+            }
+
+            function RandomZeroed()
+            {
+                return Math.random() - 0.5;
+            }
+
+            function DistanceSquared(x1, x2)
+            {
+                return Math.pow(x1[0] - x2[0],2) + Math.pow(x1[1] - x2[1],2);
+            }
+
+            function Cosine(x1, x2)
+            {
+                return (x2[0] - x1[0])/ Math.sqrt(DistanceSquared(x1,x2));
+            }
+
+            function Sine(x1, x2)
+            {
+                return (x2[1] - x1[1])/ Math.sqrt(DistanceSquared(x1,x2));
+            }
+
+            function UpdateVelocities(dt)
+            {
+                var f12 = G * M1 * M2 / DistanceSquared(pos1, pos2);
+                var f13 = G * M1 * M3 / DistanceSquared(pos1, pos3);
+                var f23 = G * M2 * M3 / DistanceSquared(pos2, pos3);
+                
+                v1[0] = v1[0] + f12 * Cosine(pos1, pos2) + f13 * Cosine(pos1, pos3);
+                v1[1] = v1[1] + f12 * Sine(pos1, pos2) + f13 * Sine(pos1, pos3);
+
+                v2[0] = v2[0] + f12 * Cosine(pos2, pos1) + f23 * Cosine(pos2, pos3);
+                v2[1] = v2[1] + f12 * Sine(pos2, pos1) + f23 * Sine(pos2, pos3);
+
+                v3[0] = v3[0] + f13 * Cosine(pos3, pos1) + f23 * Cosine(pos3, pos2);
+                v3[1] = v3[1] + f13 * Sine(pos3, pos1) + f23 * Sine(pos3, pos2);
+            }
+
+            function AddVelocity(x,v)
+            {
+                return [x[0] + v[0], x[1] + v[1]];
+            }
+
+            function RunSimulation()
+            {
+                ctx.lineWidth = 1;
+
+                t += 1;
+                if(t < 10000)
+                {
+                    UpdateVelocities(1);
+
+                    ctx.beginPath(pos1[0], pos1[1]);
+                    ctx.moveTo(pos1[0], pos1[1]);
+                    pos1 = AddVelocity(pos1, v1);
+                    ctx.lineTo(pos1[0], pos1[1]);
+                    ctx.stroke();
+
+                    ctx.beginPath(pos2[0], pos2[1]);
+                    ctx.moveTo(pos2[0], pos2[1]);
+                    pos2 = AddVelocity(pos2, v2);
+                    ctx.lineTo(pos2[0], pos2[1]);
+                    ctx.stroke();
+
+                    ctx.beginPath(pos3[0], pos3[1]);
+                    ctx.moveTo(pos3[0], pos3[1]);
+                    pos3 = AddVelocity(pos3, v3);
+                    ctx.lineTo(pos3[0], pos3[1]);
+                    ctx.stroke();
+                    requestAnimationFrame(RunSimulation);
+                }
+                //console.log(pos1)
+            }
+
+
+
+        </script>
+    </head>
+    <body style="background-color:black;" onload="SetupCanvas()" onresize="ResizeCanvas()">
+        <canvas id ="mainCanvas" height="1000" width="1000"></canvas>
+    </body>
+</html>
