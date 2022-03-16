@@ -1,0 +1,20 @@
+body
+{
+    font-family: 'Cormorant Garamond', Garamond, Times, serif;
+    font-weight: lighter;
+    font-size: 20;
+    text-align: center;
+    justify-content: center;
+    background-color: #fef6df;
+}
+
+h1
+{
+    font-size: 30
+}
+
+a
+{
+  color: blue;
+  font-weight: bold;
+}
