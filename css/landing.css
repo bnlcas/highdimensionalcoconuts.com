@@ -4,23 +4,28 @@
     width: 100%;
     margin: 0px;
     padding: 0px;
-
     font-family: 'Cormorant Garamond', Arial, Garamond, Times, serif;
     font-weight: lighter;
     font-size: 24;
-
 }
 
-.main::before {
-      content: "";
-      background-image: url('../Assets/X-rayHand.jpg');
-      background-size: cover;
-      position: fixed;
-      top: 0px;
-      right: 0px;
-      bottom: 0px;
-      left: 0px;
-      opacity: 0.8;
+.bg {
+  background-size: cover;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  width:100%;
+  height:100%;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.bgcanvas
+{
+  margin: 0px;
+  padding: 0px;
 }
 
 .content
@@ -31,6 +36,11 @@
   position: relative;
   z-index: 1;
   color: white;
+}
+
+body
+{
+  background-color: black;
 }
 
 a
