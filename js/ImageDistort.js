@@ -23,6 +23,9 @@ class Application {
 		this._renderer = new Renderer();
 		this._map = new Texture(this._gl);
 		this._mesh = this.createMesh(this._map);
+        this.currentContrast = 0.0;
+        this.currentExposure = 0.0;
+        this.isOscillating = true;
 	}
 	
 	get canvas() {
@@ -77,6 +80,14 @@ class Application {
 		});
 	}
 	
+    oscillateLighting()
+    {
+        var exposureVal = this.currentExposure + 0.08 * Math.sin(Date.now()/500);
+        var contrastVal = this.currentContrast + 0.08 * Math.cos(Date.now()/500);
+        this.setContrast(contrastVal)
+        this.setExposure(exposureVal)
+    }
+
 	setContrast(contrast) {
 		const c = 1 + contrast;
 		const o = 0.5 * (1 - c);
@@ -105,8 +116,6 @@ class Application {
 		this._map.image = image;
 		this._map.needsUpdate = true;
 		
-		//this.setSize(1000,1000);
-            //image.naturalWidth, image.naturalHeight);
 		this.render();
 	}
 
@@ -138,18 +147,50 @@ class Application {
     app.canvas.style.position = "fixed";
     app.canvas.style.color = "black";
     var frameSize = Math.min(window.innerWidth, window.innerHeight);
-    console.log(frameSize);
+    //console.log(frameSize);
     app.setSize(frameSize,frameSize);
             //image.naturalWidth, image.naturalHeight);
 
     window.addEventListener('mousemove', (event) => {
+    app.isOscillating = false;
     var x = event.clientX;
     var y = event.clientY;
 
-    var brightnessVal = x/1000;
+    var exposureVal = x/1000;
     var contrastVal = y/1000;
-    app.setExposure(brightnessVal);
+    app.setExposure(exposureVal);
     app.setContrast(contrastVal);
-});
+    });
 
+    window.addEventListener('touchmove', (event)=> {
+        app.isOscillating = false;
+        var x = event.touches[0].clientX;
+        var y = event.touches[0].clientY;
+    
+        var exposureVal = x/1000;
+        var contrastVal = y/1000;
+        app.setExposure(exposureVal);
+        app.setContrast(contrastVal);
+    });
+
+
+    window.addEventListener('load', (event)=> {    
+        var exposureVal = 0.1;
+        var contrastVal = 0.1;
+        app.currentExposure = exposureVal;
+        app.currentContrast = contrastVal;
+        app.setExposure(exposureVal);
+        app.setContrast(contrastVal);
+    });
+
+    function PulseLighting()
+    {
+        if(app.isOscillating)
+        {
+            app.oscillateLighting();
+            window.requestAnimationFrame(PulseLighting);
+        }
+    }
+
+    window.requestAnimationFrame(PulseLighting);
 })();
