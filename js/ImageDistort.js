@@ -1,10 +1,8 @@
-import {
-	Plane,
-	Program,
-	Mesh,
-	Renderer,
-	Texture,
-} from 'https://unpkg.com/ogl@0.0.49/src/index.mjs';
+import { Plane } from './WebGLAssets/Plane.js';
+import { Program } from './WebGLAssets/Program.js';
+import { Mesh } from  './WebGLAssets/Mesh.js';
+import { Renderer } from  './WebGLAssets/Renderer.js';
+import { Texture } from  './WebGLAssets/Texture.js';
 
 class ImageLoader {
 	static loadFromUrl(src) {
@@ -147,9 +145,7 @@ class Application {
     app.canvas.style.position = "fixed";
     app.canvas.style.color = "black";
     var frameSize = Math.min(window.innerWidth, window.innerHeight);
-    //console.log(frameSize);
     app.setSize(frameSize,frameSize);
-            //image.naturalWidth, image.naturalHeight);
 
     window.addEventListener('mousemove', (event) => {
     app.isOscillating = false;
