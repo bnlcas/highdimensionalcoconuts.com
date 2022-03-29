@@ -1,4 +1,4 @@
-import * as QuatFunc from './functions/QuatFunc.js';
+import * as QuatFunc from './QuatFunc.js';
 
 export class Quat extends Array {
     constructor(x = 0, y = 0, z = 0, w = 1) {
