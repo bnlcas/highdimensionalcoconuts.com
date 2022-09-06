@@ -1,0 +1,64 @@
+body
+{
+  background-color: black;
+}
+.main {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Cormorant Garamond', Garamond, Times, serif;
+    font-weight: lighter;
+    font-size: 20;
+
+}
+
+.main::before {
+      content: "";
+      background-size: cover;
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      opacity: 0.1;
+      background-color: black;
+}
+
+.content
+{
+  padding-top: 2px;
+  padding-left: 25px;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+.intro
+{
+    width: 80%;
+}
+
+a
+{
+  color:white;
+  font-weight: bold;
+}
+
+p
+{
+  color:white;
+  font-weight: lighter;
+}
+
+ul
+{
+  list-style-type:circle;
+  line-height: 1.2;
+}
+
+li{
+  margin: 1.1em 0;
+}
