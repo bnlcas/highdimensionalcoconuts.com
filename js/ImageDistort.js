@@ -80,8 +80,8 @@ class Application {
 	
     oscillateLighting()
     {
-        var exposureVal = this.currentExposure + 0.08 * Math.sin(Date.now()/500);
-        var contrastVal = this.currentContrast + 0.08 * Math.cos(Date.now()/500);
+        var exposureVal = this.currentExposure + 0.6 * Math.pow(Math.sin(Date.now()/800), 2);
+        var contrastVal = this.currentContrast //+ 0.4 * Math.pow(Math.sin(Date.now()/600), 2);
         this.setContrast(contrastVal)
         this.setExposure(exposureVal)
     }
