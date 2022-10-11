@@ -2,8 +2,32 @@ body, html {
     margin: 10px;
     padding: 10px;
     font-size: 18;
+    font-style: sans-serif;
+    background-color: #4F4F4F;
+    color: WhiteSmoke;
   }
 
+input {
+  background-color: #353535 ;
+  color: WhiteSmoke;
+  font-size: 18px;
+}
+
+.inputButton {
+  background-color: #353535 ;
+  color: WhiteSmoke;
+  font-size: 18px;
+  padding: 10px 10px;
+  border-radius: 8px;
+}
+
+
+.timing_controls {
+  color: WhiteSmoke;
+  font-style: sans-serif;
+
+  font-size: 22;
+}
 
 
 .video_preview
@@ -18,21 +42,26 @@ body, html {
   width: 50vh;
 }
 
-.timing_controls {
-  font-size: 18;
+#playback_speed
+{
+  font-size: 18px;
+  background-color: #353535 ;
+  color: WhiteSmoke;
 }
+
+#uploader
+{
+  background-color: #353535 ;
+  color: WhiteSmoke;
+}
+
+.br {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
 
 #ProcessingSpinner{
   position: absolute;
   width: 50px;
-}
-
-.file_upload
-{
-
-}
-
-.clip_processing
-{
-
 }
