@@ -1,0 +1,38 @@
+body, html {
+    margin: 10px;
+    padding: 10px;
+    font-size: 18;
+  }
+
+
+
+.video_preview
+{
+  height: 50vw;
+  width: 50vh;
+}
+
+#preview
+{
+  height: 50vw;
+  width: 50vh;
+}
+
+.timing_controls {
+  font-size: 18;
+}
+
+#ProcessingSpinner{
+  position: absolute;
+  width: 50px;
+}
+
+.file_upload
+{
+
+}
+
+.clip_processing
+{
+
+}

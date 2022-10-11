@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Timelab</title>
+    <link rel="stylesheet" href='./css/style.css'>
+  </head>
+  <body>
+    <div class="video_preview">
+      <video id="preview" controls="controls" src="./Assets/test_movie.mp4"></video> 
+    </div>
+    <div class="file_upload">
+      <input id="uploader" type="file" accept="video/*"><br>
+    </div>
+    <div class="timing_controls">
+      <label for="playback_speed">Playback Speed
+        <select name="playback_speed" id="playback_speed">
+          <option value=1>1x</option>
+          <option value=2>2x</option>
+          <option value=4>4x</option>
+          <option value=8>8x</option>
+        </select>
+      </label>
+
+      <br>
+      <label for="StartTime">
+        Start Time:
+        <input type="number" id="StartTime" value="0" step="0.1">
+      </label>
+      <label for="EndTime">
+        End Time: 
+        <input type="number" id="EndTime" value="-1" step="0.1">
+      </label>
+    </div>
+    <br>
+    <div class = "clip_processing">
+      <input type="button" id="PlayPreview" value="Play Preview">
+      <input type="button" id="ProcessClickButton" value="Process Clip">
+
+      <a id='download_link' class="button" href="./Assets/test_movie.mp4" download="test.mp4">
+        <input type="button" value="Download Clip">
+      </a>
+
+      <div class="ProgressFeedback" id="ProgressFeedbackDiv">
+        <label for="Progress">Progress:</label>
+        <progress id="ProgressSlider" value="0" max="1"
+        <svg id="ProcessingSpinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+          viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
+          <path fill="#000000" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
+            <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="2s" from="0 50 50" to="360 50 50" repeatCount="indefinite"/>
+          </path>
+        </svg>
+      </div>
+    </div>
+
+    <script src="./js/ffmpeg.min.js"></script>
+    <script src="./js/basic_editor.js"></script>
+  </body>
+</html>
