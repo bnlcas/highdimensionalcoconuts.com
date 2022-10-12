@@ -8,14 +8,15 @@
     font-weight: lighter;
     font-size: 24;
     font-display: swap;
+    background-color: black;
 }
 
 .bg {
   background-size: cover;
   position: fixed;
   background-position: bottom left;
-  bottom: 0px;
-  left: 0px;
+  bottom: 0;
+  left: 0;
   height:100%;
   width:100%;
   opacity: 0.9;
@@ -26,8 +27,8 @@
 {
   margin: 0px;
   padding: 0px;
-  top: 0px;
-  right: 0px;
+  bottom: 0px;
+  left: 0px;
 }
 
 .content

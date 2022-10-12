@@ -4,6 +4,7 @@
     <title>Portfolio</title>
     <link href="http://fonts.googleapis.com/css?family=Cormorant+Garamond" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href='./css/portfolio.css'>
+    <script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
   </head>
   <body>
     <div class="main">
@@ -18,6 +19,7 @@
         <ul>
           <li>Projects:</li>
             <ul>
+              <li>Video editing tools, <a href="https://github.com/bnlcas/QuickCutStudio">on Desktop</a> and in <a href="./Work/VideoEdit/index.html">the Browser.</a></li>
               <li><a href="./Work/NaturalScience/kelp.html">Underwater Filming (WIP)</a></li>
               <li><a href="./Work/Snap/lenses.html">Snapchat Lenses</a></li>
               <li><a href="./Work/GenerativeImages/GenerativeFruit/generative_fruit.html">Generative Fruit (WIP - study with StyleGAN)</a></li>
@@ -87,5 +89,9 @@
         <br><br><br>
       </div>
     </div>
+    <div class="bg" id="canvas-container">
+      <canvas id="glslCanvas" class="glslCanvas" data-fragment-url="./shaders/portfolio.frag" data-textures="/Assets/Orange_Edges.jpg"></canvas>
+    </div>
+        <script type="text/javascript" src="./js/portfolioGL.js"></script>
   </body>
 </html>

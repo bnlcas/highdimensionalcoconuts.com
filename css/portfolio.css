@@ -9,6 +9,32 @@
     font-size: 20;
 }
 
+.bg {
+  background-size: cover;
+  position: fixed;
+  background-position: top left;
+  bottom: 0;
+  left: 0;
+  height:100%;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.bgcanvas
+{
+  margin: 0px;
+  padding: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.glslCanvas
+{
+  background-size: cover;
+  z-index:-10;
+}
+
+
 .main::before {
       content: "";
       background-image: url('../Assets/Orange_Edges.jpg');
@@ -18,7 +44,7 @@
       right: 0px;
       bottom: 0px;
       left: 0px;
-      opacity: 0.9;
+      opacity: 0.1;
 }
 
 .content
