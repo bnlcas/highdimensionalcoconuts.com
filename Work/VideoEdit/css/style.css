@@ -42,11 +42,26 @@ input {
   width: 50vh;
 }
 
-#playback_speed
+.dropDown
 {
   font-size: 18px;
   background-color: #353535 ;
   color: WhiteSmoke;
+}
+
+/* icon buttons */
+.widgetBtn {
+  background-color: #353535; 
+  border: none; /* Remove borders */
+  color: WhiteSmoke;
+  padding: 12px 16px; /* Some padding */
+  font-size: 16px; /* Set a font size */
+  cursor: pointer; /* Mouse pointer on hover */
+}
+
+/* Darker background on mouse-over */
+.widgetBtn:hover {
+  background-color:#696969;
 }
 
 #uploader

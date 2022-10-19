@@ -3,6 +3,7 @@ var videoPreview = document.getElementById("preview")
 var startTime = 0.0;
 var endTime = -1;
 var videoFilename = "";
+var isCropped = false;
 
 const ClampTimeBounds = (x) =>
 {
@@ -36,11 +37,39 @@ const PlayPreview = () =>
     videoPreview.play();
 }
 
+const ToggleCropTool = () => 
+{
+    isCropped = !isCropped;
+    let cropIcon = document.getElementById("cropBtn");
+        cropIcon.style.backgroundColor = isCropped ? "#878787" : "#353535";
+}
+
 videoPreview.addEventListener("timeupdate", function(){
     if(this.currentTime >= GetEndTime()) {
         this.pause();
     }
 });
+
+const GetOutputSize = () => {
+    let aspect = document.getElementById("aspect_ratio").value;
+    if(aspect == "-1")
+    {
+        return [videoPreview.videoWidth, videoPreview.videoHeight];
+    }
+    else
+    {
+        let wh = aspect.split('x');
+        let w = parseInt(wh[0]);
+        let h = parseInt(wh[1]);
+        let width = parseInt(document.getElementById("out_width").value);
+        if(width=-1)
+        {
+            return [videoPreview.videoWidth, videoPreview.videoHeight];
+        }
+        let height = Math.round( width * h / w );
+        return [width, height];
+    }
+}
 
 var SetFileAddress = async ({target: { files } }) => {
     console.log("K");
@@ -62,8 +91,10 @@ const UpdateVideoSrc = (new_video_src) => {
 const CutVideo = async ({target: { files } }) => {
     ActivateLoadingFeedback(true);
     const { name } = videoFilename;//files[0];
-    await ffmpeg.load();
-    //ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
+    if(!ffmpeg.isLoaded())
+    {
+        await ffmpeg.load();
+    }
     ffmpeg.FS('writeFile', name, await fetchFile(videoFilename));
 
 
@@ -71,10 +102,11 @@ const CutVideo = async ({target: { files } }) => {
     const duration = (GetEndTime() - startTime);
     console.log(duration)
     const playbackspeed = document.getElementById("playback_speed").value
+    const out_wh = GetOutputSize();
 
-    //vidstabtransform=smoothing=30:zoom=5
-
-    var filterComplex = 'setpts=PTS/' + playbackspeed.toString() + ',fps=30';
+    var filterComplex = 'setpts=PTS/' + playbackspeed.toString();
+    filterComplex += ',fps=30';
+    filterComplex += ",scale=" + out_wh[0].toString() + ":" + out_wh[1].toString();
     console.log(filterComplex);
 
   //  '-filter:v', filterComplex,
@@ -136,3 +168,4 @@ document.getElementById('EndTime').addEventListener('change', UpdateEndTime);
 document.getElementById('uploader').addEventListener('change', SetFileAddress);// transcode);
 document.getElementById('ProcessClickButton').addEventListener('click', CutVideo);
 document.getElementById('PlayPreview').addEventListener('click', PlayPreview);
+document.getElementById('cropBtn').addEventListener('click', ToggleCropTool);

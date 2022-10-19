@@ -3,6 +3,7 @@
     <meta charset='utf-8'>
     <title>Timelab</title>
     <link rel="stylesheet" href='./css/style.css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <div class="video_preview">
@@ -17,12 +18,36 @@
     </div>
     <div class="timing_controls">
       <label for="playback_speed">Playback Speed: 
-        <select name="playback_speed" id="playback_speed">
+        <select name="playback_speed" id="playback_speed" class="dropDown">
           <option value=1>1x</option>
           <option value=2>2x</option>
           <option value=4>4x</option>
           <option value=8>8x</option>
         </select>
+      </label>
+      <label for="aspect_ratio">Aspect Ratio: 
+        <select name="aspect_ratio" id="aspect_ratio" class="dropDown">
+          <option value=-1>From Clip</option>
+          <option value=1x1>1x1</option>
+          <option value=9x16>9x16</option>
+          <option value=16x9>16x9</option>
+        </select>
+      </label>
+      <label for="out_width">Output Width: 
+        <select name="out_width" id="out_width" class="dropDown">
+          <option value=-1>From Clip</option>
+          <option value=720>720</option>
+          <option value=1080>1080</option>
+          <option value=1280>1280</option>
+          <option value=1440>1440</option>
+          <option value=1920>1920</option>
+          <option value=2560>2560</option>
+        </select>
+      </label>
+      <label for="cropBtn">  
+        <button class="widgetBtn" id="cropBtn">
+          <svg height="1.5em" viewBox="0 0 48 48" width="1.5em" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48h-48z" fill="none"/><path d="M34 30h4v-16c0-2.21-1.79-4-4-4h-16v4h16v16zm-20 4v-32h-4v8h-8v4h8v20c0 2.21 1.79 4 4 4h20v8h4v-8h8v-4h-32z"/></svg>
+        </button>
       </label>
       <span class="br"></span> 
       <label for="StartTime">
