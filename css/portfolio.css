@@ -31,7 +31,13 @@
 .glslCanvas
 {
   background-size: cover;
-  z-index:-10;
+  z-index:-1;
+}
+
+#backgroundCanvas
+{
+  background-size: cover;
+  z-index:-1;
 }
 
 

@@ -44,6 +44,7 @@ const EndCrop = () => {
 const UpdateCanvasSize = () => {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.uniform2f(resolution_loc, canvas.clientWidth, canvas.clientWidth);
 }
 
@@ -187,7 +188,6 @@ function InitializeTexture(gl, shaderProgram) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     gl.uniform1i(gl.getUniformLocation(shaderProgram, "u_texture"), 0);
-
   }
 
 function Render() {
