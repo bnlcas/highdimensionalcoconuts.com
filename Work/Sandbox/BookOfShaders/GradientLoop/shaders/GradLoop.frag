@@ -48,11 +48,11 @@ void main(){
 
     vec2 grad = Gradient(u_baseTex, st, kernelStepSize);
     //grad = grad/length(grad);
-    loopRad = 10.0 + u_mouse.y/100.0;
+    loopRad = 2.0 + u_mouse.y/500.0;
     //sampleSize =  12.0 + u_mouse.x/200.0;
-    float theta_offset = atan(grad.y, grad.x);
+    float theta_offset = PI + atan(grad.y, grad.x);
 
-    vec2 loopedSample = st + 1.0 * kernelStepSize * (grad + vec2(cos(2.0 * u_time + theta_offset), sin(2.0 * u_time + theta_offset)));
+    vec2 loopedSample = st + loopRad * kernelStepSize * (grad + vec2(cos(2.0 * u_time + theta_offset), sin(2.0 * u_time + theta_offset)));
     
     vec4 color = texture2D( u_baseTex, loopedSample);
     gl_FragColor = color;
