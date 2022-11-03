@@ -4,6 +4,59 @@ var startTime = 0.0;
 var endTime = -1;
 var videoFilename = "";
 var isCropped = false;
+var isCropClicked = false;
+
+var cropStartPoint;
+var cropEndPoint;
+var cropTop;
+var cropSpan;
+
+const GetCropMousePostion = (e) => {
+    let rect = videoPreview.getBoundingClientRect();
+    let mouseX = e.clientX;
+    let mouseY = e.clientY;
+    //console.log(mouseX, mouseY);
+    //let mouse_x = (mouseX - rect.left );// * canvas.realToCSSPixels;
+    //let mouse_y = (rect.height - (mouseY - rect.top));// * canvas.realToCSSPixels);
+    return [mouseX, mouseY]
+}
+
+const StartCrop = (event) => {
+    if(isCropped)
+    {
+        cropStartPoint = GetCropMousePostion(event);
+    }
+    isCropClicked = true;
+}
+
+const UpdateCrop = (event) => {
+    if(isCropped && isCropClicked)
+    {
+        cropEndPoint =  GetCropMousePostion(event);// [event.clientX, canvas.height - event.clientY];
+        const topX = Math.min(cropStartPoint[0], cropEndPoint[0]);
+        const topY = Math.min(cropStartPoint[1], cropEndPoint[1]);
+        const spanX = Math.abs(cropStartPoint[0] - cropEndPoint[0]);
+        const spanY = Math.abs(cropStartPoint[1] - cropEndPoint[1]);
+        cropTop = [topX, topY];
+        cropSpan = [spanX, spanY];
+        let box = document.getElementById("cropRect");
+        box.x.baseVal.value = topX;
+        box.y.baseVal.value = topY;
+        box.width.baseVal.value = spanX;
+        box.height.baseVal.value = spanY;
+
+        //SetCropBounds(true);
+
+    }
+    if(isCropClicked){
+        cropEndPoint =  GetCropMousePostion(event);// [event.clientX, canvas.height - event.clientY];
+    }
+
+}
+
+const EndCrop = () => {
+    isCropClicked = false;
+}
 
 const ClampTimeBounds = (x) =>
 {
@@ -144,19 +197,9 @@ ffmpeg.setProgress(({ ratio }) => {
     progressBar.value = ratio;
 });
   
-/*var slider = document.getElementById('IntervalSlider');
-noUiSlider.create(slider, {
-    start: [0, 100],
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 100
-    }
-});*/
-  
 videoPreview.ondurationchange = function()
 {
-    console.log('tmp')
+    console.log('duration changed')
     document.getElementById("EndTime").value = videoPreview.duration;
 }
 
@@ -169,3 +212,10 @@ document.getElementById('uploader').addEventListener('change', SetFileAddress);/
 document.getElementById('ProcessClickButton').addEventListener('click', CutVideo);
 document.getElementById('PlayPreview').addEventListener('click', PlayPreview);
 document.getElementById('cropBtn').addEventListener('click', ToggleCropTool);
+
+videoPreview.addEventListener("mousedown", StartCrop);
+videoPreview.addEventListener("touchdown", StartCrop);
+videoPreview.addEventListener("mousemove", UpdateCrop);
+videoPreview.addEventListener("touchmove", UpdateCrop);
+window.addEventListener('mouseup', EndCrop);
+window.addEventListener('touchup', EndCrop);

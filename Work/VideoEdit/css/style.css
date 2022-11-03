@@ -42,6 +42,18 @@ input {
   width: 50vh;
 }
 
+#cropFade
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  fill: none;
+  stroke:gold;
+  stroke-width:2;
+  opacity:1.0;
+  pointer-events: none;
+}
+
 .dropDown
 {
   font-size: 18px;
