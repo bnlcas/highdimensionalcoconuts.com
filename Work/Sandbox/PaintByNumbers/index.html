@@ -7,10 +7,21 @@
             canvas {width: 99%; height: 99%;}
         </style>
         <script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
-
     </head>
     <body>
         <canvas id="glslCanvas" class="glslCanvas" data-fragment-url="./shaders/segment_image.frag"></canvas>
+        <label for="brushColor">Brush Color</label>
+        <input id="brushColor" type="color">
+        
+        <label for="brushSize">Brush Size</label>
+        <input id="brushSize" type="range", min="0" max="10", step="0.1">
+        
+        <label for="thresholdLevel">Segmentation Threshold</label>
+        <input id="thresholdLevel" type="range", min="0" max="1", step="0.01">
+
+        <label for="showRegionPreview">Preview Regions</label><br>
+        <input type="checkbox" id="showRegionPreview">
+
         <script type="text/javascript" src="./js/paintbynumbers.js"></script>
     </body>
 </html>

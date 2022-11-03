@@ -16,5 +16,33 @@ function Update()
 
     window.requestAnimationFrame(Update);
 }
+
+
 window.requestAnimationFrame(Update);
 
+const SetBrushColor = () => {
+    //sandbox.setUniform("u_luminosityThreshold", );
+    //sandbox.setUniform("u_edgeThresh");
+}
+
+const SetBrushSize = () => {
+    let brushSize = parseFloat(document.getElementById('brushSize').value);
+    //sandbox.setUniform("u_brushSize");
+}
+
+const SetSegmentationThresholdLevel = () => {
+    let segmentationThreshold = parseFloat(document.getElementById('thresholdLevel').value);
+    console.log(segmentationThreshold);
+    sandbox.setUniform("u_luminosityThreshold", segmentationThreshold);
+}
+
+const TogglePreview = () => {
+    let showPreview = document.getElementById('showRegionPreview').checked;
+
+}
+
+
+document.getElementById('brushColor').addEventListener('change', SetBrushColor);
+document.getElementById('brushSize').addEventListener('change', SetBrushSize);
+document.getElementById('thresholdLevel').addEventListener('change', SetSegmentationThresholdLevel);
+document.getElementById('showRegionPreview').addEventListener('change', TogglePreview);
