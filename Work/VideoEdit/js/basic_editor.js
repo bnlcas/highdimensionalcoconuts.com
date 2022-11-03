@@ -1,9 +1,264 @@
-var videoPreview = document.getElementById("preview")
+const crop_vert_code = `
+attribute vec2 a_position;
+  void main() {
+    gl_Position = vec4(a_position, 0, 1);
+  }`;
+ 
+const crop_frag_code = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+
+uniform vec2 u_resolution;
+uniform vec2 u_boxTop;
+uniform vec2 u_boxSpan;
+
+uniform sampler2D u_texture;
+
+float InBox(in vec2 x, in vec2 top, in vec2 size)
+{
+    vec2 base = 1.0 - step(x, top);
+    vec2 span = step(x, top + size);
+    return base.x * base.y * span.x * span.y;
+}
+
+vec4 baseColor = vec4(1.0);
+vec4 shadeColor = vec4(0.6);
+
+void main()
+{
+    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+    vec2 st_yflip = st * vec2(1.0, -1.0) + vec2(0.0, 1.0);
+    vec2 boxTop_st = u_boxTop / u_resolution.xy;
+    vec2 boxSpan_st = u_boxSpan / u_resolution.xy;
+    float inBox = InBox(st, boxTop_st, boxSpan_st);
+    vec4 color = mix(baseColor, shadeColor,  clamp(inBox,0.0,1.0));
+    vec4 texColor = texture2D( u_texture, st_yflip);
+
+    gl_FragColor = (vec4(0.5) + texColor) * color;
+}`;
+
+
+
+var videoPreview;
 
 var startTime = 0.0;
 var endTime = -1;
 var videoFilename = "";
 var isCropped = false;
+
+
+var gl;
+var videoPreviewCanvas;
+var videoTexture;
+var buffer;
+var cropVertexShader;
+var cropFragShader;
+var cropShaderProgram;
+var copyVideo = true;
+
+var resolution_loc;
+var boxTop_loc;
+var boxSpan_loc;
+
+var isClicked = false;
+
+var startPoint;
+var endPoint;
+var top;
+var span;
+
+const GetMousePostion = (e) => {
+    let rect = videoPreviewCanvas.getBoundingClientRect();
+    let mouseX = e.clientX || e.pageX;
+    let mouseY = e.clientY || e.pageY;
+    let mouse_x = (mouseX - rect.left );// * canvas.realToCSSPixels;
+        let mouse_y = (videoPreviewCanvas.height - (mouseY - rect.top));// * canvas.realToCSSPixels);
+        return [mouse_x, mouse_y]
+}
+
+const StartCrop = (event) => {
+    isClicked = true;
+    videoPreviewCanvas.style.backgroundColor = "rgba(0, 0, 0, 1)"
+    startPoint = GetMousePostion(event);
+}
+
+const UpdateCrop = (event) => {
+    if(isClicked)
+    {
+        endPoint =  GetMousePostion(event);// [event.clientX, canvas.height - event.clientY];
+
+        const topX = Math.min(startPoint[0], endPoint[0]);
+        const topY = Math.min(startPoint[1], endPoint[1]);
+        const spanX = Math.abs(startPoint[0] - endPoint[0]);
+        const spanY = Math.abs(startPoint[1] - endPoint[1]);
+
+        //console.log(topX, topY, spanX, spanY);
+        
+        gl.uniform2f(boxSpan_loc, spanX, spanY);
+        gl.uniform2f(boxTop_loc, topX, topY);
+    }
+}
+
+const EndCrop = () => {
+    isClicked = false;
+}
+
+const UpdateCanvasSize = () => {
+    //videoPreviewCanvas.width  = window.innerWidth;
+    //videoPreviewCanvas.height = window.innerHeight;
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.uniform2f(resolution_loc, videoPreviewCanvas.clientWidth, videoPreviewCanvas.clientWidth);
+}
+
+function InitializePreview() {
+    SetupVideo("../Assets/test_movie.mp4");
+
+    videoPreview.addEventListener("timeupdate", function(){
+        if(this.currentTime >= GetEndTime()) {
+            this.pause();
+        }
+    });
+
+    videoPreview.ondurationchange = function()
+    {
+        console.log('duration changed')
+        document.getElementById("EndTime").value = videoPreview.duration;
+    }
+    videoPreviewCanvas = document.getElementById('previewCanvas');
+    gl = videoPreviewCanvas.getContext('webgl');
+    //videoPreviewCanvas.width = window.innerWidth;
+    //videoPreviewCanvas.height = window.innerHeight;
+
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+    buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+    gl.ARRAY_BUFFER,
+        new Float32Array([
+    -1.0, -1.0,
+     1.0, -1.0,
+    -1.0,  1.0,
+    -1.0,  1.0,
+     1.0, -1.0,
+     1.0,  1.0]),
+    gl.STATIC_DRAW
+    );
+
+
+    vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, crop_vert_code);
+    gl.compileShader(vertexShader);
+
+    fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragShader, crop_frag_code);
+    gl.compileShader(fragShader);
+
+    cropShaderProgram = gl.createProgram();
+    gl.attachShader(cropShaderProgram, vertexShader);
+    gl.attachShader(cropShaderProgram, fragShader);
+    gl.linkProgram(cropShaderProgram);	
+    gl.useProgram(cropShaderProgram);
+
+    resolution_loc = gl.getUniformLocation(cropShaderProgram, 'u_resolution');
+    boxTop_loc = gl.getUniformLocation(cropShaderProgram, 'u_boxTop');
+    boxSpan_loc = gl.getUniformLocation(cropShaderProgram, 'u_boxSpan');
+
+
+    videoPreviewCanvas.addEventListener("mousedown", StartCrop);
+    videoPreviewCanvas.addEventListener("touchdown", StartCrop);
+    
+    videoPreviewCanvas.addEventListener("mousemove", UpdateCrop);
+    videoPreviewCanvas.addEventListener("touchmove", UpdateCrop);
+    
+    window.addEventListener('mouseup', EndCrop);
+    window.addEventListener('touchup', EndCrop);
+
+    window.addEventListener('resize', UpdateCanvasSize);
+
+    gl.uniform2f(resolution_loc, videoPreviewCanvas.clientWidth, videoPreviewCanvas.clientWidth);
+    InitializeTexture(gl, cropShaderProgram);
+    Render();
+}
+
+
+function InitializeTexture(gl, shaderProgram) {
+    videoTexture = gl.createTexture();
+    let image = new Image();
+    videoPreview.onload = function() { HandleTextureLoaded(gl, cropShaderProgram, image, videoTexture); }
+    //image.src = "../Assets/VideoCameraIcon.png"
+  }
+  
+  function HandleTextureLoaded(gl, shaderProgram, image, texture) {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+    gl.generateMipmap(gl.TEXTURE_2D);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    gl.uniform1i(gl.getUniformLocation(shaderProgram, "u_texture"), 0);
+  }
+  
+  function SetupVideo(url) {
+    videoPreview = document.createElement("video");// document.getElementById("previewVideo");
+    videoPreview.src = url;
+    let playing = false;
+    let timeupdate = false;
+  
+  
+    videoPreview.addEventListener('playing', () => {
+       playing = true;
+       checkReady();
+    }, true);
+  
+    videoPreview.addEventListener('timeupdate', () => {
+       timeupdate = true;
+       checkReady();
+    }, true);
+  
+    
+    //videoPreview.play();
+  
+    function checkReady() {
+      if (playing && timeupdate) {
+        copyVideo = true;
+      }
+    }
+}
+
+  function UpdateTexture(gl, texture, video) {
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  srcFormat, srcType, video);
+    gl.uniform1i(gl.getUniformLocation(cropShaderProgram, "u_texture"), 0);
+  }
+
+function Render() {
+
+    if (copyVideo) {
+        UpdateTexture(gl, videoTexture, videoPreview);
+    }
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    positionLocation = gl.getAttribLocation(cropShaderProgram, "a_position");
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    window.requestAnimationFrame(Render, videoPreviewCanvas);
+}
 
 const ClampTimeBounds = (x) =>
 {
@@ -44,11 +299,6 @@ const ToggleCropTool = () =>
         cropIcon.style.backgroundColor = isCropped ? "#878787" : "#353535";
 }
 
-videoPreview.addEventListener("timeupdate", function(){
-    if(this.currentTime >= GetEndTime()) {
-        this.pause();
-    }
-});
 
 const GetOutputSize = () => {
     let aspect = document.getElementById("aspect_ratio").value;
@@ -154,11 +404,6 @@ noUiSlider.create(slider, {
     }
 });*/
   
-videoPreview.ondurationchange = function()
-{
-    console.log('tmp')
-    document.getElementById("EndTime").value = videoPreview.duration;
-}
 
 ActivateLoadingFeedback(false);
 document.addEventListener('load', UpdateEndTime);
@@ -169,3 +414,5 @@ document.getElementById('uploader').addEventListener('change', SetFileAddress);/
 document.getElementById('ProcessClickButton').addEventListener('click', CutVideo);
 document.getElementById('PlayPreview').addEventListener('click', PlayPreview);
 document.getElementById('cropBtn').addEventListener('click', ToggleCropTool);
+
+window.onload = InitializePreview;

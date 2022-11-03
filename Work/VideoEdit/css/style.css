@@ -36,8 +36,15 @@ input {
   width: 50vh;
 }
 
-#preview
+#previewVideo
 {
+  height: 50vw;
+  width: 50vh;
+}
+
+#previewCanvas
+{
+  position: fixed;
   height: 50vw;
   width: 50vh;
 }

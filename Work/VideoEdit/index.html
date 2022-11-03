@@ -3,11 +3,11 @@
     <meta charset='utf-8'>
     <title>Timelab</title>
     <link rel="stylesheet" href='./css/style.css'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <div class="video_preview">
-      <video id="preview" controls="controls" src="./Assets/test_movie.mp4"></video> 
+      <video id="previewVideo" controls="controls" src="./Assets/test_movie.mp4"></video> 
+      <canvas id="previewCanvas"></canvas>
       <span class="br"></span> 
     </div>
     <div class="file_upload">
@@ -80,7 +80,6 @@
         </svg>
       </div>
     </div>
-
     <script src="./js/ffmpeg.min.js"></script>
     <script src="./js/basic_editor.js"></script>
   </body>
