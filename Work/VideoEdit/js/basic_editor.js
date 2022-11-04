@@ -8,8 +8,6 @@ var isCropClicked = false;
 
 var cropStartPoint;
 var cropEndPoint;
-var cropTop;
-var cropSpan;
 
 const GetCropMousePostion = (e) => {
     let rect = videoPreview.getBoundingClientRect();
@@ -35,11 +33,26 @@ const UpdateCrop = (event) => {
         cropEndPoint =  GetCropMousePostion(event);// [event.clientX, canvas.height - event.clientY];
         const topX = Math.min(cropStartPoint[0], cropEndPoint[0]);
         const topY = Math.min(cropStartPoint[1], cropEndPoint[1]);
-        const spanX = Math.abs(cropStartPoint[0] - cropEndPoint[0]);
-        const spanY = Math.abs(cropStartPoint[1] - cropEndPoint[1]);
-        cropTop = [topX, topY];
-        cropSpan = [spanX, spanY];
+        let spanX = Math.abs(cropStartPoint[0] - cropEndPoint[0]);
+        let spanY = Math.abs(cropStartPoint[1] - cropEndPoint[1]);
+
         let box = document.getElementById("cropRect");
+        let aspect = document.getElementById("aspect_ratio").value;
+        if(aspect != "-1")
+        {
+            const aspect_wh = aspect.split('x');
+            const w = parseFloat(aspect_wh[0]);
+            const h = parseFloat(aspect_wh[1]);
+            if(w > h)
+            {
+                spanY = spanX * h / w;
+            }
+            else
+            {
+                spanX = spanY * w / h;
+            }
+        }
+
         box.x.baseVal.value = topX;
         box.y.baseVal.value = topY;
         box.width.baseVal.value = spanX;

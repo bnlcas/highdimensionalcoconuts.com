@@ -44,6 +44,8 @@ input {
 
 #cropFade
 {
+  height: 50vw;
+  width: 50vh;
   position: absolute;
   top: 0;
   left: 0;
