@@ -23,6 +23,8 @@ const StartCrop = (event) => {
     if(isCropped)
     {
         cropStartPoint = GetCropMousePostion(event);
+        videoPreview.pause();
+        videoPreview.controls = false;
     }
     isCropClicked = true;
 }
@@ -64,11 +66,15 @@ const UpdateCrop = (event) => {
     if(isCropClicked){
         cropEndPoint =  GetCropMousePostion(event);// [event.clientX, canvas.height - event.clientY];
     }
-
 }
 
 const EndCrop = () => {
     isCropClicked = false;
+    if(isCropped)
+    {
+        videoPreview.controls = true;
+        videoPreview.pause();
+    }
 }
 
 const ClampTimeBounds = (x) =>
@@ -128,10 +134,7 @@ const GetOutputSize = () => {
         let w = parseInt(wh[0]);
         let h = parseInt(wh[1]);
         let width = parseInt(document.getElementById("out_width").value);
-        if(width=-1)
-        {
-            return [videoPreview.videoWidth, videoPreview.videoHeight];
-        }
+
         let height = Math.round( width * h / w );
         return [width, height];
     }
@@ -172,7 +175,18 @@ const CutVideo = async ({target: { files } }) => {
 
     var filterComplex = 'setpts=PTS/' + playbackspeed.toString();
     filterComplex += ',fps=30';
-    filterComplex += ",scale=" + out_wh[0].toString() + ":" + out_wh[1].toString();
+    if(isCropped)
+    {
+        let box = document.getElementById("cropRect");
+        filterComplex += ',crop=' + box.width.baseVal.value.toString() + ':'
+        + box.height.baseVal.value.toString() + ':'
+        + box.x.baseVal.value.toString() + ':'
+        + box.y.baseVal.value.toString();
+    }
+    if(out_wh[0] > 0)
+    {
+        filterComplex += ",scale=" + out_wh[0].toString() + ":" + out_wh[1].toString();
+    }
     console.log(filterComplex);
 
   //  '-filter:v', filterComplex,
