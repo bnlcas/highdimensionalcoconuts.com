@@ -20,14 +20,46 @@
             top: 50%;
             right: 30%;
         }
-        
+
+        .explanation {
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          position: absolute;
+            top: 50%;
+            right: 30%;
+        }
+
+
         .button1 {background-color: red;} /* Green */
         </style>
     <button id="start_button" class="button button1" onclick="LoadSlap()">Slap Chris Rock</button>
-
     <audio id="nanananana" loop autoplay>
         <source src="./Assets/getting_jiggy_withit.mp3" type="audio/mpeg">
     </audio>
+    <video class="input_video" style="display:none"></video>
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1635986972/hands_solution_wasm_bin.js" crossorigin="anonymous"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+
+
     <script src="./slap.js"></script>
   </body>
 </html>
