@@ -112,6 +112,9 @@ const PlayPreview = () =>
 const ToggleCropTool = () => 
 {
     isCropped = !isCropped;
+
+    let cropFeedback = document.getElementById("cropFade");
+    cropFeedback.style.strokeWidth = isCropped ? 2 : 0;
     let cropIcon = document.getElementById("cropBtn");
         cropIcon.style.backgroundColor = isCropped ? "#878787" : "#353535";
 }
@@ -157,6 +160,18 @@ const UpdateVideoSrc = (new_video_src) => {
     document.getElementById("EndTime").value = videoPreview.duration;
 }
 
+videoPreview.onloadeddata = function() {
+    startTime = 0.0;
+    endTime = videoPreview.duration;
+    document.getElementById("StartTime").value = 0;
+    document.getElementById("EndTime").value = videoPreview.duration;
+    if(isCropped)
+    {
+        ToggleCropTool();
+    }
+    console.log('loaded')
+};
+
 const CutVideo = async ({target: { files } }) => {
     ActivateLoadingFeedback(true);
     const { name } = videoFilename;//files[0];
@@ -177,11 +192,17 @@ const CutVideo = async ({target: { files } }) => {
     filterComplex += ',fps=30';
     if(isCropped)
     {
+        let videoScale = Math.max(videoPreview.videoWidth / videoPreview.clientWidth, videoPreview.videoHeight/videoPreview.clientHeight);
         let box = document.getElementById("cropRect");
-        filterComplex += ',crop=' + box.width.baseVal.value.toString() + ':'
-        + box.height.baseVal.value.toString() + ':'
-        + box.x.baseVal.value.toString() + ':'
-        + box.y.baseVal.value.toString();
+        let cropWidth = parseInt(videoScale * box.width.baseVal.value).toString();
+            
+            //videoPreview.videoWidth * box.width.baseVal.value / videoPreview.clientWidth).toString();
+        let cropHeight = parseInt(videoScale * box.height.baseVal.value).toString();
+        let cropX = parseInt(videoScale * box.x.baseVal.value).toString();
+        let cropY = parseInt(videoScale * box.y.baseVal.value).toString();
+
+        box.width.baseVal.value
+        filterComplex += ',crop=' + cropWidth + ':' + cropHeight + ':' + cropX + ':' + cropY;
     }
     if(out_wh[0] > 0)
     {

@@ -38,8 +38,8 @@ input {
 
 #preview
 {
-  height: 50vw;
-  width: 50vh;
+  height: 100%;
+  width: 100%;
 }
 
 #cropFade
