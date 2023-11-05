@@ -52,6 +52,14 @@ const EndCrop = () => {
 const UpdateColor = (event) => {
     position = GetScaledMousePostion(event);
 
+    let fall_progression = position[0];
+
+    gl.uniform1f(green_progression_loc, Math.pow(fall_progression, 0.25));
+    gl.uniform1f(red_progression_loc, 1.0 - Math.pow(fall_progression, 4.0));
+    //gl.uniform1f(green_progression_loc, position[0]);
+    //gl.uniform1f(red_progression_loc, position[1]);
+
+    /*
     if(position[0] < 2/3){
         let green = position[0]*1.5;
         let yellow = Math.sqrt(position[0]*1.5);
@@ -67,7 +75,7 @@ const UpdateColor = (event) => {
     let r = Math.max(1.25*(1.0-position[1])-0.25, 0.0);
     //console.log(position[0], position[1]);
     console.log(r);
-    gl.uniform1f(effect_size_loc, r);
+    gl.uniform1f(effect_size_loc, r);*/
 }
 
 const UpdateCanvasSize = () => {
@@ -95,13 +103,12 @@ uniform vec2 u_resolution;
 uniform vec2 u_boxTop;
 uniform vec2 u_boxSpan;
 
-uniform float u_green_drain;
-uniform float u_yellow_bump;
+uniform float u_green_progression;
+uniform float u_red_progression;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_mask_texture;
 
-uniform float u_effect_radius;
 uniform float u_time;
 
 float random (in vec2 st) {
@@ -143,23 +150,46 @@ void main()
 
     vec4 texColor = texture2D( u_texture, st_yflip);
     vec4 maskColor = texture2D(u_mask_texture, st_yflip);
-
     vec4 background = texColor * (1.0 - maskColor);
 
-    vec4 yellow_bump = (0.5 * u_yellow_bump) * vec4(0.5, 0.5, 0.0, 1.0);
-    vec4 green_drain = vec4(1.0, clamp(1.5 - u_green_drain, 0.0, 1.0), clamp(1.3 - 0.6 * u_green_drain, 0.0, 1.0), 1.0);
 
-    vec2 scaled_displacement = vec2(20.3, 16.0) * (st_yflip - vec2(0.5, 0.75)) * (0.5 + noise(10.0*st));
-    float central_dist = clamp(u_effect_radius * dot(scaled_displacement, scaled_displacement) + 0.2, 0.0, 1.0);
-    //float mixRatio = noise(12.0*(u_time + st_yflip)) * clamp((1.0 - exp(-dot(scaled_displacement,scaled_displacement))), 0.0, 1.0);
+    vec2 scaled_displacement = vec2(3.6, 1.6) * (st_yflip - vec2(0.5, 0.75)) * (0.4 + 1.8 * noise(1.0 + 8.5*st));
     
-    float centrality = smoothstep(1.0, 0.0, central_dist);// clamp(exp(-dot(scaled_displacement,scaled_displacement)), 0.0, 1.0);
-    float mixRatio = centrality;
+    
+    float central_dist = dot(scaled_displacement, scaled_displacement);
+    float green_centrality = smoothstep(0.0, 1.0, clamp(2.0 * pow(u_green_progression,4.0) * (central_dist + 0.3), 0.0, 1.0));
 
-    green_drain = texColor * green_drain;
-]
-    vec4 fallColor = mix(texColor, (texColor * green_drain + yellow_bump), mixRatio);
-    gl_FragColor = background + maskColor * fallColor;
+    float green_color_progression = sqrt(u_green_progression);
+    vec4 green_drain = vec4(1.0 - 0.2 * green_color_progression, 1.0 - 0.3 * green_color_progression,  1.0 - 0.05*green_color_progression, 1.0);
+    vec4 yellow_bump = (0.5 * green_color_progression) * vec4(0.4, 0.5, 0.0, 1.0);
+
+    vec4 green_fall_color = texColor * vec4(1.2, 0.8, 0.0, 1.0) + vec4(0.05, -0.05,0.0, 1.0);// green_drain + yellow_bump;
+    //+ vec4(0.1, 0.1, 0.05, 1.0);// green_drain + yellow_bump;
+
+    //green_fall_color = vec4(0.4, 0.4, 0.1, 1.0);
+    
+    vec4 fall_leaf_color = mix(texColor, green_fall_color, green_centrality);
+
+    //RED
+
+    vec2 red_scaled_displacement = vec2(4, 0.8) * (st_yflip - vec2(0.5, 0.75)) * (0.3 + 1.8 * noise(12.0*st));
+    float red_central_dist = dot(red_scaled_displacement, red_scaled_displacement);
+    float red_centrality = smoothstep(0.0, 1.0, clamp(2.0 * u_red_progression * (red_central_dist + 0.4), 0.0, 1.0));
+
+    float red_color_progression = pow(u_red_progression,2.0);
+    vec4 red_amp = vec4(1.0 + 0.4 * red_color_progression, 1.0,  1.0 + 0.1 * red_color_progression, 1.0);
+    vec4 red_bump = vec4(0.2 * red_color_progression, 0.0,  0.01 * red_color_progression, 1.0);
+
+    vec4 red_fall_color = green_fall_color * vec4(1.15, 0.8, 0.84, 1.0) + vec4(0.05, -0.05, -0.03, 1.0);// green_drain + yellow_bump;
+
+    //vec4 red_fall_color = green_fall_color * red_amp + red_bump;
+    //red_fall_color = vec4(1.0, 0.0, 0.0, 1.0);
+
+
+    vec4 fall_leaf_color_r = mix(fall_leaf_color, red_fall_color, 1.0 - red_centrality);
+
+
+    gl_FragColor = background + maskColor * fall_leaf_color_r;
     
 }`;
 //float steps = floor()
@@ -175,9 +205,8 @@ var resolution_loc;
 var boxTop_loc;
 var boxSpan_loc;
 var time_loc;
-var green_drain_loc;
-var yellow_bump_loc;
-var effect_size_loc;
+var green_progression_loc;
+var red_progression_loc;
 
 var startTime;
 
@@ -226,9 +255,8 @@ function Init() {
     boxSpan_loc = gl.getUniformLocation(program, 'u_boxSpan');
     time_loc = gl.getUniformLocation(program, 'u_time');
 
-    green_drain_loc = gl.getUniformLocation(program, 'u_green_drain');
-    yellow_bump_loc = gl.getUniformLocation(program, 'u_yellow_bump');
-    effect_size_loc = gl.getUniformLocation(program,'u_effect_radius');
+    green_progression_loc = gl.getUniformLocation(program, 'u_green_progression');
+    red_progression_loc = gl.getUniformLocation(program, 'u_red_progression');
 
 
     canvas.addEventListener("mousedown", StartCrop);
