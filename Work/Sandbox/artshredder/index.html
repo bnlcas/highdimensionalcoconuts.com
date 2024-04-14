@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ArtShredder</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width">
+    <style type="text/css">
+      body {
+        -webkit-user-select: none;
+      }
+
+      .canvas-container {
+        height: 100% !important;
+        left: 0;
+        overflow: hidden;
+        position: absolute !important;
+        top: 0;
+        width: 100% !important;
+        z-index: -1;
+        -webkit-user-select: initial !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Art Shredder</h1>
+        <ul>
+          <li>🖼 Appreciate Art!</li>
+          <li>🎨 Deface Masterpieces!</li>
+          <li>🗑 Shred Vandalism!</li>
+        </ul>
+      </header>
+      <canvas id="fabric-brush-demo"></canvas>
+    </div>
+
+    <script src="./js/fabric.min.js"></script>
+    <script src="./js/fabric-brush.min.js"></script>
+    <script src="./js/shredder.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
+  </body>
+</html>
