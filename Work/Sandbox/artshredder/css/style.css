@@ -1,0 +1,17 @@
+.description{
+    position: fixed;
+    pointer-events: none;
+    width: 250px;
+    margin: 5px;
+    padding: 5px;
+}
+
+li{
+    pointer-events: none;
+    width: 250px;
+}
+
+h1{
+    pointer-events: none;
+    width: 250px;
+}
