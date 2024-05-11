@@ -144,6 +144,7 @@ class Application {
     app.canvas.style.height = "100%";
     app.canvas.style.position = "fixed";
     app.canvas.style.color = "black";
+	app.canvas.className = "bgcanvas";
     var frameSize = Math.min(window.innerWidth, window.innerHeight);
     app.setSize(frameSize,frameSize);
 

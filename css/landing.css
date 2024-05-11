@@ -25,6 +25,9 @@
 
 .bgcanvas
 {
+  background-position: bottom left;
+  height:100%;
+  width:100%;
   margin: 0px;
   padding: 0px;
   bottom: 0px;
