@@ -29,14 +29,23 @@
           </a>
         </div>
         <br>
+        <div id="About"></div>
+        <h1>What Does this Do?</h1>
+        <p>
+          Pyongyang Tomorrow makes a copy of a photo whose metadata is edited to read that the photo was taken in Pyongyang, North Korea, 100 meters below sea level one day in the future. This helps protect your privacy and thwart attempts to track your location based on your photos' metadata.
+          You can find <a href="https://github.com/bnlcas/PyongyangTomorrow">the source code on Github</a>. 
+          <br>
+          You could also just use <a href="https://exiftool.org">exiftool</a> on a desktop computer's terminal:
+        </p>
+        <br>
         <div class="command-line">
-            <p>Command Line Tool Version:</p>
+            <p>Command Line Version:</p>
             <p class="command-line-style">exiftool -GPSLatitude=39.0738-GPSLatitudeRef=N -GPSLongitude=125.8198 -GPSLongitudeRef=E -GPSAltitude=-100 -GPSAltitudeRef="Below Sea Level" -AllDates="$(date -v +1d '+%Y-%m-%d %H:%M:%S')" MY_PHOTO.jpg</p>
         </div>
         <div id="PrivacyPolicy"></div>
         <h1>Privacy Policy:</h1>
         <p>
-          We do not collect or store any data.
+          We do not collect or store any data. You can verify this in the <a href="https://github.com/bnlcas/PyongyangTomorrow/">Source Code</a>.
         </p>
         <br>
         <br>
