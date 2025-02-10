@@ -1,73 +1,125 @@
+/* --- Global Reset & Base Styles --- */
 html, body {
-    margin: 2px;
-    width: 100%;
-    height: 100%
-  }
-  body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* It’s important to include this in your HTML head:
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+*/
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Use a system font stack with your serif choice */
+  font-family: 'Cormorant Garamond', Garamond, "Times New Roman", Times, serif;
+  font-weight: 300;           /* lighter weight */
+  font-size: 18px;            /* specify units (px) */
+  line-height: 1.6;           /* increases readability */
+  background-color: #fafafa;  /* a light background to ease reading */
+  color: #333;
+}
+
+/* --- Main Container --- */
+.main {
+  position: relative;
+  width: 90%;
+  max-width: 900px;           /* limits width for readability on large screens */
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* --- Floating Columns --- */
+.column {
+  float: left;
+  width: 30%;
+  padding: 5px;
+}
+
+/* Clearfix for floated rows */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* --- Paragraph Styling --- */
+p {
+  max-width: 800px;  /* keeps line lengths comfortable */
+  margin: 1em 0;     /* adds vertical spacing between paragraphs */
+  padding: 0;
+}
+
+/* Adjust <br> spacing if needed */
+br {
+  line-height: 120%;
+}
+
+/* --- Flex Container --- */
+.flex-container {
+  padding: 0;
+  width: 80%;
+  max-width: 800px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;  /* adds space between flex items */
+}
+
+.flex-left {
+  width: 360px;
+}
+
+.flex-right {
+  width: 30vw;
+}
+
+/* --- Code Block Styling --- */
+.codeText {
+  font-family: monospace;
+  margin: 5px;
+  padding: 10px;
+  text-align: left;
+  background-color: rgba(0, 0, 0, 0.05);  /* lighter background */
+  border: 1px solid #ddd;                 /* subtle border */
+  border-radius: 4px;
+}
+
+/* --- Responsive Adjustments --- */
+
+/* For tablets and small desktops */
+@media (max-width: 768px) {
   .main {
-      position: relative;
-      height: 100vh;
-      width: 90%;
-      margin: 0px;
-      padding: 0px;
-      font-family: 'Cormorant Garamond', Garamond, Times, serif;
-      font-weight: lighter;
-      font-size: 18;
+    width: 95%;
+    padding: 15px;
   }
-
-  
+  p {
+    width: 100%;
+    font-size: 16px;
+  }
   .column {
-      float: left;
-      width: 30.0%;
-      padding: 5px;
-    }
-    
-    /* Clearfix (clear floats) */
-    .row::after {
-      content: "";
-      clear: both;
-      display: table;
-    }
-  
-  p
-  {
-      width: 80%;
-      padding: 0px;
-      margin: 0px;
+    width: 100%;
+    float: none;  /* stack columns vertically */
   }
-  
-  br
-  {
-    line-height: 120%;
-  }
-
-  
-  /* Flex Container*/
   .flex-container {
-    padding: 0px 0px 0;
-    width: 80%;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: start;
+    width: 95%;
+    flex-direction: column;  /* stack flex items */
   }
-  
-  .flex-left {
-    width: 360px;
+  .flex-left,
+  .flex-right {
+    width: 100%;
   }
-  .flex-right{
-    width: 30vw;
-  }
+}
 
-  .codeText {
-    font-family: monospace;
-    margin: 5px;
-    padding: 5px;
-    text-align: left;
-    background-color: rgba(0.2,0.2,0.2,0.2);
+/* For mobile devices */
+@media (max-width: 480px) {
+  body {
+    font-size: 16px;
   }
-  
+  .main {
+    padding: 10px;
+  }
+}

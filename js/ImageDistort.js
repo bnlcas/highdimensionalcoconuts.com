@@ -24,6 +24,7 @@ class Application {
         this.currentContrast = 0.0;
         this.currentExposure = 0.0;
         this.isOscillating = true;
+		this.startTime = Date.now()
 	}
 	
 	get canvas() {
@@ -80,8 +81,9 @@ class Application {
 	
     oscillateLighting()
     {
-        var exposureVal = this.currentExposure + 0.6 * Math.pow(Math.sin(Date.now()/800), 2);
-        var contrastVal = this.currentContrast //+ 0.4 * Math.pow(Math.sin(Date.now()/600), 2);
+		let elapsedTime = Date.now() - this.startTime;
+        var exposureVal = this.currentExposure + 1.8 * Math.pow(Math.sin(elapsedTime/800), 2) * Math.exp(-elapsedTime/2400);
+        var contrastVal = this.currentContrast;// + 0.3 * Math.pow(Math.cos(Date.now()/600), 2);
         this.setContrast(contrastVal)
         this.setExposure(exposureVal)
     }
