@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <meta charset = 'utf-8'>
+        <title>Music Box</title>
+        <link rel="icon" type="image/x-icon" href="../../Assets/favicon.ico">
+        <link rel="stylesheet" href='../../css/memo.css'>
+    </head>
+    <body background-color="#f2f2f2">
+        <div class="main">
+            <h1>A Modern Music Box</h1>
+            <p>
+            There was <a href="https://news.ycombinator.com/item?id=37033652">a post on Hacker News</a> about the coolest thing you have ever made.</p>
+            <p>There are a number of things that I have made that I am proud of but one of the best was a music box that I made as a gift for my then girlfriend (we are now engaged) the first Chirstmas we spent together.</p>
+            <p>Music boxes are nothing new, but the metal and wood variety is generally pretty limited in what it can play</p>
+            <p>My girlfriend has a tatoo of the pulsars on the <a href="https://en.wikipedia.org/wiki/Voyager_Golden_Record">Voyager Golden Record</a>. If you are not familiar, the Voyager Space probe was equipped with a Golden Record which contains greetings from each of the member states of the UN, sounds of animals, nature, humans and music from a number of different cultures. There is something very hopeful in sending this cosmic message in a bottle out into space and the sound track does a great job representing the best things about us</p>
+            <img width="400VW" src="./assets/box_opened.jpg" alt="Image of the Opened Music Box"></img>
+            <p>Naturally I thought this would be a great gift. Initially, I had the idea that I might use some embedded procesor, and a switch and a speaker and so on. In the process I found that audio greeting cards are a thing that can be purchased for less than $10 can come with a battery a speaker, a solar sensor to detect opening, computer to connect all this and a tiny bit of memory to store a playlist</p>
+            <p>I bought one of these as well as a wooden box to store it in. I sanded, stained and varnished the wooden box to restore its finish. Since the music player attaches to a card, I decided to add a personal touch by including using a water color of the spectrogram of an EEG recordings from Ann Druyan thinking about falling in love with Carl Sagan. This is one of the stranger pieces of the voyage record (having worked with EEG data before I doubt aliens would be able to make sense of this one), but it fits nicely with the theme.</p>
+            <p>Finally. The memory of the music player on the greeting card was a too small to fit the whole voyager record. I used ffmpeg to shrink things down by converting to mono and reducing the bitdepth:
+                </p>
+            <p class="codeText">ffmpeg -i in.mp3 -ac 1 -b:a 96k -map a out.mp3</p>
+            <p>Convert to mono, </p>
+            <p>The project came together in time for Christmas, and the results were great. Unfortunately my girlfriend got with with the Omicron Covid Surge, so Christmas was cancelled. This musicbox took on a different meaning as the sound track for a quarantine, but that is a different story.</p>
+        </div>
+    </body>
+</html>
