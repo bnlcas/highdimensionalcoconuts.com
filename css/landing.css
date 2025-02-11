@@ -6,9 +6,10 @@
     padding: 0px;
     font-family: 'Cormorant Garamond', Garamond, Times, serif;
     font-weight: lighter;
-    font-size: 24;
+    font-size: 24px;
     font-display: swap;
     background-color: black;
+    overflow-y: auto; 
 }
 
 .bg {
@@ -38,16 +39,19 @@
 {
   padding-top: 2px;
   padding-left: 25px;
+  padding-left: 25px;
   text-align: left;
   position: relative;
   z-index: 1;
   color: white;
+  line-height: 1.1;
 }
 
 body
 {
   background-color: black;
   background-position: bottom left;
+  margin: 0;
 }
 
 a
@@ -63,4 +67,32 @@ a:active { text-decoration: underline;}
 ul
 {
   list-style-type:none;
+  margin: 0;
+  padding: 0;
+}
+
+
+/*tablets*/
+@media (max-width: 768px) {
+  .main {
+      font-size: 20px;
+      height: auto;
+      padding: 10px;
+  }
+  .content {
+      padding-left: 15px;
+      padding-right: 15px;
+  }
+}
+
+/*phones */
+@media (max-width: 480px) {
+  .main {
+      font-size: 18px;
+      padding: 10px;
+  }
+  .content {
+      padding-left: 10px;
+      padding-right: 10px;
+  }
 }
