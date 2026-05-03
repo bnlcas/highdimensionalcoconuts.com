@@ -1,0 +1,119 @@
+:root {
+    overscroll-behavior: none;
+}
+
+body{
+    background-color: #f7f1dd;  
+}
+
+#backgroundImage{z-index: 1;}
+
+#backgroundImage:before {
+    content: "";
+    position: fixed;
+    z-index: -100;
+    bottom: 0;
+    left: 0;
+    /*background-image: url('../assets/propaganda.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;*/
+    opacity: 0.4;
+    filter:alpha(opacity=40);
+    height:100%;
+    width:100%;
+}
+
+
+.main{
+    height:500px;
+    width:90vw;
+    margin:auto;
+    z-index:-1;
+    opacity: 1;
+    filter:alpha(opacity=100);
+    font-family: sans-serif;
+    text-align: left;
+    padding-top: 25px;
+}
+
+@media only screen and (min-width: 600px) {
+    .main{ width: 80vw; }
+}
+
+@media only screen and (min-width: 800px) {
+    .main{ width: 600px; }
+}
+
+
+h1{
+    font-size: 3.3rem;
+}
+
+span.line {
+    display: inline-block;
+}
+
+@media only screen and (min-width: 380px) {
+    h1{ font-size: 3.2rem; }
+}
+
+@media only screen and (min-width: 500px) {
+    h1{ font-size: 3.0rem; }
+}
+
+@media only screen and (min-width: 768px) {
+    h1{ font-size: 3.5rem; }
+}
+
+
+h3{
+    font-size: 2.4rem;
+    color: black;
+    font-weight: normal;
+}
+
+@media only screen and (min-width: 380px) {
+    h3{ font-size: 2.3rem; }
+}
+
+@media only screen and (min-width: 500px) {
+    h3{ font-size: 2.2rem; }
+}
+
+@media only screen and (min-width: 768px) {
+    h3{ font-size: 2.0rem; }
+}
+
+p{
+    color: black;
+    font-weight: normal;
+    font-size: 2.0rem;
+}
+
+@media only screen and (min-width: 500px) {
+    p{ font-size: 1.5rem; }
+}
+
+@media only screen and (min-width: 768px) {
+    p{ font-size: 1.2rem; }
+}
+
+a {
+    color: black;
+    font-weight: normal;
+    text-decoration: underline;
+    transition: 0.3s;
+}
+a:hover{
+    color: gray;
+}
+
+hr{
+    margin: 0px;
+    padding: 0px;
+}
+
+.app-store-link {
+    margin-bottom:15px;
+}

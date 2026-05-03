@@ -23,6 +23,7 @@
         <h3>Reject Capitalist Surveillance!</h3>
         <h3>Pyongyang Tomorrow Here and Now!</h3>
         <h2>Modify your photos' exif metadata to be taken tomorrow in Pyongyang, North Korea 100 meters below sea level!</h2>
+        <p>Update: Apple Rejected the iOS app from it's store. You can either use <a href=#cli_version>a command line</a> or you can just pull <a href="https://github.com/bnlcas/PyongyangTomorrow">the code off github</a></p>
         <div class="app-store-link">
           <a href="https://apps.apple.com/us/app/pending/id6459538045">
           <img src="./assets/app_store_download.svg">
@@ -38,7 +39,7 @@
           You could also just use <a href="https://exiftool.org">exiftool</a> on a desktop computer's terminal:
         </p>
         <br>
-        <div class="command-line">
+        <div id="cli_version" class="command-line">
             <p>Command Line Version:</p>
             <p class="command-line-style">exiftool -GPSLatitude=39.0738-GPSLatitudeRef=N -GPSLongitude=125.8198 -GPSLongitudeRef=E -GPSAltitude=-100 -GPSAltitudeRef="Below Sea Level" -AllDates="$(date -v +1d '+%Y-%m-%d %H:%M:%S')" MY_PHOTO.jpg</p>
         </div>
