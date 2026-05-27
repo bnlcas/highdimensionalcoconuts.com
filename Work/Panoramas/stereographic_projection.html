@@ -1,0 +1,191 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Stereographic Projection Sandbox</title>
+    <style>
+      body {margin: 0;}
+      canvas {width:100%; height:100%}
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const vert_code = `
+        attribute vec2 a_position;
+        void main() {
+            gl_Position = vec4(a_position, 0, 1);
+        }`;
+ 
+    const frag_code = `
+    #ifdef GL_ES
+    precision mediump float;
+    #endif
+
+    #define PI 3.1415926535
+    #define TAU 6.283185307
+
+    uniform vec2 u_resolution;
+    uniform float u_time;
+    uniform vec2 u_mouse;
+    uniform sampler2D u_tex;
+    
+    float PingPong(float t){
+        return 1.0 - abs(t);
+    }
+
+    float random (in float x) {
+        return fract((1.0 + sin((0.1 + x) * 81391.31)) * 435642.342);
+    }
+
+    void main(){
+        vec2 mouse_st = u_mouse / u_resolution;
+        vec2 st = gl_FragCoord.xy/u_resolution.xy;
+        vec2 st_centered = st - vec2(0.5);
+
+        float r = length(st_centered);
+        float theta_long = atan(st_centered.y, st_centered.x);
+
+        float sample_x = mod(0.5 + (theta_long + PI) / TAU, 1.0);
+        float theta_lat = acos((4.0 - pow(r,2.0))/(4.0 + pow(r,2.0)));
+        float sample_y = 1.4 * theta_lat;//, 1.0);
+
+        vec4 color = texture2D( u_tex,vec2(sample_x, sample_y));
+
+        float n_levels = 4.0;
+        //float steps =  floor(n_levels * 2.0 * r) / (n_levels);
+        //float steps = fract(u_time) + floor(n_levels * 2.0 * r - mod(u_time,1.0)) / (n_levels - 1.0);
+        //float steps = fract(sin(81.23 * r + u_time));
+        //float steps = random(floor(n_levels * 2.0 * r - u_time));
+        
+        float contrast = 1.2 + 0.5*sin(cos(2.0*r - u_time) + sin(2.0*r - 2.3142 * u_time));
+        float green_warble = 1.0 + 0.2*sin(cos(1.5*r - 0.412 * u_time) + sin(1.5*r - 0.8729 * u_time));
+        float red_warble = 1.0 + 0.15*sin(cos(1.2*r - 0.22 * u_time) + sin(1.2*r - 0.1129 * u_time));
+
+        float magenta_warble = 0.01 * sin(cos(1.1*r - 0.06123 * u_time) + sin(1.1*r - 0.082929 * u_time));
+
+
+        color.r = 0.5 + (color.r - 0.5) * red_warble;
+        color.g = 0.5 + (color.g - 0.5) * green_warble;
+        color.b = color.b + color.r * magenta_warble;
+
+        //float contrast = fract(n_levels * r - u_time);
+
+        color = 0.5 + (color - 0.5) * contrast;
+        gl_FragColor = color;
+    }`;
+//Steps = floor(n * x) / n;
+
+    var gl;
+    var canvas;
+    var buffer;
+    var vertexShader;
+    var fragShader;
+    var program;    
+
+    var scrollDist = 0.0;
+    var time_loc;
+    var resolution_loc;
+    var elapsed_time = 0.0;
+
+    window.onload = Init;   
+    
+    const UpdateCanvasSize = () => {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.uniform2f(resolution_loc, canvas.clientWidth, canvas.clientWidth);
+    }
+
+    function Init() {
+
+        canvas        = document.getElementById('canvas');
+        gl            = canvas.getContext('webgl');
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+        buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(
+        gl.ARRAY_BUFFER,
+            new Float32Array([
+        -1.0, -1.0,
+         1.0, -1.0,
+        -1.0,  1.0,
+        -1.0,  1.0,
+         1.0, -1.0,
+         1.0,  1.0]),
+        gl.STATIC_DRAW
+        );
+
+        vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vert_code);
+        gl.compileShader(vertexShader);
+
+        fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragShader, frag_code);
+        gl.compileShader(fragShader);
+
+        program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragShader);
+        gl.linkProgram(program);	
+        gl.useProgram(program);
+
+        resolution_loc = gl.getUniformLocation(program, 'u_resolution');
+        time_loc = gl.getUniformLocation(program, 'u_time');
+
+
+        window.addEventListener('resize', UpdateCanvasSize);
+
+        gl.uniform2f(resolution_loc, canvas.clientWidth, canvas.clientWidth);
+        InitializeTextures(gl, program);
+
+        Render();
+    }
+
+    function InitializeTextures(gl, shaderProgram) {
+        let texture = gl.createTexture();
+        let image = new Image();
+        image.onload = function() { HandleTextureLoaded(gl, shaderProgram, image, texture, "u_tex", 0); }
+        image.src = './360Photos/R0010054.JPG';
+    }
+  
+    function HandleTextureLoaded(gl, shaderProgram, image, texture, uniform_name = "u_tex", texNum = 0) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        gl.uniform1i(gl.getUniformLocation(shaderProgram, uniform_name), texNum);
+
+    }
+
+    function Render() {
+    
+       gl.clearColor(1.0, 1.0, 1.0, 1.0);
+       gl.clear(gl.COLOR_BUFFER_BIT);
+       positionLocation = gl.getAttribLocation(program, "a_position");
+       gl.enableVertexAttribArray(positionLocation);
+       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+       gl.drawArrays(gl.TRIANGLES, 0, 6);
+    
+       elapsed_time += 0.01;
+       gl.uniform1f(time_loc, elapsed_time);
+    
+       window.requestAnimationFrame(Render, canvas);
+    }
+    </script>
+  </body>
+</html>
