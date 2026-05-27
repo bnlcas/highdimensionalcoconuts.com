@@ -1,3 +1,5 @@
+html { -webkit-text-size-adjust: 100%; }
+
 .main {
     position: relative;
     height: 100vh;
@@ -88,7 +90,7 @@ ul
 /*phones */
 @media (max-width: 480px) {
   .main {
-      font-size: 18px;
+      font-size: 22px;
       padding: 10px;
   }
   .content {
