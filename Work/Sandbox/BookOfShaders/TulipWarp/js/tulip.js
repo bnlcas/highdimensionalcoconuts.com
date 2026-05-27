@@ -3,7 +3,7 @@ var sandbox = new GlslCanvas(canvas);
 canvas.style.width = '100%';
 canvas.style.height = '100%';
 
-sandbox.setUniform("u_baseTex", "./images/tulip.jpg");
+sandbox.setUniform("u_baseTex", "./images/IMG_2819.JPG");//tulip.jpg");
 //sandbox.setUniform("u_tex", "360Photos/R0010105.JPG");
 
 function Update()

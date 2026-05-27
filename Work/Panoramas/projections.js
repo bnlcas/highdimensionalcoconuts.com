@@ -4,10 +4,12 @@ canvas.style.width = '100%';
 canvas.style.height = '100%';
 
 
-//sandbox.setUniform("u_tex", "/corona_heights.jpg");
-sandbox.setUniform("u_tex", "360Photos/R0010105.JPG");
+sandbox.setUniform("u_tex", "./corona_heights.jpg");
+//sandbox.setUniform("u_tex", "360Photos/R0010105.JPG");
+//sandbox.setUniform("u_tex", "360Photos/R0010054.JPG");
+//sandbox.setUniform("u_tex", "360Photos/R0010095.JPG");
 sandbox.setUniform("u_resolution",3000,2000);
-
+//sandbox.setUniform("u_tex", "360Photos/R0010042.JPG");
 
 function Update()
 {
