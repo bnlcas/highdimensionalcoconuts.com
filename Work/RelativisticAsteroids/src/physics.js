@@ -163,6 +163,9 @@ export class GravityField {
     this.shift = 0;
     this.tex = new Float32Array(N * 4); // Phi/c^2, dPhi/dx / c^2, dPhi/dy / c^2
     this.active = false;
+    // FFT scratch, allocated once: the instant solver can run ~45 times a frame
+    this.re = new Float64Array(N); this.im = new Float64Array(N);
+    this.rr = new Float64Array(Math.max(nx, ny)); this.ri = new Float64Array(Math.max(nx, ny));
   }
 
   reset() {
@@ -203,11 +206,9 @@ export class GravityField {
   }
 
   solvePoisson(G) {
-    const { nx, ny, dx, dy, rho, phi } = this;
+    const { nx, ny, dx, dy, rho, phi, re, im, rr, ri } = this;
     const N = nx * ny;
-    const re = new Float64Array(N), im = new Float64Array(N);
-    for (let i = 0; i < N; i++) re[i] = rho[i];
-    const rr = new Float64Array(Math.max(nx, ny)), ri = new Float64Array(Math.max(nx, ny));
+    re.set(rho); im.fill(0);
     const pass = (inv) => {
       for (let j = 0; j < ny; j++) {
         for (let i = 0; i < nx; i++) { rr[i] = re[j * nx + i]; ri[i] = im[j * nx + i]; }

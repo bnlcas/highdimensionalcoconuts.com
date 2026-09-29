@@ -2,9 +2,9 @@
 // event (lab position + lab time) the pixel is looking at, then asks the
 // history texture what was at that place at that time.
 //
-//   mode 0  "what you see"  - pixel lies on the ship's past light cone
-//   mode 1  "ship frame"    - pixel lies on the ship's plane of simultaneity
-//   mode 2  "torus frame"   - pixel lies on the lab plane of simultaneity
+//   mode 0  "seen"         - pixel lies on the ship's past light cone
+//   mode 1  "ship's now"   - pixel lies on the ship's plane of simultaneity
+//   mode 2  "torus's now"  - pixel lies on the lab plane of simultaneity
 //
 // History texture: one row per physics step (ring buffer), two texels per
 // entity slot: A = (x, y, vx, vy), B = (angle, radius, shape|fade, kind).
@@ -191,8 +191,8 @@ void main() {
 
         float D = light ? Dobs * grav / (ge * (1.0 + dot(dirEnd, be))) : 1.0;
 
-        if (kind == 2) {          // bullet
-          col += emit(9000.0, D, 2.2 * exp(-pow(length(q) / max(R, w), 2.0)));
+        if (kind == 2) {          // bolt: hot plasma, so it survives the 3x redshift of flying away at 0.8c
+          col += emit(20000.0, D, 3.2 * exp(-pow(length(q) / max(R, w), 2.0)));
         } else if (kind == 4) {   // explosion shell
           float e = abs(length(q) - R);
           col += emit(3200.0, D, B.z * (1.2 * exp(-pow(e / (1.5 * w), 2.0)) + 0.1 * exp(-e / (4.0 * w))));

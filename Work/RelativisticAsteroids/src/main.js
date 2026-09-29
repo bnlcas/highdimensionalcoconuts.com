@@ -16,11 +16,11 @@ const game = new Game(renderer.shapes);
 window.game = game; // handy for poking at from the console
 
 const view = {
-  mode: 0,          // 0 what you see, 1 ship frame, 2 torus frame
+  mode: 0,          // 0 seen, 1 ship's now, 2 torus's now
   zoom: 1.25,
   flags: { doppler: true, bright: true, lens: true, grid: true, dust: true, pot: false },
 };
-const MODE_NAMES = ['What you see (past light cone)', 'Ship frame (simultaneity)', 'Torus frame (lab)'];
+const MODE_NAMES = ['Seen (past light cone)', "Ship's now (ship simultaneity)", "Torus's now (torus simultaneity)"];
 let paused = false;
 let muted = false;
 
@@ -59,7 +59,7 @@ bindSlider('light', (s) => {
 
 $('gmode').addEventListener('change', (e) => (game.settings.gravityMode = e.target.value));
 $('clock').addEventListener('change', (e) => (game.settings.clock = e.target.value));
-$('res').addEventListener('change', (e) => (renderer.resolutionScale = parseFloat(e.target.value)));
+$('res').addEventListener('change', (e) => { resTarget = resScale = parseFloat(e.target.value); resLocked = false; });
 for (const k of Object.keys(view.flags)) {
   const el = $('f-' + k);
   el.checked = view.flags[k];
@@ -75,6 +75,7 @@ document.querySelectorAll('#modes button').forEach((b, i) => b.addEventListener(
 setMode(0);
 
 $('panel-toggle').addEventListener('click', () => $('panel').classList.toggle('closed'));
+if (window.innerWidth < 700) $('panel').classList.add('closed'); // phones: keep the view clear
 $('about-open').addEventListener('click', () => $('about').classList.add('open'));
 $('about-close').addEventListener('click', () => $('about').classList.remove('open'));
 
@@ -132,17 +133,39 @@ if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('touch'
 
 // --- sound: explosions are heard when their light arrives -------------------
 
-const laser = new Audio('../Asteroids/39459__THE_bizniss__laser.wav');
-const boom = new Audio('../Asteroids/51467__smcameron__missile_explosion.wav');
-function play(a, rate, vol) {
-  if (muted || !isFinite(rate)) return;
-  const s = a.cloneNode();
-  s.preservesPitch = false; s.mozPreservesPitch = false; s.webkitPreservesPitch = false;
-  s.playbackRate = Math.min(4, Math.max(0.25, rate));
-  s.volume = Math.min(1, vol);
-  s.play().catch(() => {});
+// Fetched and decoded once, on the first key press or tap (browsers only
+// allow audio after a user gesture), then played from memory.
+const SOUND_URLS = {
+  laser: 'sounds/39459__THE_bizniss__laser.mp3',
+  boom: 'sounds/51467__smcameron__missile_explosion.mp3',
+};
+const sounds = {};
+let audio = null;
+function initAudio() {
+  if (audio) { if (audio.state === 'suspended') audio.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  audio = new AC();
+  for (const [name, url] of Object.entries(SOUND_URLS)) {
+    fetch(url).then((r) => r.arrayBuffer()).then((b) => audio.decodeAudioData(b))
+      .then((buf) => (sounds[name] = buf)).catch(() => {});
+  }
 }
-game.onFire = () => play(laser, 1, 0.15);
+window.addEventListener('keydown', initAudio);
+window.addEventListener('pointerdown', initAudio);
+
+function play(name, rate, vol) {
+  const buf = sounds[name];
+  if (muted || !buf || !isFinite(rate)) return;
+  const src = audio.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = Math.min(4, Math.max(0.25, rate)); // Doppler shifts pitch and tempo together
+  const gain = audio.createGain();
+  gain.gain.value = Math.min(1, vol);
+  src.connect(gain).connect(audio.destination);
+  src.start();
+}
+game.onFire = () => play('laser', 1, 0.15);
 
 function hearExplosions() {
   const o = game.obs, c = game.c;
@@ -152,7 +175,7 @@ function hearExplosions() {
     if (c * (game.t - ev.t) < r) return game.t - ev.t < 20;
     const nx = r > 1e-6 ? dx / r : 0, ny = r > 1e-6 ? dy / r : 0;
     const D = o.gamma * (1 + (nx * o.vx + ny * o.vy) / c) / (ev.gamma * (1 + (nx * ev.vx + ny * ev.vy) / c));
-    if (isFinite(D)) play(boom, D, 0.12 + 0.08 * ev.size);
+    if (isFinite(D)) play('boom', D, 0.12 + 0.08 * ev.size);
     return false;
   });
 }
@@ -178,9 +201,42 @@ function hud() {
   $('message').innerHTML = paused && game.phase !== 'attract' ? 'PAUSED' : msg;
 }
 
+// --- adaptive resolution ----------------------------------------------------
+// The spacetime shader is heavy, so on a slow GPU shed pixels until frames
+// keep up, and creep back toward the chosen setting when there is headroom.
+// If a drop doesn't help, the frame rate is capped by something else
+// (e.g. Safari's 30 fps low-power mode), so undo it and stop adapting.
+
+let resTarget = renderer.resolutionScale, resScale = resTarget, resLocked = false;
+let slowT = 0, slowN = 0, fastT = 0, probe = null;
+function adaptResolution(dt) {
+  if (dt > 0.2 || paused) return; // hiccup or tab switch
+  if (probe) {
+    probe.t += dt; probe.n++;
+    if (probe.t < 1) return;
+    if (probe.t / probe.n > probe.before * 0.9) { resScale = probe.from; resLocked = true; }
+    probe = null;
+  }
+  if (dt > 1 / 40) { slowT += dt; slowN++; } else { slowT = 0; slowN = 0; }
+  fastT = dt < 1 / 50 ? fastT + dt : 0;
+  if (!resLocked && slowT > 0.75 && resScale > 0.3) {
+    probe = { from: resScale, before: slowT / slowN, t: 0, n: 0 };
+    resScale = Math.max(0.3, resScale * 0.75);
+    slowT = 0; slowN = 0;
+  } else if (fastT > 4 && resScale < resTarget) {
+    resScale = Math.min(resTarget, resScale * 1.15);
+    fastT = 0;
+  }
+}
+
+// GPU resets (sleep/wake, switching GPUs) would otherwise leave a black canvas.
+canvas.addEventListener('webglcontextlost', (e) => e.preventDefault());
+canvas.addEventListener('webglcontextrestored', () => location.reload());
+
 // --- loop -------------------------------------------------------------------
 
 let last = performance.now();
+let lastSig = '';
 function frame(now) {
   const dt = (now - last) / 1000;
   last = now;
@@ -188,18 +244,26 @@ function frame(now) {
     game.update(dt);
     hearExplosions();
   }
-  renderer.uploadHistory(game.hist);
-  renderer.uploadPotential(game.field);
+  adaptResolution(dt);
+  renderer.resolutionScale = resScale;
   const f = view.flags;
   const gravityOn = game.settings.density > 0;
   const flags = (f.doppler ? 1 : 0) | (f.bright ? 2 : 0) | (f.lens && gravityOn ? 4 : 0) |
     (f.grid ? 8 : 0) | (f.dust ? 16 : 0) | (f.pot && gravityOn ? 32 : 0);
-  const o = game.obs, c = game.c;
-  renderer.draw({
-    mode: view.mode, zoom: view.zoom, flags, c,
-    obsPos: { x: o.x, y: o.y }, obsBeta: { x: o.vx / c, y: o.vy / c }, obsGamma: o.gamma, obsPhi: o.phi,
-    now: game.t, start: game.start, head: game.hist.head, numObj: 64,
-  });
+  // while paused, only redraw when the view changes (flipping views is half the fun)
+  const sig = [view.mode, view.zoom, flags, resScale, canvas.clientWidth, canvas.clientHeight].join();
+  if (!paused || sig !== lastSig || game.hist.pending) {
+    lastSig = sig;
+    renderer.uploadHistory(game.hist);
+    renderer.uploadPotential(game.field);
+    const o = game.obs, c = game.c;
+    renderer.draw({
+      mode: view.mode, zoom: view.zoom, flags, c,
+      obsPos: { x: o.x, y: o.y }, obsBeta: { x: o.vx / c, y: o.vy / c }, obsGamma: o.gamma, obsPhi: o.phi,
+      // times relative to now: float32 on the GPU can't resolve 1/120 s steps at large t
+      now: 0, start: game.start - game.t, head: game.hist.head, numObj: game.hiSlot,
+    });
+  }
   hudTimer -= dt;
   if (hudTimer <= 0) { hud(); hudTimer = 0.1; }
   requestAnimationFrame(frame);

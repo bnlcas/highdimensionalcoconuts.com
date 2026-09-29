@@ -47,6 +47,7 @@ export class Game {
     this.lives = 3;
     this.timer = 0;
     this.ents = new Array(MAX_OBJ).fill(null);
+    this.hiSlot = 0; // highest slot used since reset: the shader scans no further
     this.hist.clear();
     this.field.reset();
     this.ship = null;
@@ -74,6 +75,7 @@ export class Game {
     const v = velFromW(e.wx, e.wy, c);
     Object.assign(e, { slot: i, vx: v.vx, vy: v.vy, gamma: v.gamma, angle: e.angle || 0, tau: 0 });
     this.ents[i] = e;
+    if (i >= this.hiSlot) this.hiSlot = i + 1;
     return e;
   }
 
@@ -257,7 +259,7 @@ export class Game {
         const nose = SHIP_SCALE * 0.8 / s.gamma; // roughly; contracted nose position
         const b = this.add('bullet', {
           kind: KIND.BULLET, x: wrapPos(s.x + dir.x * nose, WORLD.W), y: wrapPos(s.y + dir.y * nose, WORLD.H),
-          wx: w.x, wy: w.y, R: 2.5,
+          wx: w.x, wy: w.y, R: 3,
         });
         if (b && this.onFire) this.onFire();
       }
