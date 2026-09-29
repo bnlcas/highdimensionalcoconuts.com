@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Relativistic Asteroids</title>
+<style>
+  :root { --fg: #d8dde6; --dim: #7c8594; --acc: #9fc4ff; --panel: rgba(12, 14, 20, 0.86); }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--fg); overflow: hidden;
+    font: 12px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  #canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud-top { position: fixed; top: 10px; left: 14px; right: 14px; display: flex; gap: 22px;
+    font-size: 18px; letter-spacing: 2px; pointer-events: none; }
+  #lives { color: var(--acc); }
+  #message { position: fixed; top: 38%; left: 0; right: 0; text-align: center; font-size: 26px;
+    letter-spacing: 5px; pointer-events: none; text-shadow: 0 0 12px rgba(160, 200, 255, 0.6); }
+  #message small { font-size: 13px; letter-spacing: 2px; color: var(--dim); }
+  #tel { position: fixed; left: 14px; bottom: 12px; pointer-events: none; color: var(--dim); }
+  #tel b { color: var(--fg); font-weight: normal; }
+  #mode-name { position: fixed; left: 14px; bottom: 50px; color: var(--acc); pointer-events: none; }
+
+  #panel { position: fixed; top: 10px; right: 10px; width: 250px; max-height: calc(100vh - 20px);
+    overflow-y: auto; background: var(--panel); border: 1px solid #2a3140; border-radius: 6px;
+    padding: 8px 12px 10px; box-sizing: border-box; z-index: 5; }
+  #panel.closed > :not(#panel-head) { display: none; }
+  #panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  #panel-head span { letter-spacing: 2px; color: var(--acc); }
+  #panel button, #about button { background: #1b2130; color: var(--fg); border: 1px solid #333c50;
+    border-radius: 4px; font: inherit; padding: 3px 7px; cursor: pointer; }
+  #panel button.on { background: #35507e; border-color: #6d8fc8; }
+  #modes { display: flex; flex-direction: column; gap: 3px; margin: 4px 0 8px; }
+  #modes button { text-align: left; }
+  .row { margin: 7px 0; }
+  .row label { display: flex; justify-content: space-between; color: var(--dim); }
+  .row label span { color: var(--fg); }
+  input[type=range] { width: 100%; margin: 3px 0 0; accent-color: #7fa6e8; }
+  select { width: 100%; background: #1b2130; color: var(--fg); border: 1px solid #333c50; font: inherit; margin-top: 2px; }
+  .checks label { display: block; color: var(--fg); margin: 2px 0; cursor: pointer; }
+  h4 { margin: 10px 0 2px; font-weight: normal; color: var(--acc); letter-spacing: 1px; }
+  .keys { color: var(--dim); margin-top: 8px; }
+
+  #about { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72); display: none; z-index: 10;
+    align-items: center; justify-content: center; }
+  #about.open { display: flex; }
+  #about .card { width: min(720px, calc(100% - 32px)); max-height: calc(100% - 48px); overflow-y: auto;
+    background: #0d1017; border: 1px solid #2a3140; border-radius: 8px; padding: 18px 22px;
+    font: 14px/1.55 Georgia, serif; box-sizing: border-box; }
+  #about h2 { font: 18px ui-monospace, Menlo, monospace; letter-spacing: 3px; color: var(--acc); margin-top: 0; }
+  #about h3 { font: 14px ui-monospace, Menlo, monospace; color: var(--acc); margin: 18px 0 4px; }
+  #about code { font-size: 13px; color: #cfe0ff; }
+  #about a { color: var(--acc); }
+
+  #touch { display: none; }
+  body.touch #touch { display: block; }
+  #touch div { position: fixed; bottom: 16px; width: 72px; height: 72px; border: 1px solid #3a4460;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--dim);
+    background: rgba(20, 26, 40, 0.4); user-select: none; -webkit-user-select: none; touch-action: none; }
+  body.touch #tel, body.touch #mode-name { bottom: 100px; }
+  body.touch #mode-name { bottom: 138px; }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div id="hud-top"><span id="score">000000</span><span id="lives"></span><span id="level"></span></div>
+<div id="message"></div>
+<div id="mode-name"></div>
+<div id="tel"></div>
+
+<div id="panel">
+  <div id="panel-head"><span>SPACETIME</span><button id="panel-toggle">–</button></div>
+  <div id="modes">
+    <button>What you see</button>
+    <button>Ship frame</button>
+    <button>Torus frame</button>
+  </div>
+  <div class="row"><label>Engine speed limit <span id="beta-val"></span></label>
+    <input id="beta" type="range" min="0" max="4" step="0.01" value="2"></div>
+  <div class="row"><label>Light crosses torus in <span id="light-val"></span></label>
+    <input id="light" type="range" min="-0.3" max="1" step="0.001" value="0.39794"></div>
+  <div class="row"><label>Mass density (Gσ) <span id="density-val"></span></label>
+    <input id="density" type="range" min="0" max="5" step="0.01" value="3"></div>
+  <div class="row"><label>Gravity propagates</label>
+    <select id="gmode"><option value="wave">at the speed of light</option><option value="poisson">instantly (torus frame)</option></select></div>
+  <div class="row"><label>Game clock</label>
+    <select id="clock"><option value="proper">ship proper time τ</option><option value="lab">torus time t</option></select></div>
+  <div class="row"><label>View size <span id="zoom-val"></span></label>
+    <input id="zoom" type="range" min="-1" max="2.3" step="0.01" value="0.32"></div>
+
+  <h4>Rendering</h4>
+  <div class="checks">
+    <label><input type="checkbox" id="f-doppler"> Doppler color shift</label>
+    <label><input type="checkbox" id="f-bright"> Doppler brightness</label>
+    <label><input type="checkbox" id="f-lens"> Gravitational lensing</label>
+    <label><input type="checkbox" id="f-pot"> Potential contours</label>
+    <label><input type="checkbox" id="f-grid"> Torus grid</label>
+    <label><input type="checkbox" id="f-dust"> Dust</label>
+  </div>
+  <div class="row"><label>Resolution</label>
+    <select id="res"><option value="0.5">low</option><option value="0.75" selected>medium</option><option value="1">high</option></select></div>
+
+  <div class="keys">←/→ turn · ↑ thrust · space fire<br>V view · P pause · M mute · wheel zoom</div>
+  <p><button id="about-open">About the physics</button></p>
+</div>
+
+<div id="touch">
+  <div data-key="left" style="left:16px">◀</div>
+  <div data-key="right" style="left:100px">▶</div>
+  <div data-key="up" style="right:100px">▲</div>
+  <div data-key="fire" style="right:16px">●</div>
+</div>
+
+<div id="about">
+  <div class="card">
+    <h2>RELATIVISTIC ASTEROIDS</h2>
+    <p>Asteroids has always been played on a torus, with a speed of light that is effectively infinite. Here the
+    speed of light is slow enough to matter: by default light takes 2.5 seconds to cross the screen. Everything
+    else follows from taking that seriously.</p>
+
+    <h3>Every pixel is an event</h3>
+    <p>Each frame, a shader asks for every pixel <i>which point in spacetime am I looking at?</i> It then looks
+    up what was there, then. The game records a snapshot of the universe every 1/120 s of torus time, which is
+    about 17 seconds of history. In the default view the pixel at distance <code>r</code> from the ship lies on
+    the ship's past light cone, at ship-frame time <code>−r/c</code>. A Lorentz boost carries that event into
+    the torus frame, where the history lives. Aberration, light delay and the apparent shapes of moving things
+    all come out of that one transformation. None of it is special-cased.</p>
+    <p>The other two views slice spacetime differently. <b>Ship frame</b> shows the ship's plane of
+    simultaneity, which is what the ship would <i>measure</i> rather than see. You get Lorentz contraction and
+    the relativity of simultaneity, and parts of the world that are "now" for the ship lie in the torus
+    frame's future, so they are extrapolated. <b>Torus frame</b> is the classic screen: the torus's own "now",
+    with every body contracted along its motion.</p>
+
+    <h3>The torus has a preferred frame</h3>
+    <p>Special relativity says no inertial frame is special, but a compact space quietly picks one out. That
+    frame is the one in which the left/right and top/bottom edges are glued together at the same instant. This
+    is how the twin paradox resolves on a torus. The history is stored in this frame. Because a pixel's event is
+    reduced modulo the torus <i>after</i> the boost, wrapping costs nothing: light that has gone around the
+    universe shows you older images of the asteroids, and of yourself.</p>
+
+    <h3>Lorentz contraction in 2D</h3>
+    <p>A body is drawn by testing whether the pixel's event lies inside its world-tube. The offset from the
+    body's center is stretched by γ along its velocity, which undoes the contraction and returns it to the
+    body's rest frame, and is then tested against the rest-frame outline. In the torus frame this gives
+    contraction. In the other views the boost adds the shear from simultaneity and light delay. Your own ship
+    is always drawn at its true rest shape, as it should be.</p>
+
+    <h3>Motion</h3>
+    <p>Bodies carry proper velocity <code>w = γv</code>, so nothing can reach c. Thrust is a constant
+    <i>proper</i> acceleration of 0.6c per second of ship time. The engine limit slider cuts the engine off at
+    the chosen speed, but you can still steer. Bullets leave at 0.8c relative to the ship using relativistic
+    velocity addition, and they live 1.1 s of <i>their own</i> proper time. By default the game runs on your
+    ship's clock, so at γ = 7 the universe runs seven times faster around you.</p>
+
+    <h3>Color</h3>
+    <p>Everything glows like a 6500 K blackbody, which gives the white vectors of the original. A Doppler
+    shifted blackbody is exactly another blackbody at <code>D·T</code>, in any number of dimensions, so color
+    shift and relativistic beaming come from a single lookup of a Planck spectrum through the CIE color
+    matching functions. Brightness is tone-mapped like an HDR camera spanning 2.5 decades, otherwise anything
+    behind you at high speed would simply vanish into the infrared. <code>D</code> combines the observer's
+    motion, the emitter's motion, and the gravitational redshift <code>√(g₀₀(emitter)/g₀₀(observer))</code>.</p>
+
+    <h3>Gravity in two dimensions</h3>
+    <p>With one fewer spatial dimension, Gauss's law gives <code>g = GM/r</code>, a logarithmic potential with
+    <code>∇²Φ = 2πGρ</code>. On a closed surface the total flux through the whole space has to be zero, so a
+    net mass has nowhere to send its field lines. Only <code>ρ − ⟨ρ⟩</code> can gravitate. The torus enforces
+    the "Jeans swindle" as a matter of topology. The potential lives on a 64×64 grid. By default it obeys a
+    damped wave equation, so changes to the field spread outward at c. The alternative is an instantaneous
+    FFT solve, which is instantaneous only in the torus frame.</p>
+    <p>A logarithmic potential never levels off, so on an infinite plane the escape velocity from any mass would
+    be infinite and everything would be bound. The torus caps the depth of every well, but fragments of a
+    shattered rock often stay bound to each other anyway. They orbit and pass through one another.</p>
+    <p>The field is used in a weak-field, general-relativity-flavored way: clocks run slow in wells
+    (<code>dτ/dt = √(1+2Φ/c²)/γ</code>), light is redshifted climbing out, and each pixel's photon is marched
+    back through the field. It bends by twice the Newtonian amount and picks up a Shapiro delay. Moving bodies
+    bend with a factor of <code>(1+β²)</code>, which matches light as β → 1. One curiosity: in 2D the bending
+    angle of a point mass does not depend on the impact parameter, which is essentially a conical deficit.</p>
+    <p>That points at a caveat. True 2+1 dimensional general relativity has <i>no</i> local gravity at all.
+    Point masses do not attract. They cut a wedge out of space and leave a cone. The gravity here is therefore
+    a toy: 2D Newtonian dynamics dressed in the weak-field metric. A conical-spacetime mode would be the honest
+    next step.</p>
+
+    <h3>Other approximations</h3>
+    <ul>
+      <li>Rotation is treated rigidly in the body's frame. Born rigidity says a spinning rock should really
+      distort, but at these spin rates the effect is small.</li>
+      <li>The lensing uses the current potential rather than the potential at the time the light passed
+      through.</li>
+      <li>Asteroids pass through each other, as they always have.</li>
+      <li>Collisions are tested on the torus frame's time slices. Whether two world-tubes intersect is
+      frame-independent, so this is fair.</li>
+      <li>Explosion sounds play when the explosion's light reaches you, pitch-shifted by the Doppler factor.
+      This part is, admittedly, not how space works.</li>
+    </ul>
+    <p>Before t = 0 there is nothing, only the dim glow of the game's own big bang. Early in the game you can
+    watch the observable universe grow at c.</p>
+    <p><a href="../Asteroids/topological_asteroids.html">← Topological Asteroids</a></p>
+    <p><button id="about-close">Close</button></p>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
