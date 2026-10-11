@@ -8,6 +8,7 @@ import { Input, Player } from './player.js';
 import { Game } from './game.js';
 import { Destruction } from './destruction.js';
 import { WeaponSystem } from './weapons.js';
+import { Pickups } from './pickups.js';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('c');
@@ -48,7 +49,7 @@ vmSun.position.set(1, 2, 1);
 vmScene.add(vmSun);
 const vmCamera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.01, 5);
 
-let physics, museum, effects, sfx, input, player, game, destruction, weapons;
+let physics, museum, effects, sfx, input, player, game, destruction, weapons, pickups;
 
 async function boot() {
   let A;
@@ -65,8 +66,9 @@ async function boot() {
   destruction = new Destruction({ scene, physics, effects, sfx, game, targets: museum.targets, arts: museum.arts });
   weapons = new WeaponSystem({ scene, camera, vmScene, effects, physics, sfx, destruction, targets: museum.targets });
   game.setWeapons(weapons);
+  pickups = new Pickups({ scene, effects, sfx, game, colliders: museum.colliders });
   game.refreshWeaponBar();
-  window.artBlaster = { game, museum, physics, player, weapons, destruction, input }; // for poking at in the console
+  window.artBlaster = { game, museum, physics, player, weapons, destruction, input, pickups }; // for poking at in the console
   wireUI();
   onResize();
   $('loading').remove();
@@ -123,6 +125,7 @@ function startGame(mode) {
   sfx.unlock();
   $('menu').classList.remove('open');
   game.start(mode);
+  if (mode === 'free') { pickups.takeAll(); weapons.select(1); game.refreshWeaponBar(); }
   setState('play');
   input.lock();
 }
@@ -189,6 +192,7 @@ function tick(dt) {
   if (playing) {
     player.update(dt, input, museum.colliders);
     weapons.update(dt, input.firing, player.vel, t);
+    pickups.update(dt, t, player.pos, game.bill);
   }
   if (playing || game.state === 'over') {
     physics.step(dt, sfx);

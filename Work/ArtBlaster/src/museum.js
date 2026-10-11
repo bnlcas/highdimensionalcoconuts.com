@@ -16,6 +16,8 @@ export const ROOMS = [
   { id: 'west', name: 'Old Masters', x0: -32, x1: -12, z0: -10, z1: 10, wall: 0x7c2a33, floor: 'wood' },
   { id: 'east', name: 'The 19th Century', x0: 12, x1: 32, z0: -10, z1: 10, wall: 0x35554f, floor: 'wood' },
   { id: 'north', name: 'Modern & Contemporary', x0: -10, x1: 10, z0: -30, z1: -10, wall: 0xf5f5f3, floor: 'concrete' },
+  { id: 'nw', name: 'Overlooked Masters', x0: -30, x1: -10, z0: -30, z1: -10, wall: 0x4e3a5c, floor: 'wood' },
+  { id: 'ne', name: 'The Wider World', x0: 10, x1: 30, z0: -30, z1: -10, wall: 0x24485e, floor: 'wood' },
 ];
 
 // doorways: along a wall at x = at (axis 'x') or z = at (axis 'z'), spanning [from, to] on the other axis
@@ -23,14 +25,20 @@ const DOORS = [
   { axis: 'x', at: -12, from: -2, to: 2 },
   { axis: 'x', at: 12, from: -2, to: 2 },
   { axis: 'z', at: -10, from: -2, to: 2 },
+  { axis: 'z', at: -10, from: -24, to: -20 },        // Old Masters -> Overlooked Masters
+  { axis: 'z', at: -10, from: 23, to: 27 },          // 19th century -> Wider World
+  { axis: 'x', at: -10, from: -21.5, to: -18.5 },    // Modern -> Overlooked Masters
+  { axis: 'x', at: 10, from: -21.5, to: -18.5 },     // Modern -> Wider World
 ];
 
 // wall center-lines: [axis, at, from, to, height]
 const WALLS = [
-  ['z', 10, -32, 32], ['z', -10, -32, -2], ['z', -10, 2, 32],
+  ['z', 10, -32, 32],
+  ['z', -10, -32, -24], ['z', -10, -20, -2], ['z', -10, 2, 23], ['z', -10, 27, 32],
   ['x', -32, -10, 10], ['x', 32, -10, 10],
   ['x', -12, -10, -2], ['x', -12, 2, 10], ['x', 12, -10, -2], ['x', 12, 2, 10],
-  ['x', -10, -30, -10], ['x', 10, -30, -10], ['z', -30, -10, 10],
+  ['x', -10, -30, -21.5], ['x', -10, -18.5, -10], ['x', 10, -30, -21.5], ['x', 10, -18.5, -10],
+  ['z', -30, -30, 30], ['x', -30, -30, -10], ['x', 30, -30, -10],
   ['x', -22, -3, 3, 4.2], // the Leonardo wall
 ];
 
@@ -45,12 +53,16 @@ const HANG = {
   'meninas': [-32 + F, 0, Math.PI / 2],
   'boy-lizard': [-27.5, -10 + F, 0], 'pearl': [-16.5, -10 + F, 0],
   'mona-lisa': [-22 + S, 0, Math.PI / 2], 'salvator-mundi': [-22 - S, 0, -Math.PI / 2], // unskinned feature wall
-  'starry-night': [16.5, -10 + F, 0], 'sunflowers': [22, -10 + F, 0], 'grainstacks': [27.5, -10 + F, 0],
+  'starry-night': [15.5, -10 + F, 0], 'sunflowers': [19.8, -10 + F, 0], 'grainstacks': [29.5, -10 + F, 0],
   'scream': [16.5, 10 - F, Math.PI], 'card-players': [22, 10 - F, Math.PI], 'great-wave': [27.5, 10 - F, Math.PI],
   'grande-jatte': [32 - F, -4.2, -Math.PI / 2], 'kiss': [32 - F, 4.4, -Math.PI / 2],
   'rothko': [-10 + F, -15.5, Math.PI / 2], 'black-square': [-10 + F, -24, Math.PI / 2],
   'pollock': [10 - F, -15.5, -Math.PI / 2], 'mondrian': [10 - F, -24, -Math.PI / 2],
   'warhol': [0, -30 + F, 0],
+  'horse-fair': [-20, -30 + F, 0], 'af-klint': [-30 + F, -20, Math.PI / 2],
+  'gentileschi': [-27, -10 - F, Math.PI], 'childs-bath': [-14.5, -10 - F, Math.PI], 'banjo-lesson': [-10 - F, -26, -Math.PI / 2],
+  'kandinsky': [20, -30 + F, 0], 'fan-kuan': [30 - F, -20, -Math.PI / 2],
+  'jahangir': [14, -10 - F, Math.PI], 'kahlo': [18, -10 - F, Math.PI], 'basquiat': [10 + F, -26, Math.PI / 2],
 };
 // plinths: x, z, plinth height, plinth width, facing (rotY)
 const PLINTH = {
@@ -64,9 +76,14 @@ const PLINTH = {
   'bird': [0, -24.5, 0.55, 0.6, 0],
   'moore': [5, -26.5, 0.45, 2.6, -0.3],
   'hepworth': [-5, -26.5, 1.05, 0.6, 0.5],
+  'cleopatra': [-20, -20, 0.45, 1.2, 0],
+  'kusama': [20, -20, 0.15, 1.7, 0],
 };
-const MASS = { david: 5600, thinker: 900, moore: 1000, calder: 300, selene: 300, bird: 60, fountain: 15, hepworth: 15, jar: 3, 'balloon-dog': 2 };
-const UNFRAMED = new Set(['rothko', 'pollock', 'warhol', 'black-square', 'mondrian']);
+const MASS = {
+  david: 5600, thinker: 900, moore: 1000, cleopatra: 1200, calder: 300, selene: 300, bird: 60, kusama: 40,
+  fountain: 15, hepworth: 15, jar: 3, 'balloon-dog': 2,
+};
+const UNFRAMED = new Set(['rothko', 'pollock', 'warhol', 'black-square', 'mondrian', 'basquiat', 'af-klint']);
 
 export function buildMuseum(scene, physics, renderer) {
   const colliders = [];     // player AABBs in XZ
@@ -206,6 +223,15 @@ export function buildMuseum(scene, physics, renderer) {
   quip('This gallery is liquid-cooled. Please do not set it on fire.', new THREE.Vector3(5.5, 2.2, -10 - F - 0.02), Math.PI, 3.8);
   quip('No ray tracing was used in the making of these paintings.', new THREE.Vector3(12 + F + 0.02, 2.4, -6), Math.PI / 2, 3.8);
   quip('Please do not overclock the Old Masters.', new THREE.Vector3(-22, 2.4, 10 - F - 0.02), Math.PI, 3);
+  // the two newer wings, signed from both of their doors
+  const wingSign = (title, sub, pos, rotY) => {
+    sign([{ text: title, font: serif(170), spacing: '14px' }], 3.6, 0.4, pos, rotY, '#5a5045');
+    quip(sub, pos.clone().add(new THREE.Vector3(0, -0.35, 0)), rotY, 2.8);
+  };
+  wingSign('OVERLOOKED MASTERS', 'Great artists the textbooks skipped', new THREE.Vector3(-22, 4.9, -10 + F + 0.02), 0);
+  wingSign('OVERLOOKED MASTERS', 'Great artists the textbooks skipped', new THREE.Vector3(-10 + F + 0.02, 4.9, -20), Math.PI / 2);
+  wingSign('THE WIDER WORLD', '…and the 20th century', new THREE.Vector3(25, 4.9, -10 + F + 0.02), 0);
+  wingSign('THE WIDER WORLD', '…and the 20th century', new THREE.Vector3(10 - F - 0.02, 4.9, -20), -Math.PI / 2);
 
   // ---------- benches ----------
   const benchMat = new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.5 });

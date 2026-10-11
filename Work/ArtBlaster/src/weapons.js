@@ -4,27 +4,32 @@ import { soupLabelTexture } from './textures.js';
 
 export const WEAPONS = [
   {
-    id: 'lipstick', name: 'Tube of Lipstick', kind: 'draw', unlock: 0, range: 2.6,
+    id: 'lipstick', name: 'Tube of Lipstick', kind: 'draw', range: 2.6, where: 'In your pocket',
     blurb: 'In 2007 an artist kissed an all-white Cy Twombly painting in France, leaving a red lipstick mark. She was taken to court and fined.',
   },
   {
-    id: 'soup', name: 'Can of Soup', kind: 'throw', unlock: 0, cooldown: 0.42, speed: 15,
+    id: 'soup', name: 'Can of Soup', kind: 'throw', cooldown: 0.42, speed: 15,
+    where: 'Modern wing, in front of the soup cans', at: [2.6, -27.6],
     blurb: 'Raises awareness! In 2022 climate activists began throwing soup and mashed potatoes at famous paintings. They chose works behind glass, so the art itself was never hurt.',
   },
   {
-    id: 'crowbar', name: 'Crowbar', kind: 'melee', unlock: 10e6, cooldown: 0.55, range: 2.7, hitAt: 0.42,
+    id: 'crowbar', name: 'Crowbar', kind: 'melee', cooldown: 0.55, range: 2.7, hitAt: 0.42,
+    where: 'Old Masters wing, in a far corner', at: [-28.5, 7.5],
     blurb: 'In 1990 thieves at Boston\'s Isabella Stewart Gardner Museum cut paintings from their frames. 13 works worth around $500M are still missing.',
   },
   {
-    id: 'paintball', name: 'Paintball Marker', kind: 'gun', unlock: 50e6, cooldown: 0.11, speed: 60,
+    id: 'paintball', name: 'Paintball Marker', kind: 'gun', cooldown: 0.11, speed: 60,
+    where: '19th Century wing, near Seurat\'s dots', at: [29.2, -7.2],
     blurb: 'Paintballs are gelatin shells of dye fired at about 90 m/s, roughly 200 mph.',
   },
   {
-    id: 'sledge', name: 'Sledgehammer', kind: 'melee', unlock: 150e6, cooldown: 0.95, range: 2.9, hitAt: 0.5,
+    id: 'sledge', name: 'Sledgehammer', kind: 'melee', cooldown: 0.95, range: 2.9, hitAt: 0.5,
+    where: 'Grand Hall, in a locked case beside David', at: [2.7, -2], opensAt: 150e6,
     blurb: 'In 1972 a man struck Michelangelo\'s Pietà 15 times with a geologist\'s hammer. It has been behind bulletproof glass ever since.',
   },
   {
-    id: 'flame', name: 'Flamethrower', kind: 'stream', unlock: 500e6, range: 7.5,
+    id: 'flame', name: 'Flamethrower', kind: 'stream', range: 7.5,
+    where: 'The Wider World wing, in a locked case in the far corner', at: [27.2, -27.2], opensAt: 600e6,
     blurb: 'Fire is a museum\'s worst nightmare. In 2018 a fire at Brazil\'s National Museum destroyed most of its 20-million-object collection.',
   },
 ];
@@ -33,7 +38,7 @@ const PAINT_COLORS = ['#ff2d95', '#26e07f', '#ffd400', '#2fa8ff', '#ff6a00', '#b
 
 function std(color, opts = {}) { return new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.1, ...opts }); }
 
-function buildViewmodels() {
+export function buildViewmodels() {
   const vm = {};
   // lipstick
   {
@@ -135,7 +140,7 @@ export class WeaponSystem {
     this.tmp = new THREE.Vector3();
     this.flameOn = false;
     this.equipT = 0;
-    this.select(1);
+    this.select(0);
   }
 
   get def() { return WEAPONS[this.current]; }

@@ -1,0 +1,14 @@
+name = "art-blaster-leaderboard"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "art-blaster"
+database_id = "REPLACE_WITH_THE_ID_FROM_wrangler_d1_create"
+
+[vars]
+ALLOWED_ORIGINS = "https://www.highdimensionalcoconuts.com,https://highdimensionalcoconuts.com,http://localhost:8766"
+MAX_BILL = "8600000000"
+# Optional: comma-separated words that turn a submitted name into "Anonymous Billionaire".
+BLOCKLIST = ""

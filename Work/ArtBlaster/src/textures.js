@@ -297,6 +297,112 @@ export const PROCEDURAL = {
     }
     g.textAlign = 'left';
   },
+  // stand-in after Kahlo's "Diego y yo": self-portrait with loose hair, tears and Diego on her forehead
+  kahlo(g, w, h) {
+    const r = rng(1949);
+    const bg = g.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#3f4a2c'); bg.addColorStop(1, '#2a2f1d');
+    g.fillStyle = bg; g.fillRect(0, 0, w, h);
+    const cx = w / 2, cy = h * 0.47, fw = w * 0.3, fh = h * 0.27;
+    // loose dark hair spilling around the face and neck
+    g.strokeStyle = '#1b120d'; g.lineCap = 'round';
+    for (let i = 0; i < 140; i++) {
+      const side = r() < 0.5 ? -1 : 1, x0 = cx + side * fw * (0.3 + r() * 0.5), y0 = cy - fh * 0.9;
+      g.lineWidth = 2 + r() * 5;
+      g.beginPath(); g.moveTo(x0, y0);
+      g.bezierCurveTo(x0 + side * fw * (0.6 + r() * 0.5), cy, x0 + side * fw * (0.2 + r() * 0.8), cy + fh, x0 + side * fw * (r() * 0.9), h * (0.8 + r() * 0.2));
+      g.stroke();
+    }
+    g.fillStyle = '#1b120d';
+    g.beginPath(); g.ellipse(cx, cy - fh * 0.55, fw * 1.05, fh * 0.75, 0, Math.PI, 0); g.fill();
+    // shoulders, blouse, neck
+    g.fillStyle = '#7a1f1a';
+    g.beginPath(); g.ellipse(cx, h * 1.02, w * 0.42, h * 0.2, 0, Math.PI, 0); g.fill();
+    g.fillStyle = '#b97a52'; g.fillRect(cx - fw * 0.42, cy + fh * 0.6, fw * 0.84, fh * 0.6);
+    // face
+    const skin = g.createRadialGradient(cx - fw * 0.2, cy - fh * 0.2, fw * 0.1, cx, cy, fw * 1.1);
+    skin.addColorStop(0, '#d79a6c'); skin.addColorStop(1, '#a8673f');
+    g.fillStyle = skin;
+    g.beginPath(); g.ellipse(cx, cy, fw * 0.78, fh, 0, 0, Math.PI * 2); g.fill();
+    // the unbroken brow
+    g.strokeStyle = '#1b120d'; g.lineWidth = Math.max(3, w * 0.016);
+    g.beginPath(); g.moveTo(cx - fw * 0.55, cy - fh * 0.2);
+    g.quadraticCurveTo(cx - fw * 0.25, cy - fh * 0.38, cx, cy - fh * 0.24);
+    g.quadraticCurveTo(cx + fw * 0.25, cy - fh * 0.38, cx + fw * 0.55, cy - fh * 0.2); g.stroke();
+    // eyes, nose, lips
+    for (const sx of [-1, 1]) {
+      g.fillStyle = '#f1e4d0'; g.beginPath(); g.ellipse(cx + sx * fw * 0.3, cy - fh * 0.06, fw * 0.16, fh * 0.07, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#2a1a10'; g.beginPath(); g.arc(cx + sx * fw * 0.3, cy - fh * 0.06, fh * 0.055, 0, Math.PI * 2); g.fill();
+    }
+    g.strokeStyle = '#7d4a2c'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(cx, cy - fh * 0.02); g.lineTo(cx - fw * 0.06, cy + fh * 0.28); g.lineTo(cx + fw * 0.06, cy + fh * 0.3); g.stroke();
+    g.fillStyle = '#9e2a24';
+    g.beginPath(); g.ellipse(cx, cy + fh * 0.52, fw * 0.2, fh * 0.07, 0, 0, Math.PI * 2); g.fill();
+    // tears
+    g.fillStyle = 'rgba(240,245,255,0.95)';
+    for (const [tx, ty] of [[-0.35, 0.12], [-0.3, 0.3], [0.33, 0.2]]) {
+      g.beginPath(); g.ellipse(cx + tx * fw, cy + ty * fh, w * 0.008, h * 0.012, 0, 0, Math.PI * 2); g.fill();
+    }
+    // Diego, a small round face on her forehead
+    const dx = cx, dy = cy - fh * 0.62, dr = fw * 0.2;
+    g.fillStyle = '#c99068'; g.beginPath(); g.ellipse(dx, dy, dr, dr * 1.1, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#2a1a10';
+    g.beginPath(); g.arc(dx - dr * 0.38, dy - dr * 0.1, dr * 0.13, 0, Math.PI * 2); g.arc(dx + dr * 0.38, dy - dr * 0.1, dr * 0.13, 0, Math.PI * 2); g.fill();
+    g.fillRect(dx - dr * 0.25, dy + dr * 0.45, dr * 0.5, dr * 0.08);
+    canvasGrain(g, w, h, r, 10);
+  },
+
+  // stand-in after Basquiat's 1982 skull: a scrawled head on electric blue, with a crown
+  basquiat(g, w, h) {
+    const r = rng(1982);
+    g.fillStyle = '#1f63c9'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 26; i++) {
+      g.fillStyle = ['#0e3f8f', '#2f7be0', '#e8c23a', '#d23a2a', '#111'][(r() * 5) | 0];
+      g.globalAlpha = 0.35 + r() * 0.4;
+      g.fillRect(r() * w, r() * h, w * (0.05 + r() * 0.2), h * (0.03 + r() * 0.15));
+    }
+    g.globalAlpha = 1;
+    const cx = w * 0.5, cy = h * 0.52, R = w * 0.33;
+    g.fillStyle = '#d8402e';
+    g.beginPath(); g.ellipse(cx, cy, R, R * 1.1, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#e9d8b0';
+    g.beginPath(); g.ellipse(cx + R * 0.1, cy + R * 0.15, R * 0.75, R * 0.7, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#111'; g.lineWidth = w * 0.012; g.lineJoin = 'round';
+    g.beginPath(); g.ellipse(cx, cy, R, R * 1.1, 0, 0, Math.PI * 2); g.stroke();
+    // eyes as target rings, a nose hole, a grid of teeth
+    for (const [ex, ey] of [[-0.35, -0.15], [0.35, -0.12]]) {
+      for (let k = 3; k > 0; k--) {
+        g.fillStyle = k % 2 ? '#111' : '#f0e6c8';
+        g.beginPath(); g.arc(cx + ex * R, cy + ey * R, R * 0.07 * k, 0, Math.PI * 2); g.fill();
+      }
+    }
+    g.fillStyle = '#111'; g.beginPath(); g.moveTo(cx, cy + R * 0.05); g.lineTo(cx - R * 0.08, cy + R * 0.25); g.lineTo(cx + R * 0.08, cy + R * 0.25); g.fill();
+    g.lineWidth = w * 0.006;
+    g.strokeRect(cx - R * 0.45, cy + R * 0.45, R * 0.9, R * 0.3);
+    for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(cx - R * 0.45 + i * R * 0.9 / 8, cy + R * 0.45); g.lineTo(cx - R * 0.45 + i * R * 0.9 / 8, cy + R * 0.75); g.stroke(); }
+    g.beginPath(); g.moveTo(cx - R * 0.45, cy + R * 0.6); g.lineTo(cx + R * 0.45, cy + R * 0.6); g.stroke();
+    // anatomical scribbles
+    g.lineWidth = w * 0.004;
+    for (let i = 0; i < 40; i++) {
+      g.strokeStyle = ['#111', '#f2f2f2', '#e8c23a'][(r() * 3) | 0];
+      g.beginPath(); const x = cx + (r() - 0.5) * R * 1.6, y = cy + (r() - 0.5) * R * 1.8;
+      g.moveTo(x, y); g.lineTo(x + (r() - 0.5) * R * 0.4, y + (r() - 0.5) * R * 0.4); g.stroke();
+    }
+    // three-point crown
+    g.strokeStyle = '#111'; g.fillStyle = '#e8c23a'; g.lineWidth = w * 0.008;
+    const kx = cx - R * 0.35, ky = cy - R * 1.25, kw = R * 0.7, kh = R * 0.35;
+    g.beginPath(); g.moveTo(kx, ky + kh); g.lineTo(kx, ky); g.lineTo(kx + kw * 0.25, ky + kh * 0.55); g.lineTo(kx + kw * 0.5, ky - kh * 0.1);
+    g.lineTo(kx + kw * 0.75, ky + kh * 0.55); g.lineTo(kx + kw, ky); g.lineTo(kx + kw, ky + kh); g.closePath(); g.fill(); g.stroke();
+    // crossed-out words
+    g.fillStyle = '#f2f2f2'; g.font = `bold ${w * 0.05 | 0}px "Courier New", monospace`;
+    const words = ['TEETH', 'SKULL', 'CROWN', 'BONE', 'ORIGIN'];
+    for (let i = 0; i < 5; i++) {
+      const x = r() < 0.5 ? w * 0.03 : w * 0.72, y = h * (0.12 + i * 0.18);
+      g.fillText(words[i], x, y);
+      if (i % 2) { g.fillRect(x, y - w * 0.018, w * 0.2, w * 0.008); }
+    }
+    canvasGrain(g, w, h, r, 12);
+  },
 };
 
 // ---------- weapon + sculpture textures ----------
@@ -461,4 +567,19 @@ export function woodGrainTexture() {
   const t = canvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   return t;
+}
+
+// Yellow with black polka dots, mapped on a sphere (u around, v top to bottom)
+export function pumpkinTexture() {
+  const c = makeCanvas(1024, 512), g = c.getContext('2d'), r = rng(1994);
+  g.fillStyle = '#f2c81c'; g.fillRect(0, 0, 1024, 512);
+  g.fillStyle = '#111';
+  for (let row = 0; row < 14; row++) {
+    const y = 18 + row * 36, n = 24, size = 7 + Math.sin(row / 13 * Math.PI) * 9;
+    for (let i = 0; i < n; i++) {
+      const x = (i + (row % 2) * 0.5) * 1024 / n + (r() - 0.5) * 6;
+      g.beginPath(); g.ellipse(x, y, size * (0.8 + r() * 0.4), size * (0.8 + r() * 0.4) * 1.3, 0, 0, Math.PI * 2); g.fill();
+    }
+  }
+  return canvasTexture(c);
 }

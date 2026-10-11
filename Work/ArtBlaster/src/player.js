@@ -15,7 +15,7 @@ export class Input {
     this.isTouch = matchMedia('(pointer: coarse)').matches;
 
     addEventListener('keydown', (e) => {
-      if (e.repeat) return;
+      if (e.repeat || e.target.closest && e.target.closest('input, textarea')) return;
       this.keys.add(e.code);
       if (/^Digit[1-6]$/.test(e.code)) this.emit('weapon', +e.code.slice(5) - 1);
       if (e.code === 'KeyQ') this.emit('cycle', -1);

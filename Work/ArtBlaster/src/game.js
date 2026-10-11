@@ -1,5 +1,8 @@
 // Rules, the bill, and everything the HUD says: fact cards, quips, unlocks, the final invoice.
 import { WEAPONS } from './weapons.js';
+import { CAPS } from './artworks.js';
+import { shareText, shareLinks, makeCard, gameUrl } from './share.js';
+import { getScores, submitScore, savedName, isOnline } from './leaderboard.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -12,7 +15,7 @@ export function fmtMoney(v) {
 const fmtFull = (v) => '$' + Math.round(v).toLocaleString('en-US');
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-const ROUND_SECONDS = 180;
+const ROUND_SECONDS = 240;
 
 // small JPEG of a canvas (a painting's pristine base, or its live, damaged state)
 function canvasThumb(src, max = 360) {
@@ -82,6 +85,18 @@ const COMBOS = {
   'hepworth:soup': 'Wood soaks up liquid and swells. Water is one of the biggest threats to wooden sculpture.',
   'calder:paintball': 'Calder loved bright primary colors. He might honestly have approved.',
   'calder:soup': 'Duchamp named Calder\'s moving sculptures "mobiles." This one is now a "soupile."',
+  'kandinsky:lipstick': 'Kandinsky believed colors had sounds. This red is a trumpet blast.',
+  'kandinsky:paintball': 'Kandinsky painted music. You are adding drums.',
+  'kusama:paintball': 'Polka dots on a polka-dot pumpkin. Kusama calls her dots a path to infinity.',
+  'basquiat:paintball': 'Basquiat started out spray-painting walls in Manhattan. This feels oddly on-brand.',
+  'basquiat:lipstick': 'Basquiat crossed out words "so you will see them more." Same idea.',
+  'kahlo:soup': 'Kahlo painted on small Masonite boards. Soup soaks into the edges.',
+  'af-klint:soup': 'This is tempera on paper, and paper and soup do not mix. She kept these hidden for decades to protect them.',
+  'horse-fair:paintball': 'Bonheur spent a year and a half sketching real horses for this. They now have spots.',
+  'cleopatra:sledge': 'This statue survived a saloon, a racetrack and a salvage yard. It had a good run.',
+  'fan-kuan:soup': 'Thousand-year-old silk, protected by glass. The museum barely lets light touch it.',
+  'gentileschi:crowbar': 'Artemisia painted heroines who fought back. She would not approve.',
+  'banjo-lesson:soup': 'Tanner wanted this scene to be seen with respect. Maybe put the soup down.',
 };
 
 const MATERIAL_NOTES = {
@@ -102,6 +117,8 @@ const MATERIAL_NOTES = {
   'steel:crowbar': 'A crowbar against steel plate. Calder trained as an engineer; he would admire the leverage.',
   'steel:flame': 'Steel softens around 600 °C. Mostly you are blistering the paint.',
   'wood:flame': 'Wood burns! Carved wooden sculpture is one reason museums ban open flames.',
+  'fiberglass:flame': 'Fiberglass is glass threads set in plastic resin. The resin burns, and the smoke is nasty.',
+  'fiberglass:sledge': 'Fiberglass is light and strong, but a hard hit cracks it. The storm in 2021 broke the real one into three pieces.',
   'wood:sledge': 'Wood splits along the grain. Hepworth chose her timber for how the grain flowed around the hollows.',
 };
 
@@ -159,7 +176,8 @@ export class Game {
   reset() {
     this.bill = 0; this.shownBill = 0;
     this.timeLeft = ROUND_SECONDS;
-    this.unlocked = 2;
+    this.owned = new Set([0]);   // you arrive with only a tube of lipstick
+    this.stallT = 0;
     this.pending = 0; this.popupT = 0;
     this.docentT = 6;
     this.seenWeapons = new Set();
@@ -174,10 +192,13 @@ export class Game {
   start(mode) {
     this.mode = mode;
     this.state = 'play';
-    if (mode === 'free') this.unlocked = WEAPONS.length;
+    if (mode === 'free') WEAPONS.forEach((w, i) => this.owned.add(i));
     this.refreshWeaponBar();
     $('timer').style.display = mode === 'free' ? 'none' : '';
     this.weaponCard(this.weapons.current);
+    if (mode === 'timed') {
+      this.toast('<b>All you have is a tube of lipstick.</b> Better tools are hidden around the museum: look for the beams of light. Start with the <b>can of soup</b> in the Modern wing, straight ahead past David.', 'note', 14000);
+    }
   }
 
   // ---------------------------------------------------------------- events from Destruction
@@ -195,8 +216,13 @@ export class Game {
       this.toast(combo, 'combo');
     }
     if (cost > 2e6 && point) this.effects.money(point);
+    if (cost >= 1e6) this.stallT = 0;
+    const nc = this.nextCase();
+    if (nc && this.bill >= nc.w.opensAt * 0.5 && !this.notes.has('half' + nc.i)) {
+      this.notes.add('half' + nc.i);
+      this.toast(`Halfway to the <b>${esc(nc.w.name.toLowerCase())}</b> case (${fmtMoney(nc.w.opensAt)}). ${this.tipText()}`, 'note', 9000);
+    }
     if (cost > 1e6) this.sfx.play('cash');
-    this.checkUnlocks();
     this.maybeDocent();
   }
 
@@ -299,6 +325,15 @@ export class Game {
     setTimeout(() => el.remove(), 1300);
   }
 
+  docentSay(text, ms = 9000) {
+    const el = $('docent');
+    el.innerHTML = `<b>DOCENT:</b> ${esc(text)}`;
+    el.classList.add('show');
+    clearTimeout(this.docentTO);
+    this.docentTO = setTimeout(() => el.classList.remove('show'), ms);
+    this.docentT = Math.max(this.docentT, 12);
+  }
+
   maybeDocent() {
     if (this.docentT > 0 || Math.random() > 0.4) return;
     this.docentT = 14 + Math.random() * 10;
@@ -309,14 +344,66 @@ export class Game {
     this.docentTO = setTimeout(() => el.classList.remove('show'), 4500);
   }
 
-  checkUnlocks() {
-    while (this.unlocked < WEAPONS.length && this.bill >= WEAPONS[this.unlocked].unlock) {
-      const w = WEAPONS[this.unlocked];
-      this.unlocked++;
-      this.sfx.play('unlock');
-      this.banner('UNLOCKED: ' + w.name.toUpperCase(), this.isTouch ? 'Tap its slot below' : `Press ${this.unlocked} to equip`, 'unlock');
-      this.refreshWeaponBar();
+  // ---------------------------------------------------------------- weapons found in the galleries
+  onPickup(i) {
+    const w = WEAPONS[i];
+    this.owned.add(i);
+    this.sfx.play('unlock');
+    this.banner('FOUND: ' + w.name.toUpperCase(), this.isTouch ? 'It\'s in your hands' : `It's in your hands. Press ${i + 1} to switch back to it later`, 'unlock');
+    this.weapons.select(i);
+    this.weaponCard(i);
+    this.refreshWeaponBar();
+    const next = WEAPONS.find((x, j) => !this.owned.has(j) && !x.opensAt);
+    if (next) this.toast(`Next: the <b>${esc(next.name)}</b> is somewhere in the ${esc(next.where.split(',')[0])}.`, 'note', 9000);
+  }
+
+  onCaseOpened(i) {
+    const w = WEAPONS[i];
+    this.sfx.play('unlock');
+    this.banner(w.name.toUpperCase() + ' CASE OPENED', w.where.replace('in a locked case', 'go get it'), 'unlock');
+    this.refreshWeaponBar();
+  }
+
+  onCaseNear(i) {
+    const w = WEAPONS[i];
+    const need = w.opensAt - this.bill;
+    this.sfx.play('buzzer');
+    this.banner('NOT ENOUGH DAMAGE', `The ${w.name.toLowerCase()} case opens at ${fmtMoney(w.opensAt)}. You need ${fmtMoney(need)} more.`, 'locked');
+    this.toast(`<b>Locked.</b> The insurers insisted: this case only opens once your bill reaches <b>${fmtMoney(w.opensAt)}</b>. ${this.tipText()}`, 'note', 9000);
+  }
+
+  // What could the weapons you own still do to each work? Used to point players at the big money.
+  potential(art) {
+    if (art.destroyed) return 0;
+    const owned = [...this.owned].map(i => WEAPONS[i].id);
+    const heavy = owned.includes('sledge') || owned.includes('flame');
+    if (art.def.kind === 'sculpture') {
+      const max = art.def.material === 'bronze' ? 0.5 : 1;
+      const canBreak = heavy || owned.includes('crowbar') || ['porcelain', 'fiberglass'].includes(art.def.material) && owned.includes('soup');
+      return canBreak ? Math.max(0, max - art.damage) * art.def.value : 0;
     }
+    if (heavy) return (1 - art.damage) * art.def.value;
+    const glazed = art.glass && !art.glass.broken;
+    let frac = 0;
+    for (const id of owned) {
+      if (glazed && id !== 'crowbar') continue;   // liquids only clean the glass
+      const cap = CAPS[id] ?? 0;
+      frac += Math.max(0, cap - (art.byWeapon[id] || 0));
+    }
+    return Math.min(1 - art.damage, frac) * art.def.value;
+  }
+
+  tipText() {
+    const top = this.museum.arts.map(a => [a, this.potential(a)]).filter(([, v]) => v > 1e6)
+      .sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (!top.length) return 'Time to find a heavier tool.';
+    return 'Biggest money still on the walls for your tools: ' +
+      top.map(([a, v]) => `<b>${esc(a.def.title)}</b> (${esc(a.def.artist)}, up to ${fmtMoney(v)})`).join(', ') + '.';
+  }
+
+  nextCase() {
+    return WEAPONS.map((w, i) => ({ w, i })).filter(({ w, i }) => w.opensAt && !this.owned.has(i))
+      .sort((a, b) => a.w.opensAt - b.w.opensAt)[0];
   }
 
   buildWeaponBar() {
@@ -325,7 +412,7 @@ export class Game {
     WEAPONS.forEach((w, i) => {
       const el = document.createElement('button');
       el.className = 'slot';
-      el.innerHTML = `<span class="k">${i + 1}</span><span class="n">${esc(w.name.replace('Tube of ', '').replace('Can of ', '').replace(' Marker', ''))}</span><span class="lock">${fmtMoney(w.unlock)}</span>`;
+      el.innerHTML = `<span class="k">${i + 1}</span><span class="n">${esc(w.name.replace('Tube of ', '').replace('Can of ', '').replace(' Marker', ''))}</span><span class="lock"></span>`;
       el.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); this.trySelect(i); });
       bar.appendChild(el);
     });
@@ -333,15 +420,20 @@ export class Game {
 
   refreshWeaponBar() {
     [...$('weapons').children].forEach((el, i) => {
-      el.classList.toggle('locked', i >= this.unlocked);
-      el.classList.toggle('on', this.weapons && this.weapons.current === i);
+      const w = WEAPONS[i], have = this.owned.has(i);
+      el.classList.toggle('locked', !have);
+      el.classList.toggle('missing', !have && !(w.opensAt && this.bill < w.opensAt));
+      el.classList.toggle('on', !!this.weapons && this.weapons.current === i);
+      el.querySelector('.lock').textContent = have ? '' : w.opensAt && this.bill < w.opensAt ? fmtMoney(w.opensAt) : 'find it';
     });
   }
 
   trySelect(i) {
     if (this.state !== 'play' || i < 0 || i >= WEAPONS.length) return;
-    if (i >= this.unlocked) {
-      this.toast(`${esc(WEAPONS[i].name)} unlocks when your bill reaches ${fmtMoney(WEAPONS[i].unlock)}.`, 'note', 3000);
+    if (!this.owned.has(i)) {
+      const w = WEAPONS[i];
+      const lock = w.opensAt && this.bill < w.opensAt ? ` Its case opens when your bill reaches ${fmtMoney(w.opensAt)}.` : '';
+      this.toast(`You haven't found the <b>${esc(w.name)}</b> yet. Look in the ${esc(w.where.replace(/^./, c => c.toLowerCase()))}.${lock}`, 'note', 5000);
       return;
     }
     if (this.weapons.current !== i) { this.weapons.select(i); this.weaponCard(i); }
@@ -350,14 +442,21 @@ export class Game {
 
   cycle(dir) {
     if (this.state !== 'play') return;
-    const n = this.unlocked;
-    this.trySelect((this.weapons.current + dir + n) % n);
+    const have = [...this.owned].sort((a, b) => a - b);
+    const k = have.indexOf(this.weapons.current);
+    this.trySelect(have[(k + dir + have.length) % have.length]);
   }
 
   // ---------------------------------------------------------------- per frame
   update(dt, look) {
     if (this.state === 'play') {
       this.docentT -= dt;
+      // stuck? have the docent point at the expensive stuff
+      this.stallT = (this.stallT || 0) + dt;
+      if (this.stallT > 25 && this.mode === 'timed' && this.nextCase()) {
+        this.stallT = 0;
+        this.docentSay('Psst. If you insist on doing this, the expensive ones are over there. ' + this.tipText().replace(/<[^>]+>/g, ''));
+      }
       if (this.mode === 'timed') {
         this.timeLeft -= dt;
         if (this.timeLeft <= 0) { this.timeLeft = 0; this.finish(); }
@@ -369,6 +468,7 @@ export class Game {
     this.shownBill += (this.bill - this.shownBill) * Math.min(1, dt * 6);
     if (Math.abs(this.bill - this.shownBill) < 1) this.shownBill = this.bill;
     $('bill-amt').textContent = fmtFull(this.shownBill);
+    this.updateGoal();
     const t = Math.ceil(this.timeLeft);
     $('timer').textContent = `${(t / 60) | 0}:${String(t % 60).padStart(2, '0')}`;
     $('timer').classList.toggle('low', this.mode === 'timed' && this.timeLeft < 30);
@@ -389,6 +489,23 @@ export class Game {
       this.lookArt = null;
       tgt.style.opacity = 0;
     }
+  }
+
+  // progress toward the next time-locked case, under the bill
+  updateGoal() {
+    const el = $('goal');
+    const nc = this.nextCase();
+    if (!nc || this.mode === 'free') { el.style.display = 'none'; return; }
+    el.style.display = '';
+    const { w } = nc;
+    if (this.bill >= w.opensAt) {
+      el.className = 'open';
+      el.innerHTML = `<span>${esc(w.name)} case is OPEN</span><small>${esc(w.where.replace('in a locked case', 'go get it'))}</small>`;
+      return;
+    }
+    const f = Math.min(1, this.shownBill / w.opensAt);
+    el.className = '';
+    el.innerHTML = `<span>Next: ${esc(w.name)} case</span><i><b style="width:${(f * 100).toFixed(1)}%"></b></i><small>${fmtMoney(this.shownBill)} of ${fmtMoney(w.opensAt)}</small>`;
   }
 
   // ---------------------------------------------------------------- inspect card
@@ -454,6 +571,8 @@ export class Game {
       <div class="inv-total">${fmtFull(total)}</div>
       <div class="inv-rank">${esc(rank[1])}</div>
       <div class="inv-sub">${esc(rank[2])}${newBest ? ' <b class="best">New personal best!</b>' : this.best && this.mode === 'timed' ? ` <span class="muted">Best: ${fmtMoney(this.best)}</span>` : ''}</div>
+      <div id="share-box" class="share-box"></div>
+      <div id="lb-box" class="lb-box"></div>
       ${total > 0 ? `<p class="inv-compare">That would pay about <b>${teacher.toLocaleString('en-US')}</b> public-school art teachers for a year: roughly $110,000 each once pension and health benefits are counted, not just salary. Or about <b>${gpus.toLocaleString('en-US')}</b> data-center GPUs at around $30,000 apiece. Jetson would prefer the GPUs.</p>` : ''}
       ${rows ? `<table class="inv-table"><thead><tr><th></th><th>Work</th><th>Artist from · movement</th><th>Damage</th><th>Main tool</th><th>Bill</th></tr></thead><tbody>${rows}</tbody></table>`
         : '<p>You didn\'t damage anything. The docents would like to adopt you.</p>'}
@@ -461,5 +580,116 @@ export class Game {
       ${lessons ? `<h3>Things you can tell people at dinner</h3><ul>${lessons}</ul>` : ''}
       ${untouched.length ? `<p class="muted">Untouched: ${untouched.map(a => esc(a.def.title)).join(', ')}.</p>` : ''}`;
     $('summary').classList.add('open');
+    this.result = {
+      total, mode: this.mode, rankTitle: rank[1], destroyed: this.destroyedCount,
+      items: hit.map(a => {
+        const t = thumbs(a);
+        return {
+          title: a.def.title, cost: a.cost + a.extraCost, destroyed: a.destroyed,
+          thumb: t.after || t.before, stamp: a.destroyed ? (a.fate || 'DESTROYED') : a.toppled ? 'TOPPLED' : '',
+        };
+      }),
+    };
+    this.buildShare(this.result);
+    this.buildLeaderboard(this.result);
+  }
+
+  // ---------------------------------------------------------------- sharing
+  async buildShare(r) {
+    const box = $('share-box');
+    const url = gameUrl(), text = shareText(r), links = shareLinks(text, url);
+    box.innerHTML = `
+      <div class="share-card"><div class="share-wait">Printing your insurance claim…</div></div>
+      <div class="share-side">
+        <h3>Brag about it</h3>
+        <p class="share-text">${esc(text)}</p>
+        <div class="share-btns">
+          ${navigator.share ? '<button class="sbtn main" id="sh-native">Share…</button>' : ''}
+          <a class="sbtn" target="_blank" rel="noopener" href="${links.x}">X</a>
+          <a class="sbtn" target="_blank" rel="noopener" href="${links.bsky}">Bluesky</a>
+          <a class="sbtn" target="_blank" rel="noopener" href="${links.reddit}">Reddit</a>
+          <a class="sbtn" target="_blank" rel="noopener" href="${links.hn}">Hacker News</a>
+          <a class="sbtn" target="_blank" rel="noopener" href="${links.facebook}">Facebook</a>
+          <button class="sbtn" id="sh-copy">Copy text</button>
+          <a class="sbtn" id="sh-dl" download="art-blaster-bill.png">Download image</a>
+        </div>
+      </div>`;
+    $('sh-copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(text + ' ' + url); $('sh-copy').textContent = 'Copied!'; }
+      catch (e) { $('sh-copy').textContent = 'Copy failed'; }
+    });
+    const canvas = await makeCard(r);
+    const png = canvas.toDataURL('image/png');
+    box.querySelector('.share-card').innerHTML = `<img src="${png}" alt="Your Art Blaster insurance claim">`;
+    $('sh-dl').href = png;
+    const native = $('sh-native');
+    if (native) native.addEventListener('click', async () => {
+      try {
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+        const file = new File([blob], 'art-blaster-bill.png', { type: 'image/png' });
+        const data = { title: 'Art Blaster!', text, url };
+        if (navigator.canShare && navigator.canShare({ files: [file] })) data.files = [file];
+        await navigator.share(data);
+      } catch (e) { /* the player cancelled the share sheet */ }
+    });
+  }
+
+  // ---------------------------------------------------------------- Hall of Infamy
+  async buildLeaderboard(r) {
+    const box = $('lb-box');
+    const canPost = r.mode === 'timed' && r.total > 0;
+    box.innerHTML = `
+      <h3>Hall of Infamy ${isOnline() ? '' : '<small>(this browser only)</small>'}</h3>
+      ${canPost ? `<form id="lb-form" class="lb-form">
+          <input id="lb-name" maxlength="18" placeholder="A nickname (no real names!)" value="${esc(savedName())}" autocomplete="off">
+          <button class="btn go" type="submit">Post my bill</button>
+        </form>` : `<p class="muted">${r.mode === 'timed' ? 'Wreck something first.' : 'Free-roam runs don\'t count. Play the 4-minute spree to get on the board.'}</p>`}
+      <div id="lb-status" class="muted"></div>
+      <div class="lb-tabs"><button class="on" data-p="all">All time</button><button data-p="week">This week</button></div>
+      <table class="lb-table" id="lb-table"><tbody><tr><td class="muted">Loading…</td></tr></tbody></table>`;
+    let mine = null;
+    const render = (scores) => {
+      $('lb-table').innerHTML = scores.length ? `<tbody>${scores.map((s, k) => `
+        <tr class="${mine && s.name === mine.name && s.bill === mine.bill ? 'me' : ''}">
+          <td class="num">${k + 1}</td><td><b>${esc(s.name)}</b><br><small>${esc(s.rankTitle || '')}</small></td>
+          <td><small>${s.topPiece ? 'Worst damage: ' + esc(s.topPiece) : ''}</small></td>
+          <td class="num">${fmtFull(s.bill)}</td></tr>`).join('')}</tbody>`
+        : '<tbody><tr><td class="muted">No bills yet. Be the first menace.</td></tr></tbody>';
+    };
+    const load = async (period) => {
+      try {
+        const res = await getScores(period);
+        if (res.unreachable) $('lb-status').textContent = 'The online leaderboard is unreachable right now; showing this browser\'s scores.';
+        render(res.scores);
+      }
+      catch (e) { $('lb-table').innerHTML = `<tbody><tr><td class="muted">${esc(e.message)}</td></tr></tbody>`; }
+    };
+    box.querySelectorAll('.lb-tabs button').forEach(b => b.addEventListener('click', () => {
+      box.querySelectorAll('.lb-tabs button').forEach(x => x.classList.toggle('on', x === b));
+      load(b.dataset.p);
+    }));
+    load('all');
+    const form = $('lb-form');
+    if (form) form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      $('lb-status').textContent = 'Filing your claim…';
+      try {
+        const name = $('lb-name').value.trim() || 'Anonymous Billionaire';
+        const res = await submitScore({
+          name, bill: Math.round(r.total), destroyed: r.destroyed, mode: r.mode,
+          topPiece: r.items[0] ? r.items[0].title : '', rankTitle: r.rankTitle,
+        });
+        mine = { name: res.scores.find(s => s.bill === Math.round(r.total))?.name ?? name, bill: Math.round(r.total) };
+        $('lb-status').innerHTML = (res.unreachable ? 'Couldn\'t reach the online leaderboard, so your bill was saved in this browser. ' : '') +
+          `You're <b>#${res.rank}</b> of ${res.total} ${res.local ? 'in this browser' : 'all-time'}.`;
+        form.remove();
+        render(res.scores);
+      } catch (err) {
+        $('lb-status').textContent = err.message;
+        btn.disabled = false;
+      }
+    });
   }
 }

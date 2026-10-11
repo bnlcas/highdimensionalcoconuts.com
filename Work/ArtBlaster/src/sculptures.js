@@ -1,7 +1,7 @@
 // Sculptures built from primitives. Each builder returns a Group in "design" coordinates
 // (resting on y = 0, roughly centered on x/z); the museum recenters it on its center of mass.
 import * as THREE from 'three';
-import { jarTexture, signatureTexture, woodGrainTexture } from './textures.js';
+import { jarTexture, signatureTexture, woodGrainTexture, pumpkinTexture } from './textures.js';
 import { withBackColor } from './fracture.js';
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -256,6 +256,55 @@ export const BUILDERS = {
       b.position.set(x, y, z); b.rotation.x = Math.PI / 2; b.userData.decor = true;
       g.add(b);
     }
+    return flatten(g);
+  },
+
+  // Cleopatra slumped on her throne, one arm hanging, head fallen back
+  cleopatra() {
+    const g = new THREE.Group(), m = MATERIALS.marble();
+    box(g, m, [0.95, 0.12, 0.85], [0, 0.06, 0]);                       // base
+    box(g, m, [0.8, 0.5, 0.65], [0, 0.37, -0.05]);                     // seat block
+    box(g, m, [0.8, 0.95, 0.12], [0, 0.95, -0.36]);                    // high throne back
+    for (const x of [-0.42, 0.42]) {
+      box(g, m, [0.1, 0.25, 0.6], [x, 0.74, -0.05]);                   // armrests
+      blob(g, m, [x, 0.92, 0.22], 0.07, [0.8, 1, 1.2]);                // sphinx heads (simplified)
+    }
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.62, 24, 1, true), m);
+    robe.position.set(0, 0.62, 0.12); robe.rotation.x = -0.25;
+    g.add(robe);
+    limb(g, m, [0, 0.72, -0.12], [0.03, 1.12, -0.2], 0.14);           // torso leaning back
+    blob(g, m, [0.03, 1.06, -0.12], 0.13, [1.25, 1, 0.8]);
+    limb(g, m, [0.04, 1.2, -0.22], [0.07, 1.3, -0.27], 0.05);         // neck
+    blob(g, m, [0.09, 1.38, -0.28], 0.095, [0.95, 1.05, 1]);          // head tipped back
+    blob(g, m, [0.09, 1.47, -0.3], 0.09, [1.1, 0.4, 1.1]);            // headdress
+    limb(g, m, [-0.17, 1.12, -0.18], [-0.35, 0.82, 0.02], 0.045);      // arm hanging over the side
+    limb(g, m, [-0.35, 0.82, 0.02], [-0.42, 0.55, 0.1], 0.04);
+    limb(g, m, [0.17, 1.12, -0.18], [0.2, 0.86, 0.12], 0.045);        // arm in the lap
+    limb(g, m, [0.2, 0.86, 0.12], [0.02, 0.8, 0.25], 0.04);
+    limb(g, m, [0.02, 0.8, 0.25], [0.08, 0.84, 0.32], 0.012);         // the asp
+    for (const x of [-0.1, 0.1]) box(g, m, [0.1, 0.07, 0.22], [x, 0.16, 0.42]);  // feet
+    return flatten(g);
+  },
+
+  pumpkin() {
+    const g = new THREE.Group();
+    const tex = pumpkinTexture();
+    const mat = new THREE.MeshPhysicalMaterial({
+      map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.25, roughness: 0.3, clearcoat: 0.8, side: THREE.DoubleSide,
+    });
+    const geo = new THREE.SphereGeometry(0.6, 64, 32);
+    const p = geo.attributes.position, v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i);
+      const a = Math.atan2(v.z, v.x);
+      const rib = 1 + 0.07 * Math.abs(Math.cos(a * 4));       // eight lobes
+      v.x *= rib; v.z *= rib; v.y *= 0.78;
+      if (v.y > 0.38) v.y -= (v.y - 0.38) * 0.6;               // dimple at the top
+      p.setXYZ(i, v.x, v.y + 0.47, v.z);
+    }
+    geo.computeVertexNormals();
+    g.add(new THREE.Mesh(geo, mat));
+    cone(g, new THREE.MeshPhysicalMaterial({ color: 0x1d1a12, roughness: 0.4, clearcoat: 0.6 }), [0, 0.84, 0], [0.04, 1.08, 0.02], 0.09, 0.055);
     return flatten(g);
   },
 };

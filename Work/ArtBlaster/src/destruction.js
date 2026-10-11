@@ -45,7 +45,7 @@ export class Destruction {
     if (art.destroyed || amount <= 0) return 0;
     const mat = art.def.material;
     let cap = 1;
-    if (CAPS[weapon] !== undefined) cap = mat === 'paper' ? PAPER_CAPS[weapon] : CAPS[weapon];
+    if (CAPS[weapon] !== undefined && art.def.kind === 'painting') cap = mat === 'paper' ? PAPER_CAPS[weapon] : CAPS[weapon];
     const used = art.byWeapon[weapon] || 0;
     let amt = Math.min(amount, Math.max(0, cap - used));
     if (mat === 'bronze') amt = Math.min(amt, Math.max(0, BRONZE_MAX - art.damage));
