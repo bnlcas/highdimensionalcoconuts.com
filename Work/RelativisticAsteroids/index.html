@@ -16,6 +16,17 @@
   #message { position: fixed; top: 38%; left: 0; right: 0; text-align: center; font-size: 26px;
     letter-spacing: 5px; pointer-events: none; text-shadow: 0 0 12px rgba(160, 200, 255, 0.6); }
   #message small { font-size: 13px; letter-spacing: 2px; color: var(--dim); }
+  #share { position: fixed; top: calc(38% + 92px); left: 0; right: 0; display: none; justify-content: center;
+    gap: 18px; z-index: 4; }
+  #share.open { display: flex; }
+  #share a, #share button { width: 28px; height: 28px; padding: 0; background: none; border: 0; cursor: pointer;
+    color: var(--fg); opacity: 0.55; transition: opacity 0.15s, filter 0.15s; }
+  #share a:hover, #share button:hover, #share a:focus-visible, #share button:focus-visible {
+    opacity: 1; filter: drop-shadow(0 0 4px rgba(160, 200, 255, 0.8)); outline: none; }
+  #share svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.3;
+    stroke-linecap: round; stroke-linejoin: round; }
+  #share-note { position: fixed; top: calc(38% + 132px); left: 0; right: 0; text-align: center;
+    color: var(--dim); letter-spacing: 2px; font-size: 11px; pointer-events: none; }
   #tel { position: fixed; left: 14px; bottom: 12px; pointer-events: none; color: var(--dim); }
   #tel b { color: var(--fg); font-weight: normal; }
   #mode-name { position: fixed; left: 14px; bottom: 50px; color: var(--acc); pointer-events: none; }
@@ -68,6 +79,15 @@
 
 <div id="hud-top"><span id="score">000000</span><span id="lives"></span><span id="level"></span></div>
 <div id="message"></div>
+<div id="share">
+  <a data-share="hn" target="_blank" rel="noopener" aria-label="Share on Hacker News" title="Hacker News"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17"/><path d="M8 7.5l4 5.5 4-5.5M12 13v4.5"/></svg></a>
+  <a data-share="x" target="_blank" rel="noopener" aria-label="Share on X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 4.5h4l11 15h-4z"/><path d="M19 4.5l-6.1 6.9M11.1 13.6L5 19.5"/></svg></a>
+  <a data-share="bsky" target="_blank" rel="noopener" aria-label="Share on Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11C10.4 7.6 6.6 4.5 4.6 4.5c-1.6 0-1.3 3.2-.5 5.3.8 2 2.8 2.6 4.6 2.5-2.6.6-3.6 3-1.5 4.8 2.2 1.8 3.8-.6 4.8-3 1 2.4 2.6 4.8 4.8 3 2.1-1.8 1.1-4.2-1.5-4.8 1.8.1 3.8-.5 4.6-2.5.8-2.1 1.1-5.3-.5-5.3-2 0-5.8 3.1-7.4 6.5z"/></svg></a>
+  <a data-share="reddit" target="_blank" rel="noopener" aria-label="Share on Reddit" title="Reddit"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14.5" rx="7.5" ry="5"/><circle cx="5" cy="11" r="1.6"/><circle cx="19" cy="11" r="1.6"/><circle cx="17.5" cy="5" r="1.4"/><path d="M12 9.5l1-5 3.1.6M9.2 16.5c1.6 1.2 4 1.2 5.6 0"/><circle cx="9.3" cy="13.5" r=".6"/><circle cx="14.7" cy="13.5" r=".6"/></svg></a>
+  <a data-share="fb" target="_blank" rel="noopener" aria-label="Share on Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M13 20.5v-8.5c0-1.6.8-2.5 2.4-2.5H16M10.2 13.5h5"/></svg></a>
+  <button data-share="copy" aria-label="Copy link" title="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+</div>
+<div id="share-note"></div>
 <div id="mode-name"></div>
 <div id="tel"></div>
 

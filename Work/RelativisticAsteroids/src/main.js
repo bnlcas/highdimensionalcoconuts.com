@@ -91,6 +91,7 @@ function startGame() {
 }
 
 window.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('#share')) return; // let Enter activate the focused link
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
     if (!(e.code in KEYMAP)) return;
     e.target.blur();
@@ -180,6 +181,41 @@ function hearExplosions() {
   });
 }
 
+// --- sharing (game over screen) ----------------------------------------------
+
+const SHARE_URL = 'https://www.highdimensionalcoconuts.com/Work/RelativisticAsteroids/';
+const SHARE_TITLE = 'Relativistic Asteroids: Asteroids with a slow speed of light';
+function shareLinks(score) {
+  const u = encodeURIComponent(SHARE_URL), t = encodeURIComponent(SHARE_TITLE);
+  const brag = encodeURIComponent(`I scored ${score} in Relativistic Asteroids, where the speed of light is slow enough to matter.`);
+  return {
+    hn: `https://news.ycombinator.com/submitlink?u=${u}&t=${t}`,
+    x: `https://twitter.com/intent/tweet?text=${brag}&url=${u}`,
+    bsky: `https://bsky.app/intent/compose?text=${brag}%20${u}`,
+    reddit: `https://www.reddit.com/submit?url=${u}&title=${t}`,
+    fb: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+  };
+}
+let shareShown = false;
+function updateShare() {
+  const show = game.phase === 'over';
+  if (show === shareShown) return;
+  shareShown = show;
+  $('share').classList.toggle('open', show);
+  $('share-note').textContent = '';
+  if (!show) return;
+  const links = shareLinks(game.score);
+  document.querySelectorAll('#share a').forEach((a) => (a.href = links[a.dataset.share]));
+}
+$('share').querySelector('[data-share=copy]').addEventListener('click', (e) => {
+  e.currentTarget.blur();
+  navigator.clipboard?.writeText(SHARE_URL).then(
+    () => ($('share-note').textContent = 'LINK COPIED'),
+    () => ($('share-note').textContent = SHARE_URL));
+});
+// links open in a new tab; drop focus so space/enter go back to the game
+$('share').addEventListener('click', (e) => { const a = e.target.closest('a'); if (a) a.blur(); });
+
 // --- HUD --------------------------------------------------------------------
 
 let hudTimer = 0;
@@ -199,6 +235,7 @@ function hud() {
     between: 'LEVEL CLEAR',
   }[game.phase] || (paused ? 'PAUSED' : '');
   $('message').innerHTML = paused && game.phase !== 'attract' ? 'PAUSED' : msg;
+  updateShare();
 }
 
 // --- adaptive resolution ----------------------------------------------------
