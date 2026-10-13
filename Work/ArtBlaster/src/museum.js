@@ -1,4 +1,4 @@
-// The NVIDO Museum of Art: architecture, hanging, plinths, and runtime state for every artwork.
+// The NVDA Museum of Art: architecture, hanging, plinths, and runtime state for every artwork.
 import * as THREE from 'three';
 import { ARTWORKS } from './artworks.js';
 import {
@@ -80,12 +80,12 @@ const PLINTH = {
   'kusama': [20, -20, 0.15, 1.7, 0],
 };
 const MASS = {
-  david: 5600, thinker: 900, moore: 1000, cleopatra: 1200, calder: 300, selene: 300, bird: 60, kusama: 40,
+  david: 5600, thinker: 900, moore: 1000, cleopatra: 1200, calder: 300, selene: 300, bird: 80, kusama: 40,
   fountain: 15, hepworth: 15, jar: 3, 'balloon-dog': 2,
 };
 const UNFRAMED = new Set(['rothko', 'pollock', 'warhol', 'black-square', 'mondrian', 'basquiat', 'af-klint']);
 
-export function buildMuseum(scene, physics, renderer) {
+export function buildMuseum(scene, physics, renderer, models = {}) {
   const colliders = [];     // player AABBs in XZ
   const targets = [];       // raycast targets with userData.hit
   const arts = [];
@@ -205,31 +205,31 @@ export function buildMuseum(scene, physics, renderer) {
   };
   const serif = (px) => `${px}px Georgia, "Times New Roman", serif`;
   const quip = (text, pos, rotY, w = 3.4) => sign([{ text, font: `italic ${serif(84)}` }], w, w * 0.06, pos, rotY, '#6a5d4c');
-  sign([{ text: 'THE NVIDO MUSEUM OF ART', font: `bold ${serif(150)}`, spacing: '18px' }], 10.5, 0.77, new THREE.Vector3(0, 6.0, -10 + F + 0.02), 0, '#3b3329');
+  sign([{ text: 'THE NVDA MUSEUM OF ART', font: `bold ${serif(150)}`, spacing: '18px' }], 10.5, 0.77, new THREE.Vector3(0, 6.0, -10 + F + 0.02), 0, '#3b3329');
   sign([{ text: 'MODERN & CONTEMPORARY', font: serif(150), spacing: '14px' }], 3.6, 0.3, new THREE.Vector3(0, 4.75, -10 + F + 0.02), 0, '#5a5045');
   sign([{ text: 'OLD MASTERS', font: serif(170), spacing: '14px' }], 3.6, 0.4, new THREE.Vector3(-12 + F + 0.02, 4.9, 0), Math.PI / 2, '#5a5045');
-  quip('Legacy hardware: rendered at about one frame per decade', new THREE.Vector3(-12 + F + 0.02, 4.55, 0), Math.PI / 2);
+  quip('Pre-trained entirely by hand. No synthetic data.', new THREE.Vector3(-12 + F + 0.02, 4.55, 0), Math.PI / 2);
   sign([{ text: 'THE 19TH CENTURY', font: serif(170), spacing: '14px' }], 3.6, 0.4, new THREE.Vector3(12 - F - 0.02, 4.9, 0), -Math.PI / 2, '#5a5045');
-  quip('The pre-CUDA era', new THREE.Vector3(12 - F - 0.02, 4.55, 0), -Math.PI / 2, 1.6);
+  quip('Painted before compute was abundant', new THREE.Vector3(12 - F - 0.02, 4.55, 0), -Math.PI / 2, 2.6);
   sign([
-    { text: 'THE JETSON HANG GRAND HALL', font: `bold ${serif(76)}`, spacing: '10px' },
-    { text: 'made possible by one afternoon', font: `italic ${serif(64)}` },
-    { text: 'of NVIDO stock gains', font: `italic ${serif(64)}` },
+    { text: 'THE FOUNDER\'S GRAND HALL', font: `bold ${serif(76)}`, spacing: '10px' },
+    { text: 'made possible by an anonymous founder', font: `italic ${serif(64)}` },
+    { text: 'whose NVDA shares went to the moon', font: `italic ${serif(64)}` },
   ], 8, 1.4, new THREE.Vector3(0, 4.2, 10 - F - 0.02), Math.PI, '#3b3329');
-  sign([{ text: 'GIFT SHOP →  now accepting GPUs', font: `bold 110px Arial, sans-serif` }], 3.6, 0.3, new THREE.Vector3(-7, 2.6, 10 - F - 0.02), Math.PI, '#7a1d1d');
+  sign([{ text: 'GIFT SHOP →  now accepting compute credits', font: `bold 110px Arial, sans-serif` }], 3.6, 0.3, new THREE.Vector3(-7, 2.6, 10 - F - 0.02), Math.PI, '#7a1d1d');
   sign([{ text: 'Please do not touch the art.', font: `italic ${serif(110)}` }], 3.2, 0.35, new THREE.Vector3(7, 1.75, 10 - F - 0.02), Math.PI, '#5a5045');
-  quip('or mine crypto in the galleries', new THREE.Vector3(7, 1.47, 10 - F - 0.02), Math.PI, 2.2);
-  quip('Leather jackets required beyond this point', new THREE.Vector3(-5.5, 2.2, -10 - F - 0.02), Math.PI);
-  quip('This gallery is liquid-cooled. Please do not set it on fire.', new THREE.Vector3(5.5, 2.2, -10 - F - 0.02), Math.PI, 3.8);
-  quip('No ray tracing was used in the making of these paintings.', new THREE.Vector3(12 + F + 0.02, 2.4, -6), Math.PI / 2, 3.8);
-  quip('Please do not overclock the Old Masters.', new THREE.Vector3(-22, 2.4, 10 - F - 0.02), Math.PI, 3);
+  quip('or fine-tune it', new THREE.Vector3(7, 1.47, 10 - F - 0.02), Math.PI, 1.4);
+  quip('Abundance is a mindset. So is vandalism.', new THREE.Vector3(-5.5, 2.2, -10 - F - 0.02), Math.PI);
+  quip('Every work in this wing was made without a single prompt.', new THREE.Vector3(5.5, 2.2, -10 - F - 0.02), Math.PI, 3.8);
+  quip('Please do not ask the paintings to summarize themselves.', new THREE.Vector3(12 + F + 0.02, 2.4, -6), Math.PI / 2, 3.8);
+  quip('Please do not disrupt the Old Masters.', new THREE.Vector3(-22, 2.4, 10 - F - 0.02), Math.PI, 3);
   // the two newer wings, signed from both of their doors
   const wingSign = (title, sub, pos, rotY) => {
     sign([{ text: title, font: serif(170), spacing: '14px' }], 3.6, 0.4, pos, rotY, '#5a5045');
     quip(sub, pos.clone().add(new THREE.Vector3(0, -0.35, 0)), rotY, 2.8);
   };
-  wingSign('OVERLOOKED MASTERS', 'Great artists the textbooks skipped', new THREE.Vector3(-22, 4.9, -10 + F + 0.02), 0);
-  wingSign('OVERLOOKED MASTERS', 'Great artists the textbooks skipped', new THREE.Vector3(-10 + F + 0.02, 4.9, -20), Math.PI / 2);
+  wingSign('OVERLOOKED MASTERS', 'Underrepresented in the training data', new THREE.Vector3(-22, 4.9, -10 + F + 0.02), 0);
+  wingSign('OVERLOOKED MASTERS', 'Underrepresented in the training data', new THREE.Vector3(-10 + F + 0.02, 4.9, -20), Math.PI / 2);
   wingSign('THE WIDER WORLD', '…and the 20th century', new THREE.Vector3(25, 4.9, -10 + F + 0.02), 0);
   wingSign('THE WIDER WORLD', '…and the 20th century', new THREE.Vector3(10 - F - 0.02, 4.9, -20), -Math.PI / 2);
 
@@ -334,7 +334,7 @@ export function buildMuseum(scene, physics, renderer) {
     physics.addStaticBox(plinth.position, new THREE.Vector3(pw / 2, ph / 2, pw / 2));
     addCollider(x - pw / 2, x + pw / 2, z - pw / 2, z + pw / 2);
 
-    const design = BUILDERS[def.shape]();
+    const design = models[def.id] || BUILDERS[def.shape]();
     design.rotation.y = rot;
     design.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(design);

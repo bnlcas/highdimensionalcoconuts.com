@@ -14,7 +14,7 @@ export function shareText(r) {
   const what = wrecked.length
     ? ` I destroyed ${wrecked.length === 1 ? wrecked[0] : `${wrecked.length} masterpieces, including ${wrecked[0]}`}.`
     : r.items.length ? ` I damaged ${r.items[0].title}.` : '';
-  return `I ran up a ${money(r.total)} damage bill at the NVIDO Museum of Art in Art Blaster!${what} Rank: ${r.rankTitle}. Can you do worse?`;
+  return `I ran up a ${money(r.total)} damage bill at the NVDA Museum of Art in Art Blaster!${what} Rank: ${r.rankTitle}. Can you do worse?`;
 }
 
 export function shareLinks(text, url) {
@@ -58,7 +58,7 @@ export async function makeCard(r) {
   g.fillRect(40, 40, W - 80, H - 80);
   g.fillStyle = '#7a1d1d';
   g.font = '800 20px Inter, Arial, sans-serif';
-  g.fillText('INSURANCE ADJUSTER\'S REPORT  ·  THE NVIDO MUSEUM OF ART', 80, 92);
+  g.fillText('INSURANCE ADJUSTER\'S REPORT  ·  THE NVDA MUSEUM OF ART', 80, 92);
   g.fillStyle = '#2f5d00';
   fitText(g, money(r.total), 760, '{px}px Bungee, Impact, sans-serif', 92);
   g.fillText(money(r.total), 76, 190);

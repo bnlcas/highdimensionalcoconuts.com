@@ -60,6 +60,9 @@ export const MATERIALS = {
   porcelain: (map) => new THREE.MeshPhysicalMaterial({
     color: 0xffffff, map: map || null, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05, side: THREE.DoubleSide,
   }),
+  polishedBronze: () => new THREE.MeshPhysicalMaterial({
+    color: 0xf5cf7a, metalness: 1, roughness: 0.07, clearcoat: 0.6, clearcoatRoughness: 0.04, envMapIntensity: 2.6,
+  }),
   patina: () => new THREE.MeshStandardMaterial({ color: 0x4a4834, metalness: 0.8, roughness: 0.5 }),
   wood: () => withBackColor(new THREE.MeshStandardMaterial({ map: woodGrainTexture(), roughness: 0.55 }), 0xc9dde8),
   calderRed: () => new THREE.MeshStandardMaterial({ color: 0xc8301f, metalness: 0.3, roughness: 0.5, side: THREE.DoubleSide }),
@@ -108,7 +111,7 @@ export const BUILDERS = {
       [0.078, 0.9], [0.072, 1.04], [0.054, 1.15], [0.03, 1.24], [0.012, 1.3], [0, 1.32]]
       .map(([r, y]) => new THREE.Vector2(r, y));
     const lathe = new THREE.LatheGeometry(prof, 36);
-    const bird = new THREE.Mesh(lathe, MATERIALS.marble());
+    const bird = new THREE.Mesh(lathe, MATERIALS.polishedBronze());
     bird.position.y = 0.2; bird.scale.set(1, 1, 0.72); bird.rotation.z = -0.05;
     g.add(bird);
     return flatten(g);

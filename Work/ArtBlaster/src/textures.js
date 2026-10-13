@@ -159,7 +159,7 @@ export function placardTexture(art) {
   g.fillStyle = '#7a6a48';
   g.font = 'italic 26px Georgia, serif';
   g.fillText(art.homage ? 'Gallery stand-in: the original is still under copyright.' :
-    'Acquired by the Jetson Hang Foundation for the NVIDO Museum.', L, y);
+    'Acquired with funds from an anonymous NVDA shareholder.', L, y);
   y += 34;
   g.fillStyle = '#7a1d1d';
   g.font = 'bold 28px "Helvetica Neue", Arial, sans-serif';

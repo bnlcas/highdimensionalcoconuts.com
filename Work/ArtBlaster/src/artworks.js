@@ -1,4 +1,4 @@
-// The collection of the (fictional) NVIDO Museum of Art.
+// The collection of the (fictional) NVDA Museum of Art.
 // Values: auction results where one exists; otherwise a labelled estimate with the basis given.
 // Images are public-domain reproductions served by Wikimedia Commons. Works still under copyright
 // (Rothko, Pollock, Warhol, Koons) are represented by procedurally generated gallery stand-ins.
@@ -9,6 +9,8 @@ const wm = (path, file, px = 960) => ({
   url: px ? `${WM}thumb/${path}/${file}/${px}px-${file}` : `${WM}${path}/${file}`,
   page: `https://commons.wikimedia.org/wiki/File:${file}`,
 });
+// Freely licensed photographs of the real sculptures, shown on their placard cards.
+const photo = (path, file, credit) => ({ ...wm(path, file), credit });
 
 export const ARTWORKS = [
   // ------------------------------------------------------------ Old Masters (west wing)
@@ -349,6 +351,7 @@ export const ARTWORKS = [
   {
     id: 'thinker', kind: 'sculpture', material: 'bronze', shape: 'thinker',
     title: 'The Thinker', artist: 'Auguste Rodin',
+    photo: photo('0/0e', 'Le_Penseur_Mus%C3%A9e_Rodin_Paris_S.1295.jpg', 'Cast at the Musée Rodin, Paris. CC0'),
     lifeShort: 'French, 1840–1917',
     born: '12 November 1840 · Paris, France',
     movement: 'Modern sculpture', date: 'Conceived 1880, cast later', medium: 'Bronze',
@@ -362,17 +365,17 @@ export const ARTWORKS = [
     fun: 'Bronze is mostly copper with some tin. It dents and bends, but it won\'t shatter.',
   },
   {
-    id: 'bird', kind: 'sculpture', material: 'marble', shape: 'bird',
+    id: 'bird', kind: 'sculpture', material: 'bronze', shape: 'bird',
     title: 'Bird in Space', artist: 'Constantin Brâncuși',
     lifeShort: 'Romanian-French, 1876–1957',
     born: '19 February 1876 · Hobița, Romania',
-    movement: 'Modernism', date: '1922–1923', medium: 'White marble',
-    w: 0.3, h: 1.4, home: 'Private collection',
-    value: 27_456_000, valueIsEstimate: false,
-    valueNote: 'Sold at Christie\'s New York in May 2005, then the world auction record for any sculpture.',
-    blurb: 'Not a bird but the idea of flight. Brâncuși took away wings and feathers until only the soaring motion was left.',
+    movement: 'Modernism', date: '1928', medium: 'Polished bronze on a stone base',
+    w: 0.3, h: 1.4, home: 'Museum of Modern Art (MoMA), New York',
+    value: 80_000_000, valueIsEstimate: true,
+    valueNote: 'Estimate. A marble Bird in Space sold for $27.5M in 2005; Brâncuși\'s polished bronze "La jeune fille sophistiquée" sold for $71M in 2018.',
+    blurb: 'Not a bird but the idea of flight. Brâncuși took away wings and feathers until only the soaring motion was left, then polished the bronze until it shone like light itself. He made more than a dozen Birds in marble and bronze.',
     history: [
-      '1926: US customs refused to accept that a bronze "Bird in Space" was art and taxed it as a manufactured metal object. In 1928 a court ruled it was art, a landmark case for abstract art.',
+      '1926: US customs refused to accept that a polished bronze Bird in Space was art and taxed it as a manufactured metal object. In 1928 a court ruled it was art, a landmark case for abstract art.',
     ],
     fun: 'As a young man, Brâncuși walked much of the way from Romania to Paris.',
   },
@@ -395,6 +398,7 @@ export const ARTWORKS = [
   {
     id: 'fountain', kind: 'sculpture', material: 'porcelain', shape: 'fountain',
     title: 'Fountain', artist: 'Marcel Duchamp',
+    photo: photo('d/dd', 'Marcel_Duchamp%2C_1917%2C_Fountain%2C_photograph_by_Alfred_Stieglitz.jpg', 'Alfred Stieglitz, 1917. The original is lost; this photo is the main record of it. Public domain'),
     lifeShort: 'French-American, 1887–1968',
     born: '28 July 1887 · Blainville-Crevon, France',
     movement: 'Dada (readymade)', date: '1917 (replica, 1964)', medium: 'Glazed porcelain urinal',
@@ -425,6 +429,7 @@ export const ARTWORKS = [
   {
     id: 'david', kind: 'sculpture', material: 'marble', shape: 'david', toughness: 4,
     title: 'David', artist: 'Michelangelo Buonarroti',
+    photo: photo('e/e3', '%27David%27_by_Michelangelo_FI_Acca_JBU_005.jpg', 'Jörg Bittner Unna, CC BY 4.0'),
     lifeShort: 'Italian, 1475–1564',
     born: '6 March 1475 · Caprese (Republic of Florence)',
     movement: 'High Renaissance', date: '1501–1504', medium: 'Carrara marble',
@@ -442,6 +447,7 @@ export const ARTWORKS = [
   {
     id: 'selene', kind: 'sculpture', material: 'marble', shape: 'selene', toughness: 1.5,
     title: 'Horse of Selene (Parthenon Marbles)', artist: 'Workshop of Phidias',
+    photo: photo('3/32', 'Head_of_a_horse_from_the_chariot_of_Selene%2C_British_Museum.jpg', 'APK, CC BY 4.0'),
     lifeShort: 'Athenian, 5th century BC',
     born: 'Athens, Greece (Phidias was born around 480 BC)',
     movement: 'Classical Greek', date: '438–432 BC', medium: 'Pentelic marble',
@@ -585,6 +591,7 @@ export const ARTWORKS = [
   {
     id: 'cleopatra', kind: 'sculpture', material: 'marble', shape: 'cleopatra', toughness: 1.5,
     title: 'The Death of Cleopatra', artist: 'Edmonia Lewis',
+    photo: photo('4/4d', 'The_Death_of_Cleopatra_by_Edmonia_Lewis_-_5.jpg', 'Public domain'),
     lifeShort: 'American, c. 1844–1907',
     born: 'c. 1844 · upstate New York, USA (African American and Ojibwe heritage)',
     movement: 'Neoclassicism', date: '1876', medium: 'Marble',
@@ -695,7 +702,10 @@ export const ARTWORKS = [
   },
 ];
 
-for (const a of ARTWORKS) if (a.commons) a.img = `img/${a.id}.jpg`;
+for (const a of ARTWORKS) {
+  if (a.commons) a.img = `img/${a.id}.jpg`;
+  if (a.photo) a.photo.img = `img/${a.id}-photo.jpg`;
+}
 
 export const BY_ID = Object.fromEntries(ARTWORKS.map(a => [a.id, a]));
 

@@ -39,6 +39,7 @@ export function fractureGeometry(geom, seeds) {
   const sx = seeds.map(s => s.x), sy = seeds.map(s => s.y), sz = seeds.map(s => s.z);
   const sq = seeds.map(s => s.lengthSq());
   const cells = Array.from({ length: n }, () => []);
+  const dist = new Float64Array(n);
 
   const nearest = (v) => {
     let best = 0, bd = Infinity;
@@ -63,8 +64,17 @@ export function fractureGeometry(geom, seeds) {
     }
     const a = nearest(tri[0]), b = nearest(tri[1]), c = nearest(tri[2]);
     if (a === b && b === c) { cells[a].push(tri); continue; }
-    // straddles a boundary: clip against every cell (cells are convex, so this is exact)
+    // Straddles a boundary: clip it into each cell it could touch (cells are convex, so this is exact).
+    // A point within R of the centroid g can only belong to a cell whose seed is within dmin + 2R of g,
+    // which skips most cells for the small triangles of a scanned model.
+    const gx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, gy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3, gz = (tri[0][2] + tri[1][2] + tri[2][2]) / 3;
+    let R = 0;
+    for (const v of tri) R = Math.max(R, Math.hypot(v[0] - gx, v[1] - gy, v[2] - gz));
+    for (let i = 0; i < n; i++) dist[i] = Math.hypot(sx[i] - gx, sy[i] - gy, sz[i] - gz);
+    let dmin = Infinity;
+    for (let i = 0; i < n; i++) dmin = Math.min(dmin, dist[i]);
     for (let ci = 0; ci < n; ci++) {
+      if (dist[ci] > dmin + 2 * R + 1e-9) continue;
       let poly = tri;
       for (let j = 0; j < n && poly.length >= 3; j++) {
         if (j === ci) continue;

@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Physics, loadAmmo } from './physics.js';
 import { buildMuseum } from './museum.js';
+import { ARTWORKS } from './artworks.js';
+import { loadSculptureModels } from './models.js';
 import { Effects } from './effects.js';
 import { Sfx } from './audio.js';
 import { Input, Player } from './player.js';
@@ -56,7 +58,10 @@ async function boot() {
   try { A = await loadAmmo(); }
   catch (e) { $('loading').textContent = 'Could not load the physics engine (Ammo.js). Check your connection and reload.'; throw e; }
   physics = new Physics(A, scene);
-  museum = buildMuseum(scene, physics, renderer);
+  const models = await loadSculptureModels(ARTWORKS, (done, total) => {
+    $('loading').textContent = `Unpacking sculptures… ${done} / ${total}`;
+  });
+  museum = buildMuseum(scene, physics, renderer, models);
   effects = new Effects(scene);
   sfx = new Sfx();
   input = new Input(canvas);
@@ -90,8 +95,10 @@ function renderSculptureThumbs() {
   key.position.set(2, 4, 3);
   ts.add(key);
   const cam = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
-  const size = renderer.getDrawingBufferSize(new THREE.Vector2());
-  const sq = Math.min(size.x, size.y);
+  // render at a fixed square size so this works even if the window is tiny or not laid out yet
+  const prevRatio = renderer.getPixelRatio();
+  renderer.setPixelRatio(1);
+  renderer.setSize(320, 320, false);
   const out = document.createElement('canvas');
   out.width = out.height = 320;
   const g = out.getContext('2d');
@@ -106,13 +113,15 @@ function renderSculptureThumbs() {
     const view = new THREE.Vector3(0.5, 0.22, 1).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), art.facing || 0);
     cam.position.copy(sphere.center).addScaledVector(view, dist);
     cam.lookAt(sphere.center);
-    cam.aspect = size.x / size.y;
+    cam.aspect = 1;
     cam.updateProjectionMatrix();
     renderer.render(ts, cam);
-    g.drawImage(renderer.domElement, (size.x - sq) / 2, (size.y - sq) / 2, sq, sq, 0, 0, 320, 320);
+    g.drawImage(renderer.domElement, 0, 0, 320, 320);
     art.thumb = out.toDataURL('image/jpeg', 0.85);
     ts.remove(clone);
   }
+  renderer.setPixelRatio(prevRatio);
+  onResize();
 }
 
 function setState(s) {

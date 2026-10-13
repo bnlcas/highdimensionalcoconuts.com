@@ -36,12 +36,12 @@ function thumbs(art) {
   return { before: art.thumb, after: null };
 }
 
-function thumbHTML(art, cls) {
+function thumbHTML(art, cls, caption = '') {
   const t = thumbs(art);
   const stamp = art.destroyed ? (art.fate || 'DESTROYED') : art.toppled ? 'TOPPLED' : '';
   const fig = (src, label, st) => src ? `<figure class="${cls}"><div class="tw"><img src="${src}" alt="">${st ? `<span class="stamp">${st}</span>` : ''}</div>${label ? `<figcaption>${label}</figcaption>` : ''}</figure>` : '';
   if (t.after) return fig(t.before, 'Before', '') + fig(t.after, 'After', stamp);
-  return fig(t.before, '', stamp);
+  return fig(t.before, caption, stamp);
 }
 
 const COMBOS = {
@@ -141,12 +141,14 @@ const DOCENT = [
   'Museums keep the humidity near 50% to protect paintings. This is... not that.',
   'Most of a museum\'s collection is in storage. Please don\'t find it.',
   'That piece survived wars, floods and thieves. Until today.',
-  'Mr. Hang bought this entire collection with one afternoon of stock gains.',
-  'Van Gogh had no ray tracing. Look how well he did anyway.',
-  'Michelangelo carved David without a single tensor core.',
-  'Please do not overclock the sculptures.',
-  'That was hand-rendered, sir. At about one frame per decade.',
-  'The founder\'s leather jacket is NOT part of the collection. Please leave it alone.',
+  'Our founder bought the whole collection with one afternoon of NVDA gains. He calls it "a rounding error."',
+  'Sir, "move fast and break things" was a metaphor.',
+  'The founder calls this "creative destruction." The insurers have other words for it.',
+  'This is not disruption. This is vandalism.',
+  'Michelangelo carved David with no compute at all. Imagine.',
+  'Please stop calling the Rembrandt "legacy content."',
+  'Our founder says art will be "solved" by 2030. The docents disagree.',
+  'Accelerate? Sir, this is a museum.',
 ];
 
 const RANKS = [
@@ -513,7 +515,9 @@ export class Game {
     const d = art.def;
     const dims = d.kind === 'painting' ? `${Math.round(d.h * 100)} × ${Math.round(d.w * 100)} cm` : `about ${Math.round(d.h * 100)} cm tall`;
     $('inspect-body').innerHTML = `
-      <div class="ins-thumbs">${thumbHTML(art, 'ins-fig')}</div>
+      <div class="ins-thumbs">${d.photo
+        ? `<figure class="ins-fig"><img src="${d.photo.img}" alt="Photo of ${esc(d.title)}"><figcaption>The real thing</figcaption></figure>${thumbHTML(art, 'ins-fig', 'In the game')}`
+        : thumbHTML(art, 'ins-fig')}</div>
       <div class="ins-kicker">${esc(d.movement)}</div>
       <h2>${esc(d.title)}</h2>
       <div class="ins-artist">${esc(d.artist)} <span>(${esc(d.lifeShort)})</span></div>
@@ -531,6 +535,8 @@ export class Game {
       <p class="ins-fun"><b>Fun fact:</b> ${esc(d.fun)}</p>
       ${d.homage ? '<p class="ins-note">This is a gallery stand-in: the original is still under copyright.</p>' : ''}
       ${d.commons ? `<p class="ins-note">Image: <a href="${d.commons.page}" target="_blank" rel="noopener">Wikimedia Commons</a> (public domain).</p>` : ''}
+      ${d.photo ? `<p class="ins-note">Photo: <a href="${d.photo.page}" target="_blank" rel="noopener">${esc(d.photo.credit)}</a>, via Wikimedia Commons.</p>` : ''}
+      ${d.model && d.model.credit ? `<p class="ins-note">3D model: ${esc(d.model.credit)}</p>` : ''}
       <div class="ins-bill">Your bill for this piece so far: <b>${fmtFull(art.cost + art.extraCost)}</b> · condition ${Math.round((1 - art.damage) * 100)}%</div>`;
     $('inspect').classList.add('open');
   }
@@ -567,13 +573,13 @@ export class Game {
     const gpus = Math.round(total / 30000);
     const lessons = hit.slice(0, 4).map(a => `<li><b>${esc(a.def.artist)}</b>: ${esc(a.def.fun)}</li>`).join('');
     $('summary-body').innerHTML = `
-      <div class="inv-kicker">INSURANCE ADJUSTER'S REPORT · THE NVIDO MUSEUM OF ART</div>
+      <div class="inv-kicker">INSURANCE ADJUSTER'S REPORT · THE NVDA MUSEUM OF ART</div>
       <div class="inv-total">${fmtFull(total)}</div>
       <div class="inv-rank">${esc(rank[1])}</div>
       <div class="inv-sub">${esc(rank[2])}${newBest ? ' <b class="best">New personal best!</b>' : this.best && this.mode === 'timed' ? ` <span class="muted">Best: ${fmtMoney(this.best)}</span>` : ''}</div>
       <div id="share-box" class="share-box"></div>
       <div id="lb-box" class="lb-box"></div>
-      ${total > 0 ? `<p class="inv-compare">That would pay about <b>${teacher.toLocaleString('en-US')}</b> public-school art teachers for a year: roughly $110,000 each once pension and health benefits are counted, not just salary. Or about <b>${gpus.toLocaleString('en-US')}</b> data-center GPUs at around $30,000 apiece. Jetson would prefer the GPUs.</p>` : ''}
+      ${total > 0 ? `<p class="inv-compare">That would pay about <b>${teacher.toLocaleString('en-US')}</b> public-school art teachers for a year: roughly $110,000 each once pension and health benefits are counted, not just salary. Or about <b>${gpus.toLocaleString('en-US')}</b> data-center GPUs at around $30,000 apiece, which the founder insists would "accelerate humanity" more.</p>` : ''}
       ${rows ? `<table class="inv-table"><thead><tr><th></th><th>Work</th><th>Artist from · movement</th><th>Damage</th><th>Main tool</th><th>Bill</th></tr></thead><tbody>${rows}</tbody></table>`
         : '<p>You didn\'t damage anything. The docents would like to adopt you.</p>'}
       ${this.glassFees ? `<p class="muted">Includes ${fmtFull(this.glassFees)} for glass cleaning and replacement.</p>` : ''}
