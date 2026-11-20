@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crossover-Over</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A phased proposal to quiet, bridge and eventually bury Highway 1 where it crosses Golden Gate Park, with terrain, noise and cost analysis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..650;1,8..60,400&display=swap">
+<style>
+/* Layout: a long civic report, one reading column (~68ch) with figures that break out wider, set like a park-department plan set. */
+:root{
+  --paper:#f2f4ef; --sheet:#fbfcf9; --ink:#1a231e; --muted:#5f6c64; --rule:#d3dad1;
+  --moss:#2e5c45; --moss-soft:#dbe6dc; --hwy:#c4461f; --hwy-soft:#f6dfd3; --water:#5f93ab; --gold:#a77a17;
+  --f-display:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --col:44rem; --wide:72rem;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#111714; --sheet:#171f1b; --ink:#e3e9e4; --muted:#9aa89f; --rule:#2c3832;
+  --moss:#83c59f; --moss-soft:#1f3329; --hwy:#f0805a; --hwy-soft:#3a2219; --water:#7fb2c9; --gold:#d6a640; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#111714; --sheet:#171f1b; --ink:#e3e9e4; --muted:#9aa89f; --rule:#2c3832;
+  --moss:#83c59f; --moss-soft:#1f3329; --hwy:#f0805a; --hwy-soft:#3a2219; --water:#7fb2c9; --gold:#d6a640; color-scheme:dark }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+img,video,svg,canvas{max-width:100%}
+a{color:var(--moss);text-underline-offset:2px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--hwy);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.12;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.6rem,3.2vw,2.15rem);font-weight:700;font-stretch:88%;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:650;font-stretch:95%}
+p{margin:0}
+.col{max-width:var(--col);margin-inline:auto}
+.wide{max-width:var(--wide);margin-inline:auto}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.mono,.eyebrow,.sta{font-family:var(--f-mono)}
+.eyebrow{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+section{padding-block:3.2rem 1rem;border-top:1px solid var(--rule)}
+section > .col > h2{margin-bottom:.35rem}
+.lede{font-size:1.15rem}
+
+/* masthead */
+.mast{padding-block:3rem 2.2rem}
+.mast .route{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin-bottom:1.4rem}
+.shield{display:inline-grid;place-items:center;width:2.4rem;height:2.6rem;border:2px solid var(--ink);border-radius:.4rem .4rem 1.2rem 1.2rem;font-family:var(--f-display);font-weight:800;font-size:1.15rem}
+.mast h1{font-size:clamp(2.8rem,9vw,6.2rem);font-weight:800;font-stretch:78%;letter-spacing:-.025em;line-height:.92}
+.mast h1 .over{color:var(--moss)}
+.mast .dek{font-size:clamp(1.15rem,2.2vw,1.4rem);max-width:40rem;margin-top:1.1rem}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:2rem}
+.fig{background:var(--sheet);padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.fig b{font-family:var(--f-display);font-size:2rem;font-weight:750;font-stretch:85%;line-height:1;font-variant-numeric:tabular-nums}
+.fig span{font-size:.9rem;color:var(--muted);line-height:1.35}
+.fig.hot b{color:var(--hwy)}
+
+/* figures */
+figure{margin:1.6rem 0 0}
+figcaption{font-size:.88rem;color:var(--muted);margin-top:.6rem;max-width:var(--col)}
+.plate{background:var(--sheet);border:1px solid var(--rule);border-radius:4px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mapbox{position:relative;min-width:720px}
+.mapbox svg{display:block;width:100%;height:auto}
+.toolbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;padding:.7rem .8rem;border-bottom:1px solid var(--rule)}
+.toolbar .lab{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:.3rem}
+.seg{display:flex;flex-wrap:wrap;gap:.3rem}
+.seg button{font:500 .82rem/1 var(--f-display);font-stretch:92%;padding:.5rem .7rem;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;padding:.6rem .8rem;border-top:1px solid var(--rule);font-size:.8rem;font-family:var(--f-mono);color:var(--muted);align-items:center}
+.sw{display:inline-block;width:.95rem;height:.7rem;border-radius:2px;vertical-align:-1px;margin-right:.3rem}
+.readout{padding:.7rem .8rem;font-size:.95rem;border-top:1px solid var(--rule)}
+.readout b{font-variant-numeric:tabular-nums}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:.6rem .6rem;border-bottom:1px solid var(--rule)}
+.tbl th{font-family:var(--f-mono);font-weight:500;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tbl td.num,.tbl th.num{text-align:right;white-space:nowrap}
+.verdict{display:inline-block;font:600 .72rem/1 var(--f-mono);letter-spacing:.05em;text-transform:uppercase;padding:.3rem .45rem;border-radius:3px;white-space:nowrap}
+.v-holds{background:var(--moss-soft);color:var(--moss)}
+.v-close{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
+.v-fix{background:var(--hwy-soft);color:var(--hwy)}
+
+/* phases */
+.phase{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;padding-block:1.8rem 0}
+.phase-head{display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap}
+.phase-num{font:800 3.2rem/0.8 var(--f-display);font-stretch:75%;color:var(--moss)}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.spec div{background:var(--sheet);padding:.65rem .8rem;display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.spec dt{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.spec dd{margin:0;font-family:var(--f-display);font-weight:650;font-size:1.05rem;font-variant-numeric:tabular-nums}
+ul.tight{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.35rem}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,19rem) minmax(0,1fr);gap:0}
+.calc .inputs{padding:1rem;border-right:1px solid var(--rule);display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.9rem 1.4rem;align-content:start}
+.calc .outputs{padding:1rem;min-width:0}
+.slider{display:flex;flex-direction:column;gap:.25rem}
+.slider label{display:flex;justify-content:space-between;gap:.5rem;font-size:.85rem}
+.slider label output{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--moss);white-space:nowrap}
+.slider small{color:var(--muted);font-size:.76rem;line-height:1.3}
+input[type=range]{width:100%;accent-color:var(--moss)}
+.bcr{font-family:var(--f-display);font-weight:700}
+.bcr.good{color:var(--moss)} .bcr.bad{color:var(--hwy)}
+@media (max-width:1040px){ .calc{grid-template-columns:minmax(0,1fr)} .calc .inputs{border-right:0;border-bottom:1px solid var(--rule)} }
+
+/* 3d */
+#three{position:relative;height:min(62vh,520px);min-height:320px;background:var(--sheet)}
+#three canvas{display:block;width:100%!important;height:100%!important}
+#three .hint{position:absolute;left:.7rem;bottom:.6rem;font:.74rem var(--f-mono);color:var(--muted);pointer-events:none}
+#three .fallback{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:.9rem;text-align:center;padding:1rem}
+
+.callout{border-left:3px solid var(--moss);padding:.2rem 0 .2rem 1rem}
+.callout.warn{border-color:var(--hwy)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:1.2rem}
+.card{background:var(--sheet);border:1px solid var(--rule);padding:1rem;border-radius:4px;display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.9rem}
+.steps li{counter-increment:s;display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem}
+.steps li::before{content:counter(s);font:700 1.3rem/1.2 var(--f-display);color:var(--moss)}
+.media-slot{aspect-ratio:16/9;max-width:100%;display:grid;place-items:center;text-align:center;color:var(--muted);padding:1rem;background:repeating-linear-gradient(135deg,var(--sheet) 0 14px,var(--paper) 14px 28px)}
+.media-slot video{width:100%;height:100%;object-fit:cover}
+footer{padding-block:2.5rem 4rem;border-top:1px solid var(--rule);font-size:.88rem;color:var(--muted)}
+.src{font-size:.86rem;display:flex;flex-direction:column;gap:.35rem;padding-left:1.1rem;margin:0}
+.src li{overflow-wrap:anywhere}
+svg text{font-family:var(--f-mono)}
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important;transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+
+<header class="mast wide">
+  <div class="route">
+    <span class="shield" aria-label="California State Route 1">1</span>
+    <span class="eyebrow">Golden Gate Park · State Route 1, postmiles 4.05–5.00 · A proposal</span>
+  </div>
+  <h1>Crossover-<span class="over">Over</span></h1>
+  <p class="dek">Highway 1 runs 0.93 miles through the middle of Golden Gate Park. This plan quiets it, bridges it, and eventually buries it, in four phases that each stand on their own.</p>
+  <div class="figs" role="list">
+    <div class="fig hot" role="listitem"><b>71,000</b><span>vehicles a day on Crossover Drive (Caltrans 2024 count, Fulton St)</span></div>
+    <div class="fig hot" role="listitem"><b id="fig-acres">96 ac</b><span>of parkland above 55 dBA from Crossover traffic alone (daytime model)</span></div>
+    <div class="fig" role="listitem"><b>0</b><span>places to cross the highway along the 0.55-mile Fulton Street edge</span></div>
+    <div class="fig" role="listitem"><b>1936–40</b><span>built as a WPA project to feed the new Golden Gate Bridge</span></div>
+  </div>
+</header>
+
+<main>
+
+<section id="scar">
+  <div class="col stack">
+    <span class="eyebrow">The problem</span>
+    <h2>A six-lane highway through the quietest part of the park</h2>
+    <p class="lede">Crossover Drive and the Park Presidio Bypass carry State Route 1 from Lincoln Way at 19th Avenue to Fulton Street at Park Presidio, with a two-lane spur out to Fulton at 25th Avenue. Caltrans controls the road. Rec &amp; Park controls everything around it.</p>
+    <p>Golden Gate Park is about three miles long and half a mile wide, so the highway cuts it at its waist. For about 1,850 feet between the MLK Drive signal and the JFK underpass there is no way across. Along Fulton, from Park Presidio to the bypass curve near 21st Avenue, there is none for over half a mile. The map below models where that traffic is loud enough to change what the park feels like.</p>
+  </div>
+  <figure class="wide">
+    <div class="plate">
+      <div class="toolbar">
+        <span class="lab">Show</span>
+        <div class="seg" id="scen-map" role="group" aria-label="Scenario"></div>
+      </div>
+      <div class="scroll-x"><div class="mapbox" id="map"></div></div>
+      <div class="legend" id="map-legend"></div>
+      <div class="readout" id="map-readout"></div>
+    </div>
+    <figcaption>Modeled daytime-hour noise from Highway 1 only (Leq, dBA). Other roads, wind and birds are not included, so this shows how much sound the highway adds. Hillshade from USGS 3DEP lidar elevation; roads, paths and lakes from OpenStreetMap. Station labels (STA) are feet along the highway from Fulton Street.</figcaption>
+  </figure>
+  <figure class="col">
+    <div class="plate" style="padding:.4rem .2rem .2rem">
+      <div class="toolbar" style="border:0;padding-bottom:0">
+        <span class="lab">Threshold</span>
+        <div class="seg" id="thr" role="group" aria-label="Noise threshold"></div>
+      </div>
+      <div id="acres-chart"></div>
+    </div>
+    <figcaption>Park acres above the chosen level in each scenario. 55 dBA is the WHO daytime outdoor guideline for serious annoyance. 67 dBA is the federal highway noise criterion for parks (23 CFR 772, Category C). 57 dBA (Category A) applies where serenity is the point.</figcaption>
+  </figure>
+</section>
+
+<section id="facts">
+  <div class="col stack">
+    <span class="eyebrow">Fact check</span>
+    <h2>What holds up, and what to fix before you pitch it</h2>
+    <p>Each claim in the original pitch was checked against primary data where possible: Caltrans traffic counts, OpenStreetMap geometry, USGS lidar elevations, and published reporting.</p>
+  </div>
+  <div class="wide scroll-x" style="margin-top:1.2rem">
+    <table class="tbl" style="min-width:680px">
+      <thead><tr><th style="width:28%">Claim</th><th style="width:10%">Verdict</th><th>What the data says</th></tr></thead>
+      <tbody>
+        <tr><td>Highway 1 runs straight through the park.</td><td><span class="verdict v-holds">Holds</span></td><td>Crossover Drive and Park Presidio Bypass Drive are signed CA-1. WPA crews built them from 1936 to 1940 as the Golden Gate Bridge approach. SFMTA notes Crossover is the one road in the park that Caltrans, not Rec &amp; Park, controls.</td></tr>
+        <tr><td>It winds from 19th Ave to Park Presidio (about 12th Ave).</td><td><span class="verdict v-close">Close</span></td><td>Park Presidio sits on the 14th/15th Avenue line. The state route inside the park is 0.93 mi by centerline (Caltrans postmiles 4.05 to 5.00 give 0.95 mi). A separate two-lane spur adds 0.3 mi out to Fulton at 25th Ave, so the highway affects about 11 blocks of park frontage.</td></tr>
+        <tr><td>A band around it takes out almost 100 acres.</td><td><span class="verdict v-holds">Holds</span></td><td>Within 400 ft of the roadways (spur included) there are 99 acres of park. The noise model puts 96 acres above 55 dBA on soft ground, and up to 219 acres if the ground reflects sound like pavement. 52 acres are above 60 dBA.</td></tr>
+        <tr><td>It is really quite loud.</td><td><span class="verdict v-holds">Holds</span></td><td>71,000 vehicles a day, 5,200 in the peak hour, 1.6% trucks. That models to about 72 dBA at 50 ft, the level of a busy freeway shoulder. About 20 acres exceed the federal 67 dBA criterion for parks.</td></tr>
+        <tr><td>It is hard to get from Middle Lake to Stow Lake.</td><td><span class="verdict v-close">Partly</span></td><td>The east–west crossings exist at MLK (signal) and JFK (underpass), so walks between the lake and the western meadows run 1.4 to 1.8 times the straight-line distance. The worse gap is the Fulton edge: from Fulton &amp; 17th Ave to the boathouse is 1,212 m by path against 429 m straight, because nothing crosses the bypass.</td></tr>
+        <tr><td>About 150 ft of drop from Stow Lake to Transverse Drive.</td><td><span class="verdict v-fix">Correction</span></td><td>The lake surface is about 285 ft and Transverse Drive is about 205–210 ft, a drop of 75–80 ft. Strawberry Hill's summit (about 429 ft in the lidar) is 220 ft above Transverse, which may be the number you had in mind. The highway sits halfway down that slope, at 245–250 ft.</td></tr>
+        <tr><td>"Stow Lake."</td><td><span class="verdict v-fix">Update</span></td><td>The Recreation and Park Commission renamed it Blue Heron Lake in January 2024, along with the drive and boathouse. Use the new name in anything going to City Hall.</td></tr>
+        <tr><td>The MacArthur Tunnel, with a rainbow around the edge, barely disrupts the Presidio.</td><td><span class="verdict v-close">Mixed</span></td><td>The MacArthur Tunnel (1938–40, about 1,300 ft) carries Highway 1 under the Presidio and has Art Deco portals. The rainbow portal is the Robin Williams Tunnel on US-101 in Marin. The point stands: a covered highway leaves the land above it usable.</td></tr>
+        <tr><td>Presidio Tunnel Tops is a park on top of the 101 tunnels.</td><td><span class="verdict v-holds">Holds</span></td><td>14 acres over the Presidio Parkway tunnels, opened July 2022, $118M, of which $98M was raised philanthropically. It logged five million visits in its first three years.</td></tr>
+        <tr><td>Olmsted said it couldn't be done.</td><td><span class="verdict v-holds">Holds</span></td><td>In 1866 Olmsted advised that the Outside Lands' soil and climate could not support a park of lawns and large shade trees. William Hammond Hall began surveying the dunes in 1870 and stabilized them; John McLaren finished the job.</td></tr>
+        <tr><td>Brian Chesky gave about $100M for park renovations.</td><td><span class="verdict v-holds">Holds</span></td><td>Announced November 9, 2026 with Mayor Lurie: $100M, the largest single-donor gift in city history. About $39M goes first to five projects, and Rec &amp; Park has a year to choose projects for the rest. The mayor asked other leaders to follow.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="terrain">
+  <div class="col stack">
+    <span class="eyebrow">Ground truth</span>
+    <h2>The highway is a bench cut into Strawberry Hill</h2>
+    <p>Walk the road in lidar and the shape is clear. North of MLK, the highway is cut into the west flank of Strawberry Hill: the ground rises 30–40 ft to Blue Heron Lake on one side and falls 20–40 ft toward Transverse Drive on the other. Along Fulton the bypass runs nearly level, slightly above the ground to the south. That shape decides every design below. A bridge can land on the hill at grade on the east side. A lid can tie into the hillside on the east and has to be built up on the west. An underpass works best along Fulton, where the road is already a little high.</p>
+  </div>
+  <figure class="wide">
+    <div class="plate scroll-x"><div id="longprofile" style="min-width:720px"></div></div>
+    <figcaption>Long profile of Highway 1 through the park, Fulton Street (left) to Lincoln Way (right), from the USGS bare-earth elevation model. The JFK crossing is interpolated, since bare-earth data drops the bridge deck to JFK level. Ground is sampled 30–40 m out on either side.</figcaption>
+  </figure>
+</section>
+
+<section id="plan">
+  <div class="col stack">
+    <span class="eyebrow">The plan</span>
+    <h2>Four phases, cheapest first</h2>
+    <p>Each phase is useful even if the next one never happens, and each one makes the next easier to argue for. Costs are planning-level ranges in 2026 dollars, including design, Caltrans oversight and contingency. They are Class 5 estimates (AACE), which means the real number can land 50% lower or 100% higher. Their job is to tell you which conversation you are in.</p>
+  </div>
+
+  <div class="col phase" id="p0">
+    <div class="phase-head"><span class="phase-num">0</span><h3>Quiet Crossover: pavement and speed</h3></div>
+    <p>The fastest way to give acres back to the park is to make the road itself quieter. At 35 mph most highway noise comes from tires on pavement. Rubberized open-graded asphalt is the quieter surface with the longest track record in Caltrans' own test sections. Dropping the posted limit from 35 to 30 mph lowers the source by about 1.7 dB in this model. Together that is roughly 4 dB, which moves the 55 dBA line in by a third.</p>
+    <dl class="spec">
+      <div><dt>Cost</dt><dd>$3–8M</dd></div>
+      <div><dt>Acres brought under 55 dBA</dt><dd id="p0-ac">38 ac</dd></div>
+      <div><dt>Timeline</dt><dd>1–3 years</dd></div>
+      <div><dt>Who decides</dt><dd>Caltrans District 4</dd></div>
+    </dl>
+    <p class="small muted">The ask: put Crossover's next resurfacing on rubberized open-graded asphalt, request an engineering and traffic survey for 30 mph, and add vegetated berms where the bench has room. If Caltrans already has SHOPP resurfacing programmed here, the extra cost is the difference in mix, not a new project.</p>
+  </div>
+
+  <div class="col phase" id="p1">
+    <div class="phase-head"><span class="phase-num">1</span><h3>The Crossover-Overs: one underpass, one bridge</h3></div>
+    <p>Two crossings fix the two worst gaps.</p>
+    <div class="two">
+      <div class="card">
+        <span class="eyebrow">1a · STA 10+83 · about 17th Ave</span>
+        <h4 style="font-family:var(--f-display);font-size:1.05rem">Fulton Grotto</h4>
+        <p class="small">A 16-ft-wide walking and biking underpass beneath the Park Presidio Bypass. The road sits a few feet above the park to the south, so the tunnel floor meets grade on the park side and a 5% ramp climbs to Fulton. It cuts the walk from Fulton &amp; 17th Ave to the Blue Heron Lake boathouse from 1,212 m to about 834 m. It also follows the park's own tradition: the 1889 Alvord Lake Bridge, the first reinforced-concrete bridge in the country, is a pedestrian grotto under a park road.</p>
+      </div>
+      <div class="card">
+        <span class="eyebrow">1b · STA 38+06 · Strawberry Hill</span>
+        <h4 style="font-family:var(--f-display);font-size:1.05rem">Strawberry Hill Bridge</h4>
+        <p class="small">A walking and biking bridge from the Blue Heron Lake shore road to the Transverse Drive trail, crossing the highway between MLK and JFK. On the east the deck lands into the hillside at grade with no ramp. On the west it continues as a ramp-trail through the woods, about 60 ft down to Transverse at no more than 5%. The distance saved is modest, since MLK is close. The gain is a level, signal-free way across that doesn't drop you into the 6-lane intersection.</p>
+      </div>
+    </div>
+    <figure>
+      <div class="stack">
+        <div class="plate scroll-x"><div id="sec-grotto" style="min-width:560px"></div></div>
+        <div class="plate scroll-x"><div id="sec-bridge" style="min-width:560px"></div></div>
+      </div>
+      <figcaption>Cross-sections drawn on the lidar ground line at each site; vertical exaggeration is noted on each. Top: the Fulton Grotto, looking east, Fulton Street on the left. Bottom: the Strawberry Hill Bridge, looking north, Transverse Drive on the left and Blue Heron Lake on the right.</figcaption>
+    </figure>
+    <dl class="spec">
+      <div><dt>Total</dt><dd>$29–51M</dd></div>
+      <div><dt>Grotto</dt><dd>$9–16M</dd></div>
+      <div><dt>Bridge, 16 ft deck</dt><dd>$20–35M</dd></div>
+      <div><dt>Timeline</dt><dd>4–6 years</dd></div>
+    </dl>
+    <p class="small muted">A 60-ft planted land bridge instead of a 16-ft deck would run $50–80M. Benchmarks: Palo Alto's Adobe Creek bike bridge over US-101 finished in 2021 at $23.7M. The Wallis Annenberg Wildlife Crossing, a 165-ft-wide planted bridge over ten lanes of US-101, is about $114M. Its funding is the model here: $25M from one foundation, more than $34M raised from philanthropy overall, the state for the rest.</p>
+    <p class="small muted">One lesson from home: the 1962 pedestrian bridge at Geary and Steiner had spiral ramps at 11–17% grade and was demolished in 2020 because no one could use them in a wheelchair. Every approach here is drawn at 5% or flatter, so it counts as a walkway rather than an ADA ramp, with no handrails or landings required.</p>
+  </div>
+
+  <div class="col phase" id="p2">
+    <div class="phase-head"><span class="phase-num">2</span><h3>Strawberry Hill Lid</h3></div>
+    <p>A 787-ft (240 m) concrete lid over both directions of traffic between MLK and JFK, planted on top and tied into the hillside. At that length the covered section is NFPA 502 Category A, so it needs no mechanical smoke ventilation. That keeps it a structure, not a tunnel with a control room. On the east the lid meets the hill almost at grade. On the west it is built up as a planted slope down toward Transverse Drive. Of every 240 m stretch tested, this location removes the most noisy acreage.</p>
+    <figure>
+      <div class="plate scroll-x"><div id="sec-lid" style="min-width:560px"></div></div>
+      <figcaption>Section at STA 36+75, looking north. Two traffic cells with 16.5 ft clearance, a 4 ft roof and 5 ft of soil. The west side is a 3:1 planted slope.</figcaption>
+    </figure>
+    <dl class="spec">
+      <div><dt>Cost</dt><dd>$140–240M</dd></div>
+      <div><dt>New deck</dt><dd>2.0 acres</dd></div>
+      <div><dt>Acres brought under 55 dBA</dt><dd id="p2-ac">15 ac</dd></div>
+      <div><dt>Timeline</dt><dd>6–8 years</dd></div>
+    </dl>
+    <p class="small muted">This is the scale of Presidio Tunnel Tops ($118M, mostly philanthropic). Deck-park costs elsewhere run $20M per acre for Klyde Warren in 2012 dollars, about $40M today, and an estimated $51M per acre for Atlanta's Stitch. The noise benefit alone is modest, about 15 acres, because the open road on either side keeps radiating. The reason to build it is the connection: 787 ft of hillside where you can walk straight from the lake into the western woods.</p>
+  </div>
+
+  <div class="col phase" id="p3">
+    <div class="phase-head"><span class="phase-num">3</span><h3>Crossover Tunnel</h3></div>
+    <p>A cut-and-cover box, about 3,900 ft (1,190 m), from just north of the MLK signal to just west of Fulton and Park Presidio, built on the existing alignment so traffic keeps flowing during construction. The JFK Promenade keeps passing underneath through a longer grotto. Every lane stays: 71,000 trips a day still get through, and the park gets its waist back. After the Great Highway fight, that matters. Nothing here asks anyone to drive less.</p>
+    <p>At this length the tunnel is NFPA 502 Category D. That means emergency ventilation, fire detection and suppression, standby power and egress through the center wall, plus Caltrans staff to run it, at roughly $4–6M a year. The roof adds about 10 acres of new park surface. A cheaper variant, the <em>String of Lids</em>, is four 787-ft lids with short open gaps, each under the ventilation threshold. It gets about two-thirds of the noise benefit for roughly 60% of the cost, if a fire-life-safety review accepts the gaps.</p>
+    <dl class="spec">
+      <div><dt>Full tunnel</dt><dd>$0.9–1.6B</dd></div>
+      <div><dt>String of Lids</dt><dd>$0.55–0.95B</dd></div>
+      <div><dt>Acres under 55 dBA (tunnel)</dt><dd id="p3-ac">73 ac</dd></div>
+      <div><dt>Timeline</dt><dd>10–14 years</dd></div>
+    </dl>
+    <p class="small muted">Benchmark: the Presidio Parkway, which replaced Doyle Drive with two pairs of cut-and-cover tunnels of 850 and 1,020 ft plus viaducts, cost between $850M and $1.2B depending on what is counted. The site here has advantages. The road already sits in a bench, the dune sand above the groundwater is easy to excavate, and the box can be built half at a time behind temporary lanes. One cost goes up: there is no Doyle Drive-style seismic deficiency to pay for it. The money has to come from someone who wants the park back.</p>
+  </div>
+
+  <figure class="wide">
+    <div class="plate" style="overflow:hidden">
+      <div class="toolbar">
+        <span class="lab">3D view</span>
+        <div class="seg" id="scen-3d" role="group" aria-label="Scenario in 3D view"></div>
+      </div>
+      <div id="three"><div class="fallback" id="three-fallback">Loading terrain…</div><span class="hint">Drag to orbit · scroll or pinch to zoom · 2× vertical</span></div>
+    </div>
+    <figcaption>The same lidar terrain in 3D, colored by modeled noise. Covered sections of the highway turn green. Looking roughly north-east over Strawberry Hill and Blue Heron Lake.</figcaption>
+  </figure>
+</section>
+
+<section id="money">
+  <div class="col stack">
+    <span class="eyebrow">Dollars and cents</span>
+    <h2>What each phase buys, at your assumptions</h2>
+    <p>Park quiet doesn't trade on a market, so any dollar figure for it is an assumption. The calculator makes those assumptions visible. Defaults are deliberately conservative. Golden Gate Park averages about 23,600 visits per acre a year (24 million across 1,017 acres), and the default uses half that. The value of a quieter visit defaults to $4, below the bottom of the Army Corps' 2025 range for a general recreation day ($5.17–15.52).</p>
+  </div>
+  <figure class="wide">
+    <div class="plate calc">
+      <div class="inputs" id="calc-inputs"></div>
+      <div class="outputs scroll-x"><div id="calc-out" style="min-width:560px"></div></div>
+    </div>
+    <figcaption>Benefits are a level annual stream from opening day, net of operating cost, discounted at the chosen rate. Land-equivalent value is what the quieted and new acres would cost to buy as new parkland; it is a different question from benefit-cost and is never added to it.</figcaption>
+  </figure>
+  <div class="col stack" style="margin-top:1.4rem">
+    <p><strong>How to read the result.</strong> Phase 0 pays for itself many times over at almost any assumption, so it should simply happen. Phase 1 is near break-even on time savings and new visits, and its real case is access for the Inner Richmond, which the calculator can't price. Phases 2 and 3 don't pass a conventional benefit-cost test, and the pitch shouldn't pretend they do. Their case is the land-equivalent column. Seventy-odd acres of quiet, central parkland can't be bought in San Francisco at any price, and the tunnel's cost is the same order as buying it if you could. That is a philanthropic argument and a hundred-year argument. Tunnel Tops and Klyde Warren were built on that argument.</p>
+    <p class="small muted">Property value is left out on purpose. The model finds about 160 homes along Fulton and Lincoln that would get 1 dB or more quieter, but most already sit next to Fulton's own traffic. At standard hedonic rates (about 0.5% of value per dB) the total is roughly $3M. This is a park project.</p>
+  </div>
+</section>
+
+<section id="ready">
+  <div class="col stack">
+    <span class="eyebrow">Shovel-ready</span>
+    <h2>The approvals path</h2>
+    <p>Any work over, under or on Crossover is work on a state highway inside a National Register historic district. That fixes the cast. Caltrans owns the road. Rec &amp; Park owns the park. The County Transportation Authority (SFCTA) is the natural sponsor of record for highway work. The Golden Gate Park nomination lists Crossover Drive and the Park Presidio Bypass among the park's 1930s public works, so historic review comes with it.</p>
+    <ol class="steps">
+      <li><div><strong>Cooperative agreement and Project Initiation Document (Caltrans).</strong> SFCTA and Rec &amp; Park sign on as sponsors and fund Caltrans oversight. Phase 0 and Phase 1 can be one PID. <span class="muted">6–12 months.</span></div></li>
+      <li><div><strong>Environmental clearance.</strong> California has a statutory CEQA exemption for public pedestrian and bicycle projects (Public Resources Code §21080.25) that currently runs to January 1, 2030. Phase 1 should be designed to fit it, and approved before it sunsets. Lids and the tunnel need a full EIR, and an EIS if federal money is used. <span class="muted">Phase 1: months. Phases 2–3: 2–4 years.</span></div></li>
+      <li><div><strong>Historic resources review.</strong> Treat the WPA stonework and the JFK overcrossing as contributing features and design to the Secretary of the Interior's standards. A grotto and a land bridge fit the park's vocabulary better than a steel truss. <span class="muted">Runs in parallel.</span></div></li>
+      <li><div><strong>Design and Caltrans encroachment permit.</strong> Plans, specifications and estimate, with traffic staging on a 71,000-car road. <span class="muted">12–24 months for Phase 1.</span></div></li>
+      <li><div><strong>Construction.</strong> Phase 1 structures are short, overnight-closure jobs. A lid or tunnel is built half at a time behind temporary lanes. <span class="muted">Phase 1: 12–18 months.</span></div></li>
+    </ol>
+    <div class="callout"><p><strong>The fastest real start</strong> is a $1–2M feasibility and PID study for Phases 0–1, funded privately and handed to SFCTA and Rec &amp; Park. That is how Tunnel Tops and the Annenberg crossing began: donors paid for the plans, which made the public money easy to commit.</p></div>
+  </div>
+</section>
+
+<section id="funding">
+  <div class="col stack">
+    <span class="eyebrow">Funding</span>
+    <h2>A gift sized to the moment</h2>
+    <p>San Francisco's park philanthropy has a long run: Sutro planted Mount Sutro's forest and gave UC the Parnassus land in 1895, and Presidio Tunnel Tops raised $98M from donors. In November 2026 the city received the largest single gift in its history, and the mayor asked others to follow. Each phase here matches a kind of giver.</p>
+  </div>
+  <div class="wide two" style="margin-top:1.2rem">
+    <div class="card"><span class="eyebrow">Phase 0 · $3–8M</span><p>Public. A letter from Rec &amp; Park and the District 1 and 7 supervisors to Caltrans District 4, plus the incremental cost of quieter asphalt.</p></div>
+    <div class="card"><span class="eyebrow">Phase 1 · $29–51M</span><p>One donor or a small group, or a project in the next round of the city's new parks gift. Two naming opportunities: the Grotto and the Bridge.</p></div>
+    <div class="card"><span class="eyebrow">Phase 2 · $140–240M</span><p>A Tunnel Tops-style campaign run by a parks conservancy, with a lead gift naming the lid and the state covering structure in the highway right of way.</p></div>
+    <div class="card"><span class="eyebrow">Phase 3 · $0.9–1.6B</span><p>State and federal highway money with a philanthropic match, or a city bond. A generational ask, and the one people would still be walking on in 2126.</p></div>
+  </div>
+</section>
+
+<section id="field">
+  <div class="col stack">
+    <span class="eyebrow">Field check</span>
+    <h2>Validate the noise model in an afternoon</h2>
+    <p>The noise map is a model and should be checked against the park. A calibrated phone meter (NIOSH's SLM app with an external mic) or a Class 2 meter is enough.</p>
+    <ul class="tight">
+      <li>Pick a transect perpendicular to the road at the Strawberry Hill Bridge site and along Fulton at 17th Ave.</li>
+      <li>Record 10-minute Leq at 50, 100, 200, 400 and 800 ft from the near lane, at about 5 ft above ground.</li>
+      <li>Repeat at 8 am, 1 pm and 5 pm on a weekday with light wind. Note wind and any planes, mowers or music.</li>
+      <li>Repeat at the same points on a quiet Sunday morning to get the park's background level.</li>
+    </ul>
+    <p>Model levels west of the bridge site, daytime: <span id="field-tbl" class="mono small"></span></p>
+  </div>
+</section>
+
+<section id="media">
+  <div class="col stack">
+    <span class="eyebrow">From the air</span>
+    <h2>Drone footage</h2>
+  </div>
+  <figure class="wide">
+    <div class="plate media-slot" id="media-slot">
+      <video id="drone" controls muted playsinline preload="metadata" hidden>
+        <source src="media/drone.mp4" type="video/mp4">
+      </video>
+      <p id="drone-note">Aerial footage of Crossover Drive goes here.</p>
+    </div>
+  </figure>
+</section>
+
+<section id="methods">
+  <div class="col stack">
+    <span class="eyebrow">Methods and sources</span>
+    <h2>How the numbers were made</h2>
+    <p><strong>Geometry.</strong> OpenStreetMap ways for Highway 1, the spur, park paths, lakes and the park boundary, pulled November 20, 2026 and projected to UTM 10N. The park polygon measures 1,004 acres against the official 1,017. Both carriageways together run 2,988 m. Buffers are clipped to the park.</p>
+    <p><strong>Elevation.</strong> USGS 3DEP bare-earth elevation at 2 m from the National Map. Lake levels are the median lidar return inside each shoreline. Elevations are NAVD88 feet.</p>
+    <p><strong>Traffic.</strong> Caltrans 2024 AADT: 71,000 at Fulton (PM 5.00) and 68,000–71,000 at Lincoln (PM 4.05), peak hour 5,200, trucks 1.56% (68.5% two-axle). The spur is assumed at 8,000 a day at 25 mph. No count was found for it.</p>
+    <p><strong>Noise.</strong> FHWA reference emission levels (RD-77-108) for autos, medium and heavy trucks at 38 mph. Average daytime hour is 80% of daily traffic over 15 hours. Each carriageway is broken into 5 m point sources with soft-ground excess attenuation (α = 0.5), summed on a 10 m grid. No credit is taken for foliage or terrain shielding, which would shrink the contours. The hard-ground sensitivity case gives the upper bound. Portals of covered sections re-radiate the energy of 30 m of open road, less 3 dB. Phase 0 is modeled as a 4 dB source reduction: about 1.7 dB from 30 mph and 2–3 dB from rubberized open-graded asphalt, which helps less at urban speeds than on freeways.</p>
+    <p><strong>Walking distances.</strong> Shortest paths on the OSM walking network, excluding Highway 1 and the spur except at mapped crossings. Lid and tunnel cases assume free crossing with 30% circuity.</p>
+    <p><strong>Costs.</strong> Parametric ranges from the benchmarks named above, escalated roughly with the Caltrans construction cost index. Every figure on this page is a planning estimate and none comes from an engineer's estimate.</p>
+    <p class="small muted">Analysis scripts are in <span class="mono">analysis/</span> next to this page and re-run from public data.</p>
+    <ol class="src">
+      <li><a href="https://gisdata.dot.ca.gov/arcgis/rest/services/CHhighway/Traffic_AADT/MapServer/0">Caltrans, Traffic Volumes AADT 2024 (GIS)</a> · <a href="https://gisdata.dot.ca.gov/arcgis/rest/services/CHhighway/Truck_Volumes_AADT/MapServer/0">Truck AADT</a></li>
+      <li><a href="https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer">USGS 3DEP Elevation ImageServer</a> · <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors (ODbL)</a></li>
+      <li><a href="https://www.sfmta.com/media/42914/download">SFMTA, Golden Gate Park traffic document (Caltrans jurisdiction over Crossover)</a> · <a href="https://www.sfmta.com/node/1510">SFMTA, Crossover mid-block crosswalk feedback</a></li>
+      <li><a href="https://npgallery.nps.gov/pdfhost/docs/NRHP/Text/04001137.pdf">National Register nomination, Golden Gate Park (2004)</a></li>
+      <li><a href="https://sf.streetsblog.org/2009/06/11/revisiting-the-san-francisco-freeway-revolt">Streetsblog SF, Revisiting the freeway revolt (1964 and 1966 votes)</a></li>
+      <li><a href="https://presidio.gov/about/press/presidio-tunnel-tops-free-world-class-national-park-destination-in-the-presidio-opens-to-the-public/">Presidio Trust, Tunnel Tops opening</a> · <a href="https://planetizen.com/news/2022/07/117856-presidio-tunnel-tops-links-san-francisco-parks-above-seven-lanes-traffic">Planetizen on funding</a> · <a href="https://wp.presidio.gov/wp-content/uploads/2025/07/7.14.25-Outpost-Meadow-Opening-PR.pdf">2025 visits</a></li>
+      <li><a href="https://tunneltalk.com/USA-22May2015-San-Francisco-Presidio-Parkway-final-preparations.php">TunnelTalk, Presidio Parkway</a> · <a href="https://webarchive.library.unt.edu/web/20161104165340/https://www.transportation.gov/tifia/financed-projects/presidio-parkway">USDOT TIFIA project page</a></li>
+      <li><a href="https://www.fhwa.dot.gov/ipd/project_profiles/tx_klyde_warren_park.aspx">FHWA, Klyde Warren Park profile</a> · <a href="https://www.gpb.org/news/2025/10/23/atlanta-commits-highway-capping-project-the-stitch-despite-funding-challenges">GPB, The Stitch</a></li>
+      <li><a href="https://www.gov.ca.gov/2026/02/02/california-closes-in-on-completing-the-worlds-largest-wildlife-crossing">Governor's office, Annenberg Wildlife Crossing (Feb 2026)</a> · <a href="https://en.wikipedia.org/wiki/Wallis_Annenberg_Wildlife_Crossing">Wikipedia</a></li>
+      <li><a href="https://www.paloalto.gov/Departments/Public-Works/Engineering-Services/Engineering-Projects/Highway-101-Pedestrian-Bike-Bridge-Project">City of Palo Alto, Highway 101 bike bridge</a> · <a href="https://www.sfmta.com/blog/memorial-day-weekend-street-closures-geary-and-steiner-remove-pedestrian-bridge">SFMTA, Geary/Steiner bridge removal</a></li>
+      <li><a href="https://www.kalw.org/bay-area-news/2026-11-10/airbnb-co-founder-donates-100-million-to-san-francisco-parks-department">KALW, $100M parks gift</a> · <a href="https://news.airbnb.com/co-founder-and-ceo-brian-chesky-donates-historic-100m-gift-to-sf-parks">Airbnb newsroom</a></li>
+      <li><a href="https://sfrecpark.org/1119/History-of-Golden-Gate-Park">SF Rec &amp; Park, History of Golden Gate Park</a> · <a href="https://www.axios.com/local/san-francisco/2024/01/22/golden-gate-stow-lake-renamed">Axios, Blue Heron Lake renaming</a></li>
+      <li><a href="https://pacifichorticulture.org/articles/olmsteds-law-refuted/">Pacific Horticulture, Olmsted's law refuted</a> · <a href="https://tclf.org/pioneer/william-hammond-hall">TCLF, William Hammond Hall</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/MacArthur_Tunnel">MacArthur Tunnel</a> · <a href="https://asce.org/about-civil-engineering/history-and-heritage/historic-landmarks/alvord-lake-bridge">ASCE, Alvord Lake Bridge</a></li>
+      <li><a href="https://www.ecfr.gov/current/title-23/chapter-I/subchapter-H/part-772">23 CFR 772, FHWA noise abatement criteria</a> · WHO, Guidelines for Community Noise (1999)</li>
+      <li><a href="https://dot.ca.gov/-/media/dot-media/programs/research-innovation-system-information/documents/f0016609-ca13-2600-finalreport.pdf">Caltrans, Monitoring of Quieter Pavement Test Sections</a> · <a href="https://dot.ca.gov/-/media/dot-media/programs/research-innovation-system-information/documents/preliminary-investigations/caltrans-pi-quieter-pavement-a11y.pdf">Caltrans quieter pavement preliminary investigation</a></li>
+      <li><a href="https://onlinepubs.trb.org/onlinepubs/nchrp/docs/NCHRP20-07%28363%29_FR.pdf">NCHRP 20-07(363), tunnel categories from NFPA 502</a></li>
+      <li><a href="https://planning.erdc.dren.mil/toolbox/library/EGMs/EGM25-04.pdf">USACE EGM 25-04, unit day values FY2025</a></li>
+      <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PRC&amp;sectionNum=21080.25">California PRC §21080.25</a></li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer class="col">
+  <p>Crossover-Over is a citizen proposal, not an official city or Caltrans document. Compiled November 2026. Map data © OpenStreetMap contributors.</p>
+</footer>
+
+<script src="data/crossover-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+'use strict';
+const D = window.CROSSOVER_DATA;
+if(!D){ document.getElementById('map').textContent='Data file failed to load.'; return; }
+const M = D.meta, W = M.x1 - M.x0, H = M.y1 - M.y0, FT = 3.28084;
+const NS = 'http://www.w3.org/2000/svg';
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function b64(s, T){ const bin = atob(s); const u = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new T(u.buffer); }
+const dem = b64(D.dem, Int16Array), inpark = b64(D.inpark, Uint8Array);
+const noise = {}; for(const k in D.noise) noise[k] = b64(D.noise[k], Uint8Array);
+const fmt = (n, d=0) => n.toLocaleString('en-US',{maximumFractionDigits:d, minimumFractionDigits:d});
+const sta = m => { const f = Math.round(m*FT); return Math.floor(f/100)+'+'+String(f%100).padStart(2,'0'); };
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for(const k in attrs||{}) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; }
+const fy = y => H - y;
+const pathOf = pts => 'M' + pts.map(p => p[0].toFixed(1)+' '+fy(p[1]).toFixed(1)).join('L');
+
+/* ---------- scenarios ---------- */
+const SC = [
+  {id:'existing', label:'Today', grid:'existing', cover:[]},
+  {id:'p0', label:'0 · Quiet pavement', grid:'quiet', cover:[]},
+  {id:'p1', label:'1 · Grotto + Bridge', grid:'existing', cover:[], bridges:true},
+  {id:'p2', label:'2 · Strawberry Hill Lid', grid:'lid', cover:D.scen.lid, bridges:true},
+  {id:'pearls', label:'3 · String of Lids', grid:'pearls', cover:D.scen.pearls},
+  {id:'p3', label:'3 · Full tunnel', grid:'tunnel', cover:D.scen.tunnel},
+];
+const ACRES = {existing:D.stats.acres_existing, quiet:D.stats.acres_quiet, lid:D.stats.acres_lid, pearls:D.stats.acres_pearls, tunnel:D.stats.acres_tunnel};
+let state = {scen:'existing', thr:'55'};
+const listeners = [];
+function setScen(id){ state.scen = id; listeners.forEach(f=>f()); }
+function makeSeg(container, items, getActive, onPick){
+  const root = document.getElementById(container);
+  items.forEach(it => { const b = document.createElement('button'); b.type='button'; b.textContent = it.label; b.dataset.id = it.id;
+    b.addEventListener('click', () => onPick(it.id)); root.appendChild(b); });
+  const sync = () => root.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === getActive())));
+  sync(); return sync;
+}
+listeners.push(makeSeg('scen-map', SC, () => state.scen, setScen));
+listeners.push(makeSeg('scen-3d', SC, () => state.scen, setScen));
+
+/* ---------- noise colors ---------- */
+const BANDS = [[50,[236,200,96,.16],'50–55'],[55,[238,168,58,.36],'55–60'],[60,[230,118,44,.5],'60–65'],[65,[212,70,32,.62],'65–70'],[70,[165,28,28,.72],'70+']];
+function bandColor(L){ let c = null; for(const b of BANDS) if(L >= b[0]) c = b[1]; return c; }
+
+/* ---------- hillshade ---------- */
+function isDark(){ const t = document.documentElement.getAttribute('data-theme'); if(t) return t === 'dark'; return matchMedia('(prefers-color-scheme: dark)').matches; }
+const hsCache = {};
+function hillshade(dark){
+  const key = dark ? 'd' : 'l'; if(hsCache[key]) return hsCache[key];
+  const nx = M.dem_nx, ny = M.dem_ny, cv = document.createElement('canvas'); cv.width = nx; cv.height = ny;
+  const ctx = cv.getContext('2d'), img = ctx.createImageData(nx, ny);
+  const park = dark ? [44,66,52] : [200,216,192], city = dark ? [40,43,42] : [228,228,222];
+  const Lx = -0.5, Ly = 0.5, Lz = 0.7071, k = 2.2 / FT;
+  for(let r=0;r<ny;r++){ for(let i=0;i<nx;i++){
+    const at = (ii, rr) => dem[Math.min(ny-1,Math.max(0,rr))*nx + Math.min(nx-1,Math.max(0,ii))]/10;
+    const dzdx = (at(i+1,r)-at(i-1,r))*k/10, dzdy = (at(i,r+1)-at(i,r-1))*k/10;
+    let nxv=-dzdx, nyv=-dzdy, nz=1; const nn=Math.hypot(nxv,nyv,nz); nxv/=nn; nyv/=nn; nz/=nn;
+    const sh = Math.max(0, nxv*Lx + nyv*Ly + nz*Lz);
+    const ip = inpark[Math.floor(r/2)*M.nnx + Math.floor(i/2)];
+    const base = ip ? park : city, f = dark ? (0.55 + 0.75*sh) : (0.62 + 0.5*sh);
+    const o = ((ny-1-r)*nx + i)*4;
+    img.data[o]=Math.min(255,base[0]*f); img.data[o+1]=Math.min(255,base[1]*f); img.data[o+2]=Math.min(255,base[2]*f); img.data[o+3]=255;
+  }}
+  ctx.putImageData(img,0,0); return (hsCache[key] = cv.toDataURL());
+}
+const nzCache = {};
+function noiseImage(grid){
+  if(nzCache[grid]) return nzCache[grid];
+  const nx = M.nnx, ny = M.nny, g = noise[grid], cv = document.createElement('canvas'); cv.width = nx; cv.height = ny;
+  const ctx = cv.getContext('2d'), img = ctx.createImageData(nx, ny);
+  for(let r=0;r<ny;r++) for(let i=0;i<nx;i++){ const c = bandColor(g[r*nx+i]/2); if(!c) continue; const o=((ny-1-r)*nx+i)*4;
+    img.data[o]=c[0]; img.data[o+1]=c[1]; img.data[o+2]=c[2]; img.data[o+3]=Math.round(c[3]*255); }
+  ctx.putImageData(img,0,0); return (nzCache[grid] = cv.toDataURL());
+}
+
+/* ---------- plan map ---------- */
+const VB = [600, 120, 2700, 1340];
+const svg = el('svg', {viewBox: VB.join(' '), role:'img', 'aria-label':'Map of Highway 1 through Golden Gate Park with modeled noise'}, document.getElementById('map'));
+const gHill = el('image', {x:0, y:0, width:W, height:H, preserveAspectRatio:'none'}, svg);
+const gBase = el('g', {}, svg);
+const gNoise = el('image', {x:0, y:0, width:W, height:H, preserveAspectRatio:'none', style:'image-rendering:auto'}, svg);
+const gRoads = el('g', {}, svg), gScen = el('g', {}, svg), gLab = el('g', {}, svg);
+function polyPath(ring){ return pathOf(ring) + 'Z'; }
+function drawBase(){
+  gBase.innerHTML=''; gRoads.innerHTML=''; gLab.innerHTML='';
+  const V = D.vec, water = css('--water'), ink = css('--ink'), muted = css('--muted'), rule = css('--rule'), hwy = css('--hwy'), moss = css('--moss'), paper = css('--paper');
+  el('path', {d: polyPath(V.park), fill:'none', stroke: moss, 'stroke-width': 3, 'stroke-dasharray':'14 8', opacity:.8}, gBase);
+  V.lakes.forEach(l => { let d = polyPath(l.ring); (l.holes||[]).forEach(h => d += polyPath(h)); el('path', {d, fill: water, 'fill-opacity': .85, 'fill-rule':'evenodd', stroke:'none'}, gBase); });
+  V.buildings.forEach(b => el('path', {d: polyPath(b), fill: muted, 'fill-opacity': .45}, gBase));
+  const line = (arr, attrs) => { const d = arr.map(pathOf).join(''); el('path', Object.assign({d, fill:'none', 'stroke-linecap':'round', 'stroke-linejoin':'round'}, attrs), gRoads); };
+  line(V.street, {stroke: muted, 'stroke-width': 4, opacity:.45});
+  line(V.path, {stroke: ink, 'stroke-width': 1.6, opacity:.28});
+  line(V.road, {stroke: ink, 'stroke-width': 4, opacity:.5});
+  line(V.promenade, {stroke: ink, 'stroke-width': 6, opacity:.32});
+  line(V.spur, {stroke: hwy, 'stroke-width': 7});
+  line(V.ca1, {stroke: hwy, 'stroke-width': 9});
+  const L = D.labels, T = (k, txt, dx=0, dy=0, cls={}) => { if(!L[k]) return; const t = el('text', Object.assign({x: L[k][0]+dx, y: fy(L[k][1])+dy, 'font-size': 30, fill: ink, 'text-anchor':'middle', 'paint-order':'stroke', stroke: paper, 'stroke-width': 7, 'stroke-linejoin':'round'}, cls), gLab); t.textContent = txt; };
+  const lake = D.vec.lakes.find(l => l.name === 'Blue Heron Lake');
+  if(lake){ const xs = lake.ring.map(p=>p[0]), ys = lake.ring.map(p=>p[1]); const t = el('text', {x:(Math.min(...xs)+Math.max(...xs))/2, y: fy(Math.min(...ys))+42, 'font-size':30, fill: ink, 'text-anchor':'middle', 'paint-order':'stroke', stroke: paper, 'stroke-width':7}, gLab); t.textContent='Blue Heron Lake'; }
+  T('Strawberry Hill','Strawberry Hill',0,8,{'font-size':24, fill: muted});
+  T('de Young','de Young'); T('Cal Academy','Cal Academy'); T('Spreckels Lake','Spreckels Lake',0,-30);
+  T('Polo Field','Polo Field'); T('Elk Glen','Elk Glen',-40,40,{'font-size':24}); T('Lloyd Lake','Lloyd Lake',-30,-26,{'font-size':24});
+  T('Speedway Meadow','Speedway Meadow',0,0,{'font-size':24}); T('Lindley Meadow','Lindley Meadow',0,0,{'font-size':24});
+  T('Fulton St','FULTON ST',0,-14,{'font-size':24, fill: muted, 'letter-spacing':4}); T('Lincoln Way','LINCOLN WAY',0,30,{'font-size':24, fill: muted, 'letter-spacing':4});
+  T('Japanese Tea Garden','Tea Garden',0,0,{'font-size':24});
+  const cl = D.cl; const lbl = (s, txt, dx, dy, anchor='start') => { const p = cl[Math.round(s/10)]; const t = el('text', {x:p[0]+dx, y:fy(p[1])+dy, 'font-size':25, fill: hwy, 'text-anchor':anchor, 'font-weight':500, 'paint-order':'stroke', stroke: paper, 'stroke-width':6}, gLab); t.textContent = txt; };
+  lbl(1060,'CROSSOVER DR · CA-1', -36, 8, 'end'); lbl(560,'PARK PRESIDIO BYPASS', 0, 62, 'middle');
+  [0, 500, 1000, 1400].forEach(s => { const p = cl[Math.round(s/10)]; el('circle',{cx:p[0], cy:fy(p[1]), r:7, fill: paper, stroke: hwy, 'stroke-width':3}, gLab); const t = el('text',{x:p[0]-14, y:fy(p[1])-14, 'font-size':20, fill: muted, 'text-anchor':'end', 'paint-order':'stroke', stroke: paper, 'stroke-width':5}, gLab); t.textContent = 'STA '+sta(s); });
+}
+function drawScen(){
+  const sc = SC.find(s => s.id === state.scen), moss = css('--moss'), paper = css('--paper'), ink = css('--ink');
+  gNoise.setAttribute('href', noiseImage(sc.grid));
+  gScen.innerHTML = '';
+  sc.cover.forEach(([a,b]) => { const pts = D.cl.slice(Math.round(a/10), Math.round(b/10)+1);
+    el('path', {d: pathOf(pts), fill:'none', stroke: moss, 'stroke-width': 38, 'stroke-linecap':'butt', opacity:.78}, gScen);
+    el('path', {d: pathOf(pts), fill:'none', stroke: paper, 'stroke-width': 3, 'stroke-dasharray':'10 10', opacity:.9}, gScen); });
+  if(sc.bridges){
+    const A = D.bridgeA, G = D.grotto;
+    el('path', {d: pathOf([A.e, A.w]), stroke: moss, 'stroke-width': 14, 'stroke-linecap':'round'}, gScen);
+    el('path', {d: pathOf([G.n, G.s]), stroke: moss, 'stroke-width': 12, 'stroke-dasharray':'6 10', 'stroke-linecap':'round'}, gScen);
+    const tag = (p, txt, dx, dy) => { const t = el('text', {x:p[0]+dx, y:fy(p[1])+dy, 'font-size':26, 'font-weight':500, fill: moss, 'paint-order':'stroke', stroke: paper, 'stroke-width':7}, gScen); t.textContent = txt; };
+    tag(A.w, 'Strawberry Hill Bridge', -330, -26); tag(G.n, 'Fulton Grotto', -90, -34);
+  }
+  const ac = ACRES[sc.grid], base = ACRES.existing;
+  const ro = document.getElementById('map-readout');
+  const diff = (base['55'] - ac['55']);
+  ro.innerHTML = `<b>${fmt(ac['55'],0)} acres</b> of park above 55 dBA, <b>${fmt(ac['60'],0)}</b> above 60, <b>${fmt(ac['67'],0)}</b> above the 67 dBA federal park criterion.` +
+    (diff > 0.5 ? ` That is <b>${fmt(diff,0)} acres</b> quieter than today.` : (sc.bridges ? ' The crossings change access, not noise.' : ''));
+}
+function drawLegend(){
+  const lg = document.getElementById('map-legend'); lg.innerHTML = '<span>Leq dBA</span>' + BANDS.map(b => `<span><i class="sw" style="background:rgba(${b[1][0]},${b[1][1]},${b[1][2]},${Math.min(1,b[1][3]+.15)})"></i>${b[2]}</span>`).join('') +
+   `<span><i class="sw" style="background:${css('--hwy')}"></i>Highway 1</span><span><i class="sw" style="background:${css('--moss')}"></i>Covered or new crossing</span>`;
+}
+
+/* ---------- acres chart ---------- */
+const THR = [{id:'55',label:'55 dBA · WHO'},{id:'60',label:'60 dBA'},{id:'67',label:'67 dBA · FHWA parks'}];
+listeners.push(makeSeg('thr', THR, () => state.thr, id => { state.thr = id; listeners.forEach(f=>f()); }));
+function drawAcres(){
+  const box = document.getElementById('acres-chart'); box.innerHTML = '';
+  const rows = [['Today','existing'],['0 · Quiet pavement','quiet'],['2 · Strawberry Hill Lid','lid'],['3 · String of Lids','pearls'],['3 · Full tunnel','tunnel']];
+  const w = 640, rh = 34, top = 10, left = 190, right = 60, h = top + rows.length*rh + 26;
+  const s = el('svg', {viewBox:`0 0 ${w} ${h}`, role:'img', 'aria-label':'Acres above threshold by scenario'}, box);
+  const max = 100, x = v => left + (w-left-right) * v / max;
+  const ink = css('--ink'), muted = css('--muted'), rule = css('--rule'), hwy = css('--hwy'), moss = css('--moss');
+  [0,25,50,75,100].forEach(v => { el('line',{x1:x(v),x2:x(v),y1:top,y2:h-22,stroke:rule}, s); const t = el('text',{x:x(v),y:h-6,'font-size':11,fill:muted,'text-anchor':'middle'}, s); t.textContent = v + (v===100?' ac':''); });
+  const cur = SC.find(q => q.id === state.scen).grid;
+  rows.forEach(([lab, k], i) => { const v = ACRES[k][state.thr], y = top + i*rh;
+    const t = el('text',{x:left-10,y:y+21,'font-size':12.5,fill:ink,'text-anchor':'end'}, s); t.textContent = lab;
+    el('rect',{x:x(0),y:y+6,width:Math.max(1,x(v)-x(0)),height:rh-12,rx:2,fill: k==='existing'?hwy:moss, opacity: k===cur?1:.55}, s);
+    const tv = el('text',{x:x(v)+6,y:y+21,'font-size':12.5,fill:ink}, s); tv.textContent = fmt(v,0); });
+}
+
+/* ---------- long profile ---------- */
+function drawLong(){
+  const box = document.getElementById('longprofile'); box.innerHTML = '';
+  const P = D.longp, w = 1000, h = 350, l = 54, r = 16, t = 34, b = 66;
+  const smax = P[P.length-1][0], zmin = 200, zmax = 320;
+  const X = s => l + (w-l-r)*s/smax, Y = z => t + (h-t-b)*(zmax - z)/(zmax - zmin);
+  const s = el('svg', {viewBox:`0 0 ${w} ${h}`, role:'img', 'aria-label':'Elevation profile along Highway 1'}, box);
+  const ink = css('--ink'), muted = css('--muted'), rule = css('--rule'), hwy = css('--hwy'), moss = css('--moss'), paper = css('--paper'), water = css('--water');
+  for(let z=200; z<=320; z+=20){ el('line',{x1:l,x2:w-r,y1:Y(z),y2:Y(z),stroke:rule}, s); const tt = el('text',{x:l-6,y:Y(z)+4,'font-size':11,fill:muted,'text-anchor':'end'}, s); tt.textContent = z + (z===320?' ft':''); }
+  for(let f=0; f<=smax*FT; f+=1000){ const sm = f/FT; el('line',{x1:X(sm),x2:X(sm),y1:h-b,y2:h-b+5,stroke:muted}, s); const tt = el('text',{x:X(sm),y:h-b+18,'font-size':11,fill:muted,'text-anchor':'middle'}, s); tt.textContent = 'STA '+Math.round(f/100)+'+00'; }
+  const band = (a, bb, label, col, yy) => { el('rect',{x:X(a),y:t-4,width:X(bb)-X(a),height:h-b-t+4,fill:col,opacity:.12}, s); el('line',{x1:X(a),x2:X(bb),y1:yy,y2:yy,stroke:col,'stroke-width':3}, s); const tt = el('text',{x:(X(a)+X(bb))/2,y:yy-6,'font-size':11.5,fill:col,'text-anchor':'middle'}, s); tt.textContent = label; };
+  band(D.scen.tunnel[0][0], D.scen.tunnel[0][1], 'Phase 3 tunnel · 3,900 ft · NFPA 502 Cat. D', moss, t+2);
+  band(D.scen.lid[0][0], D.scen.lid[0][1], 'Phase 2 lid · 787 ft · Cat. A', moss, t+20);
+  const line = (k, col, wdt, dash) => el('path',{d:'M'+P.map(p=>X(p[0]).toFixed(1)+' '+Y(p[k]).toFixed(1)).join('L'), fill:'none', stroke:col, 'stroke-width':wdt, 'stroke-dasharray':dash||''}, s);
+  line(3, moss, 1.6, '5 4'); line(2, muted, 1.6, '2 3'); line(1, hwy, 3);
+  const mark = (sm, txt, up, end) => { el('line',{x1:X(sm),x2:X(sm),y1:Y(205),y2:Y(up?300:290),stroke:ink,'stroke-width':1,opacity:.5}, s); const tt = el('text',{x:X(sm)+(end?-4:4),y:Y(up?300:290)-4,'font-size':11.5,fill:ink,'text-anchor':end?'end':'start'}, s); tt.textContent = txt; };
+  mark(330,'Fulton Grotto'); mark(880,'JFK Promenade below', true); mark(1160,'Bridge'); mark(1440,'MLK signal', true, true);
+  el('line',{x1:X(1040),x2:X(1490),y1:Y(285.5),y2:Y(285.5),stroke:water,'stroke-width':2}, s);
+  const wl = el('text',{x:X(1180)+4,y:Y(285.5)+14,'font-size':11,fill:water}, s); wl.textContent = 'Blue Heron Lake surface 285 ft';
+  const lg = [['Road (CA-1)',hwy,''],['Ground, lake side',moss,'5 4'],['Ground, outer side',muted,'2 3']];
+  lg.forEach((q,i) => { const x0 = l + 8 + i*170; el('line',{x1:x0,x2:x0+26,y1:h-12,y2:h-12,stroke:q[1],'stroke-width':q[0].startsWith('Road')?3:1.8,'stroke-dasharray':q[2]}, s); const tt = el('text',{x:x0+32,y:h-8,'font-size':11.5,fill:ink}, s); tt.textContent = q[0]; });
+  const e1 = el('text',{x:l,y:h-b+32,'font-size':10.5,fill:muted}, s); e1.textContent = '← Fulton St & Park Presidio';
+  const e2 = el('text',{x:w-r,y:h-b+32,'font-size':10.5,fill:muted,'text-anchor':'end'}, s); e2.textContent = 'Lincoln Way & 19th Ave →';
+}
+
+/* ---------- sections ---------- */
+function sectionSVG(boxId, sec, opts){
+  const box = document.getElementById(boxId); box.innerHTML = '';
+  const w = opts.w || 520, h = opts.h || 300, l = 44, r = 12, t = 16, b = 34;
+  const offs = sec.offs, zz = sec.z, x0 = opts.xr ? opts.xr[0] : offs[0], x1 = opts.xr ? opts.xr[1] : offs[offs.length-1];
+  const zmin = opts.zr[0], zmax = opts.zr[1];
+  // 2x vertical exaggeration: horizontal metres vs vertical feet scaled so 1 m vertical = 2 m horizontal
+  const X = o => l + (w-l-r)*(o - x0)/(x1 - x0), Y = z => t + (h-t-b)*(zmax - z)/(zmax - zmin);
+  const s = el('svg', {viewBox:`0 0 ${w} ${h}`, role:'img', 'aria-label':opts.title}, box);
+  const ink = css('--ink'), muted = css('--muted'), rule = css('--rule'), hwy = css('--hwy'), moss = css('--moss'), paper = css('--paper'), water = css('--water'), soil = css('--moss-soft');
+  for(let z=Math.ceil(zmin/20)*20; z<=zmax; z+=20){ el('line',{x1:l,x2:w-r,y1:Y(z),y2:Y(z),stroke:rule}, s); const tt = el('text',{x:l-5,y:Y(z)+4,'font-size':10.5,fill:muted,'text-anchor':'end'}, s); tt.textContent = z; }
+  const idx = offs.map((o,i)=>i).filter(i => offs[i] >= x0 && offs[i] <= x1);
+  const gpts = idx.map(i => [X(offs[i]), Y(zz[i])]);
+  el('path',{d:'M'+gpts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+`L${X(x1)} ${h-b}L${X(x0)} ${h-b}Z`, fill:soil, stroke:ink, 'stroke-width':1.4}, s);
+  if(opts.water){ const [a, bb, zw] = opts.water; el('rect',{x:X(a),y:Y(zw),width:X(bb)-X(a),height:Math.max(2,Y(zw-4)-Y(zw)),fill:water}, s); }
+  // carriageways
+  const rz = sec.road; [[-16,-5.5],[5.5,16]].forEach(([a,bb]) => el('line',{x1:X(a),x2:X(bb),y1:Y(rz),y2:Y(rz),stroke:hwy,'stroke-width':4}, s));
+  // cars
+  [[-11, -1],[11, 1]].forEach(([o]) => el('rect',{x:X(o)-6,y:Y(rz+5),width:12,height:Y(rz)-Y(rz+5)-2,rx:2,fill:hwy,opacity:.6}, s));
+  opts.draw && opts.draw({s, X, Y, el, ink, muted, moss, hwy, paper, water, rz, sec});
+  const lt = el('text',{x:l+2,y:h-8,'font-size':10.5,fill:muted}, s); lt.textContent = opts.left;
+  const rt = el('text',{x:w-r,y:h-8,'font-size':10.5,fill:muted,'text-anchor':'end'}, s); rt.textContent = opts.right;
+  const vex = ((h-t-b)/((zmax-zmin)/FT)) / ((w-l-r)/(x1-x0));
+  const tt = el('text',{x:l+2,y:t+10,'font-size':11.5,fill:ink,'font-weight':500}, s); tt.textContent = opts.title;
+  const tv = el('text',{x:w-r,y:t+10,'font-size':10.5,fill:muted,'text-anchor':'end'}, s); tv.textContent = 'vertical ×' + vex.toFixed(1);
+}
+function groundAt(sec, o){ const i = sec.offs.findIndex(v => v >= o); return i < 0 ? sec.z[sec.z.length-1] : sec.z[i]; }
+function drawSections(){
+  const SB = D.sections.bridge, SG = D.sections.grotto, SL = D.sections.lid;
+  // Grotto: + side is south (park), - side is north (Fulton). Floor 14 ft below road.
+  sectionSVG('sec-grotto', SG, {title:'Fulton Grotto · STA '+sta(SG.s)+' · looking east', zr:[205,275], xr:[-100,100], left:'← Fulton St (north)', right:'park, toward Blue Heron Lake →', w:700, h:280,
+    draw: ({s,X,Y,el,moss,ink,rz,paper}) => {
+      const floor = rz - 14, top = rz - 1.5;
+      let xs = 18; while(xs < 90 && groundAt(SG, xs) > floor + 1) xs += 2;
+      el('rect',{x:X(-18),y:Y(top),width:X(18)-X(-18),height:Y(floor)-Y(top),fill:paper,stroke:moss,'stroke-width':2.5}, s);
+      // north ramp at 5% up to ground
+      let xn = -18, zr = floor; const pts = [[X(-18),Y(floor)]]; while(xn > -90 && zr < groundAt(SG, xn) - 0.5){ xn -= 2; zr += 2*FT*0.05; pts.push([X(xn),Y(zr)]); }
+      el('path',{d:'M'+pts.map(p=>p.join(' ')).join('L'), fill:'none', stroke:moss, 'stroke-width':3}, s);
+      el('line',{x1:X(18),x2:X(Math.min(xs,90)),y1:Y(floor),y2:Y(floor),stroke:moss,'stroke-width':3}, s);
+      const a = el('text',{x:X(20),y:Y(floor)+16,'font-size':10.5,fill:moss}, s); a.textContent = 'underpass: 10 ft clear, 16 ft wide';
+      const c = el('text',{x:X(-22),y:Y(floor)+16,'font-size':10.5,fill:moss,'text-anchor':'end'}, s); c.textContent = `5% ramp up to Fulton, ${Math.round(Math.abs(xn+18)*FT)} ft`;
+    }});
+  // Bridge: - side west (Transverse), + side east (lake)
+  sectionSVG('sec-bridge', SB, {title:'Strawberry Hill Bridge · STA '+sta(SB.s)+' · looking north', zr:[200,300], xr:[-120,90], left:'← Transverse Dr (west)', right:'Blue Heron Lake →', w:700, h:300, water:[56, 90, 285.5],
+    draw: ({s,X,Y,el,moss,rz,ink}) => {
+      const deck = rz + 21; let xe = 0; while(xe < 90 && groundAt(SB, xe) < deck) xe += 2;
+      el('line',{x1:X(-30),x2:X(xe),y1:Y(deck),y2:Y(deck),stroke:moss,'stroke-width':5}, s);
+      [-22, 0, 22].forEach(o => { el('line',{x1:X(o),x2:X(o),y1:Y(deck),y2:Y(groundAt(SB,o)),stroke:moss,'stroke-width':o===0?3:2}, s); });
+      el('path',{d:`M${X(-30)} ${Y(deck)}L${X(-120)} ${Y(groundAt(SB,-118))}`, fill:'none', stroke:moss, 'stroke-width':2.5, 'stroke-dasharray':'6 5'}, s);
+      const a = el('text',{x:X(-4),y:Y(deck)-8,'font-size':10.5,fill:moss,'text-anchor':'middle'}, s); a.textContent = `deck ${Math.round(deck)} ft · 17 ft clear`;
+      const c = el('text',{x:X(-60),y:Y(272),'font-size':10.5,fill:moss,'text-anchor':'middle'}, s); c.textContent = `ramp-trail ↓${Math.round(deck - 209)} ft at ≤5%,`;
+      const c2 = el('text',{x:X(-60),y:Y(272)+13,'font-size':10.5,fill:moss,'text-anchor':'middle'}, s); c2.textContent = `≈${fmt(Math.round((deck-209)/0.05/10)*10)} ft of switchbacks`;
+    }});
+  // Lid
+  sectionSVG('sec-lid', SL, {title:'Strawberry Hill Lid · STA '+sta(SL.s), zr:[200,300], xr:[-130,100], left:'← Transverse Dr', right:'Blue Heron Lake →', w:700, h:300, water:[60, 100, 285.5],
+    draw: ({s,X,Y,el,moss,rz,paper,hwy}) => {
+      const top = rz + 25.3, roof = rz + 16.5 + 4;
+      // fill to the west at 3:1 and to the east until the hill
+      const west = []; let o = -17, zf = top; while(o > -130 && zf > groundAt(SL, o)){ west.push([o, zf]); o -= 2; zf = top - ((-17 - o)/3)*FT; }
+      let xe = 17; while(xe < 100 && groundAt(SL, xe) < top) xe += 2;
+      const pts = [[X(xe), Y(top)], [X(-17), Y(top)], ...west.map(p => [X(p[0]), Y(p[1])]), [X(o), Y(groundAt(SL, o))]];
+      const back = []; for(let q = o; q <= xe; q += 2) back.push([X(q), Y(q >= -17 && q <= 17 ? rz : groundAt(SL, q))]);
+      el('path',{d:'M'+pts.map(p=>p.join(' ')).join('L')+'L'+back.reverse().map(p=>p.join(' ')).join('L')+'Z', fill:moss, opacity:.28}, s);
+      el('rect',{x:X(-17),y:Y(roof),width:X(17)-X(-17),height:Y(rz)-Y(roof),fill:paper,stroke:moss,'stroke-width':2.5}, s);
+      el('line',{x1:X(0),x2:X(0),y1:Y(roof),y2:Y(rz),stroke:moss,'stroke-width':2.5}, s);
+      el('line',{x1:X(-130),x2:X(xe),y1:Y(top),y2:Y(top),stroke:moss,'stroke-width':0.8,'stroke-dasharray':'3 4'}, s);
+      el('path',{d:'M'+pts.slice(0,2+west.length).map(p=>p.join(' ')).join('L'), fill:'none', stroke:moss,'stroke-width':3}, s);
+      const a = el('text',{x:X(-40),y:Y(top)-8,'font-size':11,fill:moss,'text-anchor':'middle'}, s); a.textContent = `planted lid at ${Math.round(top)} ft`;
+      const c = el('text',{x:X(0),y:Y(rz)+16,'font-size':10.5,fill:hwy,'text-anchor':'middle'}, s); c.textContent = '3 + 3 lanes';
+      const d = el('text',{x:X(-74),y:Y(top - 24),'font-size':10.5,fill:moss,'text-anchor':'middle'}, s); d.textContent = '3:1 planted slope';
+    }});
+}
+
+/* ---------- field table ---------- */
+document.getElementById('field-tbl').textContent = D.level_vs_distance.filter(p => [40,100,190,400,580].includes(p[0])).map(p => `${Math.round(p[0]*FT)} ft → ${p[1].toFixed(0)} dBA`).join(' · ');
+const setAc = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = fmt(v,0) + ' ac'; };
+setAc('p0-ac', ACRES.existing['55'] - ACRES.quiet['55']); setAc('p2-ac', ACRES.existing['55'] - ACRES.lid['55']); setAc('p3-ac', ACRES.existing['55'] - ACRES.tunnel['55']);
+document.getElementById('fig-acres').textContent = fmt(ACRES.existing['55'],0) + ' ac';
+
+/* ---------- calculator ---------- */
+const PH = [
+  {id:'p0', name:'0 · Quiet pavement', cost:[3,8], om:0.3, quiet:ACRES.existing['55']-ACRES.quiet['55'], newAc:0, trips:0, mins:0, induced:0},
+  {id:'p1', name:'1 · Grotto + Bridge', cost:[29,51], om:0.15, quiet:0, newAc:0.15, trips:350000, mins:3.8, induced:100000},
+  {id:'p2', name:'2 · Strawberry Hill Lid', cost:[140,240], om:0.5, quiet:ACRES.existing['55']-ACRES.lid['55'], newAc:2.0, trips:150000, mins:2, induced:0},
+  {id:'pearls', name:'3 · String of Lids', cost:[550,950], om:2.0, quiet:ACRES.existing['55']-ACRES.pearls['55'], newAc:8.1, trips:450000, mins:3.5, induced:0},
+  {id:'p3', name:'3 · Full tunnel', cost:[900,1600], om:5.0, quiet:ACRES.existing['55']-ACRES.tunnel['55'], newAc:10.0, trips:500000, mins:3.8, induced:0},
+];
+const IN = [
+  {id:'vpa', label:'Visits per quieted acre, per year', min:2000, max:30000, step:500, val:12000, f:v=>fmt(v), note:'Park average is about 23,600.'},
+  {id:'up', label:'Value of a quieter visit', min:0, max:15, step:0.5, val:4, f:v=>'$'+fmt(v,2), note:'USACE general recreation day: $5.17–15.52.'},
+  {id:'nvpa', label:'Visits per new acre (lids, decks)', min:5000, max:120000, step:1000, val:30000, f:v=>fmt(v), note:'Tunnel Tops runs near 120,000.'},
+  {id:'nv', label:'Value of a visit to new parkland', min:2, max:20, step:0.5, val:8, f:v=>'$'+fmt(v,2), note:'Also used for visits a new crossing makes possible.'},
+  {id:'vtts', label:'Value of walking time, per hour', min:5, max:40, step:1, val:19, f:v=>'$'+v, note:'USDOT personal travel guidance, about $19.'},
+  {id:'r', label:'Real discount rate', min:1, max:7, step:0.25, val:3, f:v=>fmt(v,2)+'%', note:''},
+  {id:'n', label:'Horizon', min:25, max:100, step:5, val:100, f:v=>v+' years', note:''},
+  {id:'land', label:'Land-equivalent value per acre', min:2, max:25, step:0.5, val:10, f:v=>'$'+fmt(v,1)+'M', note:'What a city acre near the park would cost to buy.'},
+];
+const ci = document.getElementById('calc-inputs');
+IN.forEach(p => { const d = document.createElement('div'); d.className='slider';
+  d.innerHTML = `<label for="in-${p.id}"><span>${p.label}</span><output id="out-${p.id}"></output></label><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}" value="${p.val}">` + (p.note?`<small>${p.note}</small>`:'');
+  ci.appendChild(d); d.querySelector('input').addEventListener('input', calc); });
+const money = m => m >= 1000 ? '$'+fmt(m/1000,2)+'B' : (m >= 10 ? '$'+fmt(m,0)+'M' : '$'+fmt(m,1)+'M');
+function calc(){
+  const v = {}; IN.forEach(p => { v[p.id] = +document.getElementById('in-'+p.id).value; document.getElementById('out-'+p.id).textContent = p.f(v[p.id]); });
+  const r = v.r/100, ann = (1 - Math.pow(1+r, -v.n))/r;
+  const rows = PH.map(p => {
+    const quietB = p.quiet*v.vpa*v.up/1e6, newB = (p.newAc*v.nvpa + p.induced)*v.nv/1e6, timeB = p.trips*p.mins/60*v.vtts/1e6;
+    const net = quietB + newB + timeB - p.om, pv = net*ann;
+    return {p, quietB, newB, timeB, net, pv, lo: pv/p.cost[1], hi: pv/p.cost[0], land:(p.quiet+p.newAc)*v.land};
+  });
+  const bc = x => `<span class="bcr ${x>=1?'good':'bad'}">${x<0?'<0':fmt(x, x<1?2:1)}</span>`;
+  document.getElementById('calc-out').innerHTML = `<table class="tbl"><thead><tr><th>Phase</th><th class="num">Cost</th><th class="num">Net benefit / yr</th><th class="num">Present value</th><th class="num">Benefit ÷ cost</th><th class="num">Land-equivalent</th></tr></thead><tbody>` +
+    rows.map(x => `<tr><td>${x.p.name}<div class="small muted">${[x.p.quiet>0.5?fmt(x.p.quiet,0)+' ac quieter':'', x.p.newAc>0?fmt(x.p.newAc,1)+' ac new':'', x.p.trips?fmt(x.p.trips/1000,0)+'k crossings/yr':''].filter(Boolean).join(' · ')}</div></td><td class="num">${money(x.p.cost[0])}–${money(x.p.cost[1])}</td><td class="num">${money(x.net)}</td><td class="num">${money(x.pv)}</td><td class="num">${bc(x.lo)}–${bc(x.hi)}</td><td class="num">${money(x.land)}</td></tr>`).join('') +
+    `</tbody></table><p class="small muted" style="margin-top:.7rem">Annuity factor ${fmt(ann,1)}. Net benefit = quieter visits + new-acre and induced visits + walking time saved − operating cost.</p>`;
+}
+calc();
+
+/* ---------- 3D ---------- */
+function init3D(){
+  const host = document.getElementById('three'), fb = document.getElementById('three-fallback');
+  if(!window.THREE || !THREE.OrbitControls){ fb.textContent = 'The 3D view needs WebGL and could not load here.'; return; }
+  let renderer; try { renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); } catch(e){ fb.textContent = 'WebGL is not available in this browser.'; return; }
+  fb.remove();
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1)); host.insertBefore(renderer.domElement, host.firstChild);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(38, 1, 10, 20000);
+  const nx = M.nnx, ny = M.nny, EX = 2, zBase = 150/FT;
+  const hAt = (i, r) => { const ii = Math.min(M.dem_nx-1, i*2), rr = Math.min(M.dem_ny-1, r*2); return (dem[rr*M.dem_nx+ii]/10/FT - zBase)*EX; };
+  const geo = new THREE.PlaneGeometry(W, H, nx-1, ny-1); geo.rotateX(-Math.PI/2);
+  const pos = geo.attributes.position, col = new Float32Array(pos.count*3);
+  for(let j=0;j<ny;j++) for(let i=0;i<nx;i++){ const k = j*nx + i, r = ny-1-j; pos.setY(k, hAt(i, r)); }
+  geo.computeVertexNormals(); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({vertexColors:true})); scene.add(mesh);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x445544, 0.75)); const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(-1500, 2200, -1200); scene.add(sun);
+  const toW = (x, y, lift) => { const i = Math.round(x/10), r = Math.round(y/10); return new THREE.Vector3(x - W/2, hAt(Math.max(0,Math.min(nx-1,i)), Math.max(0,Math.min(ny-1,r))) + (lift||0), -(y - H/2)); };
+  const roadGroup = new THREE.Group(); scene.add(roadGroup);
+  const mkLine = (pts, color, lift) => { const g = new THREE.BufferGeometry().setFromPoints(pts.map(p => toW(p[0], p[1], lift))); return new THREE.Line(g, new THREE.LineBasicMaterial({color})); };
+  function colorize(){
+    const sc = SC.find(s => s.id === state.scen), g = noise[sc.grid], dark = isDark();
+    const park = dark ? [0.2,0.32,0.24] : [0.6,0.72,0.56], city = dark ? [0.2,0.21,0.21] : [0.8,0.8,0.77];
+    for(let j=0;j<ny;j++) for(let i=0;i<nx;i++){ const k = j*nx+i, r = ny-1-j, base = inpark[r*nx+i] ? park : city; const c = bandColor(g[r*nx+i]/2);
+      let R = base[0], G = base[1], B = base[2]; if(c){ const a = Math.min(.85, c[3]*1.25); R = R*(1-a)+c[0]/255*a; G = G*(1-a)+c[1]/255*a; B = B*(1-a)+c[2]/255*a; }
+      col[k*3]=R; col[k*3+1]=G; col[k*3+2]=B; }
+    geo.attributes.color.needsUpdate = true;
+    while(roadGroup.children.length) roadGroup.remove(roadGroup.children[0]);
+    const hwy = new THREE.Color(css('--hwy')), moss = new THREE.Color(css('--moss')), water = new THREE.Color(css('--water'));
+    D.vec.lakes.forEach(l => roadGroup.add(mkLine(l.ring, water, 1.5)));
+    D.vec.promenade.forEach(p => roadGroup.add(mkLine(p, moss, 2)));
+    const covered = s => sc.cover.some(([a,b]) => s >= a && s <= b);
+    const clp = D.cl; let seg = [], segCov = null;
+    const flush = () => { if(seg.length > 1) roadGroup.add(mkLine(seg, segCov ? moss : hwy, segCov ? 9 : 4)); };
+    clp.forEach((p, idx) => { const c = covered(idx*10); if(segCov === null) segCov = c; if(c !== segCov){ seg.push(p); flush(); seg = [p]; segCov = c; } else seg.push(p); });
+    flush();
+    D.vec.spur.forEach(p => roadGroup.add(mkLine(p, hwy, 4)));
+    if(sc.bridges){ roadGroup.add(mkLine([D.bridgeA.e, D.bridgeA.w], moss, 14)); roadGroup.add(mkLine([D.grotto.n, D.grotto.s], moss, 4)); }
+  }
+  const ctr = toW(1880, 820, 0);
+  const controls = new THREE.OrbitControls(cam, renderer.domElement); controls.target.copy(ctr); controls.enableDamping = true; controls.maxPolarAngle = Math.PI*0.47; controls.minDistance = 250; controls.maxDistance = 4500;
+  cam.position.set(ctr.x - 900, ctr.y + 950, ctr.z + 1250);
+  function resize(){ const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h, false); cam.aspect = w/h; cam.updateProjectionMatrix(); }
+  window.addEventListener('resize', resize); resize(); colorize(); listeners.push(colorize);
+  let running = true; const io = new IntersectionObserver(es => { running = es[0].isIntersecting; if(running) loop(); }); io.observe(host);
+  function loop(){ if(!running) return; controls.update(); renderer.render(scene, cam); requestAnimationFrame(loop); }
+  loop();
+}
+
+/* ---------- media ---------- */
+const vid = document.getElementById('drone');
+vid.addEventListener('loadedmetadata', () => { vid.hidden = false; document.getElementById('drone-note').hidden = true; });
+vid.querySelector('source').addEventListener('error', () => { vid.hidden = true; });
+
+/* ---------- render ---------- */
+function renderAll(){ gHill.setAttribute('href', hillshade(isDark())); drawBase(); drawScen(); drawLegend(); drawAcres(); drawLong(); drawSections(); }
+listeners.push(() => { drawScen(); drawAcres(); });
+renderAll();
+const rethemed = () => { renderAll(); listeners.forEach(f => f()); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rethemed);
+new MutationObserver(rethemed).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+try { init3D(); } catch(e){ const fb = document.getElementById('three-fallback'); if(fb) fb.textContent = '3D view failed to start.'; console.error(e); }
+})();
+</script>
+</body>
+</html>
