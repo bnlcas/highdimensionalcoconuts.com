@@ -46,8 +46,8 @@ jfk=set(n for w in ways.values() if (w.get('tags',{}).get('name') or '').startsw
 def nearest(lon,lat):
     x,y=P(lon,lat); return min(nodes,key=lambda n:(nodes[n][0]-x)**2+(nodes[n][1]-y)**2)
 boat=nearest(-122.47555,37.76935); lloyd=nearest(-122.48190,37.77082)
-# grotto edge from analysis3
-sB=C.interpolate(330)
+# Fulton crossing edge from analysis3 (between 17th and 18th)
+sB=C.interpolate(440)
 def near_named(x,y,pred):
     best=None
     for w in ways.values():
@@ -60,17 +60,12 @@ def near_named(x,y,pred):
 nB=near_named(sB.x,sB.y+70,lambda t:t.get('name')=='Fulton Street' or t.get('footway')=='sidewalk')
 sBn=near_named(sB.x,sB.y-60,lambda t:t.get('highway') in ('footway','path') and t.get('footway')!='sidewalk')
 grotto=[(nB,sBn,math.hypot(nodes[nB][0]-nodes[sBn][0],nodes[nB][1]-nodes[sBn][1])*1.3)]
-sB2=C.interpolate(580)
-nB2=near_named(sB2.x,sB2.y+70,lambda t:t.get('name')=='Fulton Street' or t.get('footway')=='sidewalk')
-sBn2=near_named(sB2.x,sB2.y-70,lambda t:t.get('highway') in ('footway','path') and t.get('footway')!='sidewalk')
-print('second crossing', TI.transform(*nodes[nB2]), TI.transform(*nodes[sBn2]), round(z(*nodes[nB2])*FT), round(z(*nodes[sBn2])*FT), 'road', round(z(sB2.x,sB2.y)*FT))
-grotto2=grotto+[(nB2,sBn2,math.hypot(nodes[nB2][0]-nodes[sBn2][0],nodes[nB2][1]-nodes[sBn2][1])*1.4)]
 rows=[]
 for av in sorted(ints):
-    n=ints[av]; d0=dij(n); d1=dij(n,grotto); d2=dij(n,grotto2)
+    n=ints[av]; d0=dij(n); d1=dij(n,grotto)
     j0=min(d0.get(t,1e9) for t in jfk); j1=min(d1.get(t,1e9) for t in jfk)
     x,y=nodes[n]; jcrow=min(math.hypot(nodes[t][0]-x,nodes[t][1]-y) for t in jfk)
-    rows.append(dict(ave=av, jfk_now=round(j0), jfk_grotto=round(j1), jfk_two=round(min(d2.get(t,1e9) for t in jfk)), jfk_crow=round(jcrow), boat_now=round(d0.get(boat,0)), boat_grotto=round(d1.get(boat,0)), lloyd_now=round(d0.get(lloyd,0))))
+    rows.append(dict(ave=av, jfk_now=round(j0), jfk_grotto=round(j1), jfk_crow=round(jcrow), boat_now=round(d0.get(boat,0)), boat_grotto=round(d1.get(boat,0)), lloyd_now=round(d0.get(lloyd,0))))
 for r in rows: print(r)
 # Frontage: length of Fulton between Park Presidio and 25th where highway separates Fulton from park interior
 fl=unary_union([LineString(proj(w['geometry'])) for w in ful])
@@ -86,7 +81,7 @@ strip=[f for f in faces if f.area>500 and f.distance(ful_line)<40 and f.centroid
 tot=sum(f.area for f in strip)/4046.86
 print('cut-off strip faces', len(strip), 'acres', round(tot,1), [round(f.area/4046.86,2) for f in strip])
 import json
-json.dump(dict(cross2=[TI.transform(*nodes[nB2]),TI.transform(*nodes[sBn2])], rows=rows, strip_acres=round(tot,1), strip=[[ [round(a-x0,1),round(b-y0,1)] for a,b in f.exterior.simplify(1).coords] for f in strip]), open(f'{S}/fulton.json','w'))
+json.dump(dict(rows=rows, strip_acres=round(tot,1), strip=[[ [round(a-x0,1),round(b-y0,1)] for a,b in f.exterior.simplify(1).coords] for f in strip]), open(f'{S}/fulton.json','w'))
 # residential buildings north of Fulton between PP and 26th within bbox
 cnt=0; area=0
 fy_=lambda x: fl.interpolate(fl.project(Point(x,0))).y

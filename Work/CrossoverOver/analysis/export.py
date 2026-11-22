@@ -87,7 +87,7 @@ def section(s, half=130, step=2):
     dx, dy = q.x - r.x, q.y - r.y; n = math.hypot(dx, dy) or 1; px, py = -dy / n, dx / n
     offs = list(range(-half, half + 1, step))
     return dict(s=s, px=round(px, 4), py=round(py, 4), cx=round(p.x - x0, 1), cy=round(p.y - y0, 1), road=round(z(p.x, p.y) * FT, 1), offs=offs, z=[round(z(p.x + px * o, p.y + py * o) * FT, 1) for o in offs])
-sections = {k: section(v) for k, v in dict(bridge=1160, grotto=330, lid=1120, bypass=640).items()}
+sections = {k: section(v) for k, v in dict(bridge=1160, grotto=440, lid=1310, bypass=640).items()}
 lab = lambda lon, lat: [round(P(lon, lat)[0] - x0), round(P(lon, lat)[1] - y0)]
 labels = {k: lab(*v) for k, v in places.items()}
 labels.update({'Strawberry Hill': lab(-122.47485, 37.76862), 'de Young': lab(-122.46876, 37.77146), 'Cal Academy': lab(-122.46610, 37.76990),
@@ -96,12 +96,12 @@ labels.update({'Strawberry Hill': lab(-122.47485, 37.76862), 'de Young': lab(-12
                '19th Ave': lab(-122.47733, 37.7641), 'Park Presidio': lab(-122.47180, 37.7745)})
 data = dict(
     meta=dict(x0=x0, y0=y0, x1=x1, y1=y1, crs='EPSG:26910', dem_res=5, dem_nx=len(xs5), dem_ny=len(ys5), nres=10, nnx=len(xs), nny=len(ys),
-              built='2026-11-20', sources='OSM (ODbL) via Overpass 2026-11-20; USGS 3DEP 1/3-arc-second+lidar via 3DEPElevation ImageServer; Caltrans 2024 AADT'),
+              built='2026-11-21', sources='OSM (ODbL) via Overpass 2026-11-21; USGS 3DEP 1/3-arc-second+lidar via 3DEPElevation ImageServer; Caltrans 2024 AADT'),
     dem=b64(dem_i16), noise={k: b64(v) for k, v in NZ.items()}, inpark=b64(inpark.astype('u1')),
     vec=vec, cl=cl, longp=longp, sections=sections, labels=labels,
     bridgeA=dict(e=lab(*out['bridgeA']['east']), w=lab(*out['bridgeA']['west'])),
     grotto=dict(n=lab(*out['bridgeB']['north']), s=lab(*out['bridgeB']['south'])),
-    scen=dict(lid=scen['lid'], pearls=scen['pearls'], tunnel=scen['tunnel']),
+    scen=dict(lid=scen['lid'], pearls=scen['pearls'], tunnel=scen['tunnel'], pearls_spur=[[round(cx - x0), round(cy - y0), r] for cx, cy, r in spur_cover['pearls']]),
     stats={k: v for k, v in out.items() if k != 'level_vs_distance_west_of_s1160'},
     level_vs_distance=out['level_vs_distance_west_of_s1160'],
 )

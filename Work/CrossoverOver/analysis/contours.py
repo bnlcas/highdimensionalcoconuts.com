@@ -21,7 +21,6 @@ fj = json.load(open(f'{S}/fulton.json'))
 from pyproj import Transformer
 T = Transformer.from_crs(4326, 26910, always_xy=True)
 loc = lambda lon, lat: [round(T.transform(lon, lat)[0] - x0), round(T.transform(lon, lat)[1] - y0)]
-data = dict(contours=out, fulton=fj['rows'], strip=fj['strip'], strip_acres=fj['strip_acres'], cross2=[loc(*fj['cross2'][0]), loc(*fj['cross2'][1])],
-            owl=loc(-122.47470, 37.76880))
+data = dict(contours=out, fulton=fj['rows'], strip=fj['strip'], strip_acres=fj['strip_acres'], owl=loc(-122.47470, 37.76880))
 s = 'window.CROSSOVER_EXTRA=' + json.dumps(data, separators=(',', ':')) + ';\n'
 open(OUT, 'w').write(s); print('contour lines', len(out), 'bytes', len(s))

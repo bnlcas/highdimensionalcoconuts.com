@@ -31,6 +31,7 @@ Python 3 with `numpy shapely pyproj tifffile`.
 | `slide.py` | Slides a 240 m lid along the road to find the best location |
 | `homes.py` | Noise change at homes outside the park |
 | `export.py` | Writes `../data/crossover-data.js` for the page |
+| `wander.py`, `wander2.py`, `wander3.py` | Prototype: which crossing west–east walks use, and 10-minute reach, today / with crossings / with lids (RESEARCH §15). Not on the page. |
 
 `python3 export.py $S ../data/crossover-data.js`
 

@@ -58,7 +58,7 @@ for w in spur:
         p = L.interpolate(i); src.append((p.x, p.y, -1, 'spur'))
 src = np.array([(a, b, c, 1 if t == 'spur' else 0) for a, b, c, t in src])
 # each carriageway carries half the volume -> per-carriageway L15 is L15-3; element energy: I = I15 * (15/pi) * dl / r^2 * (15/r)^alpha
-def grid_levels(covered, alpha=0.5, Lmain=None, Lspur=None, portal_db=-3):
+def grid_levels(covered, alpha=0.5, Lmain=None, Lspur=None, portal_db=-3, spur_cover=()):
     Lmain = Lmain if Lmain is not None else out['L15']['day']; Lspur = Lspur if Lspur is not None else out['L15_spur_day']
     I_main = 10 ** ((Lmain - 3) / 10); I_spur = 10 ** ((Lspur - 3) / 10)
     keep = np.ones(len(src), bool)
@@ -67,6 +67,12 @@ def grid_levels(covered, alpha=0.5, Lmain=None, Lspur=None, portal_db=-3):
         m = (src[:, 3] == 0) & (src[:, 2] >= sa) & (src[:, 2] <= sb)
         keep &= ~m
         # portal re-radiation: a tunnel mouth radiates roughly like the open road continuing; we add a lumped source
+    spur_portals = []
+    for (cx, cy, rad) in spur_cover:  # spur lids: remove spur elements within rad of (cx, cy); portals at the two farthest removed elements
+        m = (src[:, 3] == 1) & (np.hypot(src[:, 0] - cx, src[:, 1] - cy) <= rad)
+        keep &= ~m
+        idx = np.where(m)[0]
+        if len(idx): spur_portals += [src[idx[0], :2], src[idx[-1], :2]]
     sx, sy, sw = src[keep, 0], src[keep, 1], wts[keep]
     xs = np.arange(x0 + 5, x1, 10); ys = np.arange(y0 + 5, y1, 10)
     GX, GY = np.meshgrid(xs, ys)
@@ -81,18 +87,27 @@ def grid_levels(covered, alpha=0.5, Lmain=None, Lspur=None, portal_db=-3):
             p = C.interpolate(s_)
             r = np.maximum(np.hypot(GX - p.x, GY - p.y), 8.0)
             I += 2 * I_main * (15 / math.pi) * 30 * 10 ** (portal_db / 10) / r ** 2 * (15 / r) ** alpha
+    for (px_, py_) in spur_portals:  # one-way carriageway: one element's worth of spur energy per mouth
+        r = np.maximum(np.hypot(GX - px_, GY - py_), 8.0)
+        I += I_spur * (15 / math.pi) * 30 * 10 ** (portal_db / 10) / r ** 2 * (15 / r) ** alpha
     return xs, ys, 10 * np.log10(np.maximum(I, 1e-3))
 
 inpark = None
+# String of Lids (Nov 21 layout): two 200 m (656 ft) lids on the Strawberry Hill bench with a 100 m gap,
+# one 240 m (787 ft) lid on the bypass centered between Fulton & 17th (s=390) and 18th (s=490),
+# and a ~100 m lid on the 25th Ave spur where the 22nd Ave path crosses it. A sweep of two-lid placements on the
+# bench (L 180-240 m, gap 60-150 m) is in the Nov 21 notes; a 60 m gap gains only ~1 acre over 100 m.
+SPUR22 = P(-122.48101, 37.77182)
 scen = {
     'existing': [],
-    'lid': [(1040, 1280)],              # Strawberry Hill Lid, 240 m (787 ft) -> NFPA 502 Cat. A
+    'lid': [(1210, 1410)],              # first lid of the string: Strawberry Hill south, 200 m (656 ft)
     'tunnel': [(170, 1360)],            # full cut-and-cover, ~1190 m
-    'pearls': [(180, 420), (460, 700), (740, 980), (1020, 1260)],
+    'pearls': [(910, 1110), (1210, 1410), (320, 560)],
 }
+spur_cover = {'pearls': [(SPUR22[0], SPUR22[1], 50)]}
 grids = {}
 for name, cov in scen.items():
-    xs, ys, Lg = grid_levels(cov)
+    xs, ys, Lg = grid_levels(cov, spur_cover=spur_cover.get(name, ()))
     if inpark is None:
         inpark = np.array([[ppark.contains(Point(x, y)) for x in xs] for y in ys])
     cell_ac = 100 / 4046.86
@@ -155,8 +170,8 @@ wA = near_named(sA.x - 70, sA.y, lambda t: t.get('name') in ('Transverse Drive T
 lenA = math.hypot(nodes[eA][0] - nodes[wA][0], nodes[eA][1] - nodes[wA][1])
 out['bridgeA'] = dict(east=TI.transform(*nodes[eA]), west=TI.transform(*nodes[wA]), straight_m=round(lenA), z_east_ft=round(z(*nodes[eA]) * FT), z_west_ft=round(z(*nodes[wA]) * FT))
 pathA = lenA * 1.6  # deck + 5% descent ramp on the west side
-# Bridge B "Fulton Gateway": over the Bypass at s~560, Fulton St sidewalk (north) <-> JFK/Rainbow Falls area (south)
-sB = C.interpolate(330)
+# Bridge B "Fulton crossing": over/under the Bypass between Fulton & 17th and 18th (s~440), Fulton St sidewalk (north) <-> park path (south)
+sB = C.interpolate(440)
 nB = near_named(sB.x, sB.y + 70, lambda t: t.get('name') == 'Fulton Street' or t.get('footway') == 'sidewalk')
 sBn = near_named(sB.x, sB.y - 60, lambda t: t.get('highway') in ('footway', 'path') and t.get('footway') != 'sidewalk')
 lenB = math.hypot(nodes[nB][0] - nodes[sBn][0], nodes[nB][1] - nodes[sBn][1])
