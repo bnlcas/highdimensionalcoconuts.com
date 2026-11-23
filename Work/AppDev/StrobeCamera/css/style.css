@@ -1,0 +1,68 @@
+:root {
+    --bg: #0b0b0f;
+    --fg: #f2f2f2;
+    --muted: #a8a8b3;
+    overscroll-behavior: none;
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    line-height: 1.5;
+}
+
+.main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+}
+
+h1 { font-size: 2.6rem; margin: 0.2em 0; }
+h2 { font-size: 1.5rem; margin-top: 2em; }
+p, li { font-size: 1.1rem; }
+.muted { color: var(--muted); }
+
+a { color: var(--fg); text-decoration: underline; transition: 0.3s; }
+a:hover { color: var(--muted); }
+
+.icon { width: 96px; height: 96px; border-radius: 22px; }
+
+/* Strobe: time-delayed, hue-rotated echoes of one disc */
+.strobe {
+    position: relative;
+    height: 220px;
+    margin: 24px 0;
+}
+.strobe span {
+    position: absolute;
+    top: 30px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: hsl(0 90% 60%);
+    mix-blend-mode: screen;
+    opacity: 0.75;
+    animation: hue 6s linear infinite;
+}
+.strobe span:nth-child(1) { left: 0%;  animation-delay: 0s; }
+.strobe span:nth-child(2) { left: 10%; animation-delay: -0.85s; }
+.strobe span:nth-child(3) { left: 20%; animation-delay: -1.7s; }
+.strobe span:nth-child(4) { left: 30%; animation-delay: -2.55s; }
+.strobe span:nth-child(5) { left: 40%; animation-delay: -3.4s; }
+.strobe span:nth-child(6) { left: 50%; animation-delay: -4.25s; }
+.strobe span:nth-child(7) { left: calc(100% - 160px); animation-delay: -5.1s; }
+
+@keyframes hue {
+    from { filter: hue-rotate(0deg); }
+    to   { filter: hue-rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .strobe span { animation: none; }
+}
+
+.app-store-link img { height: 48px; }
+
+footer { margin-top: 48px; font-size: 0.9rem; color: var(--muted); }
