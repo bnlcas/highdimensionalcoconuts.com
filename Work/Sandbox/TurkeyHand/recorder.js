@@ -1,6 +1,7 @@
-// Hold-to-record: while the button is held, record the canvas plus the mixed
-// audio stream (gobbles + mic), up to MAX_SECONDS. On release, preview the
-// clip with Share / Save / Retake, plus links for sharing the filter itself.
+// Record the canvas plus the mixed audio stream (gobbles + mic), up to
+// MAX_SECONDS. Hold the button to record while held, or tap to start and tap
+// again to stop; the time cap catches anyone who forgets. Then preview the
+// clip with Download and links for sharing the filter itself.
 //
 // No website can post a video straight to Instagram or TikTok; on phones the
 // native share sheet (navigator.share) is the route to those apps. The link
@@ -9,7 +10,7 @@
 // caption + link and open the site/app for the user to paste it.
 
 const MAX_SECONDS = 30;
-const MIN_SECONDS = 0.5;
+const HOLD_MS = 400; // presses longer than this are hold-to-record; shorter ones toggle
 
 const PAGE_URL = "https://www.highdimensionalcoconuts.com/Work/Sandbox/TurkeyHand/";
 const SHARE_TEXT = "Happy Thanksgiving! 🦃 I turned my hand into a turkey. Make your own:";
@@ -44,20 +45,30 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
     ...audioStream.getAudioTracks(),
   ]);
 
-  let rec = null, startedAt = 0, raf = 0;
+  let rec = null, startedAt = 0, raf = 0, pressing = false;
 
-  function start(e) {
-    if (rec || !sheet.hidden) return;
+  function onDown(e) {
+    if (!sheet.hidden) return;
     e.preventDefault();
+    if (rec) { stop(); return; } // the second tap of tap-to-record
     button.setPointerCapture?.(e.pointerId);
+    pressing = true;
+    start();
+  }
+
+  function onUp() {
+    if (!pressing) return;
+    pressing = false;
+    if (!rec) return;
+    if (performance.now() - startedAt >= HOLD_MS) stop();
+    else onHint("Recording — tap again to stop");
+  }
+
+  function start() {
     const chunks = [];
     const r = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 5_000_000 });
     r.ondataavailable = (ev) => { if (ev.data.size) chunks.push(ev.data); };
-    r.onstop = () => {
-      const seconds = (performance.now() - startedAt) / 1000;
-      if (seconds < MIN_SECONDS) { onHint("Hold the button to record"); return; }
-      showClip(new Blob(chunks, { type: (r.mimeType || mime).split(";")[0] }));
-    };
+    r.onstop = () => showClip(new Blob(chunks, { type: (r.mimeType || mime).split(";")[0] }));
     r.start(250);
     rec = r;
     startedAt = performance.now();
@@ -81,19 +92,20 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
     raf = requestAnimationFrame(tick);
   }
 
-  button.addEventListener("pointerdown", start);
-  button.addEventListener("pointerup", stop);
-  button.addEventListener("pointercancel", stop);
+  button.addEventListener("pointerdown", onDown);
+  button.addEventListener("pointerup", onUp);
+  button.addEventListener("pointercancel", () => { if (pressing) { pressing = false; stop(); } });
   button.addEventListener("contextmenu", (e) => e.preventDefault()); // iOS long-press menu
 
   // --- preview sheet ---
   const player = sheet.querySelector("video");
   const shareBtn = sheet.querySelector("[data-share]");
   const saveLink = sheet.querySelector("[data-save]");
-  const retakeBtn = sheet.querySelector("[data-retake]");
+  const closeBtn = sheet.querySelector("[data-close]");
+  const body = sheet.querySelector(".sheet-body");
   const hint = sheet.querySelector("[data-hint]");
   const copyBtn = sheet.querySelector("[data-copy]");
-  let file = null, canShareFile = false;
+  let file = null;
 
   for (const a of sheet.querySelectorAll("[data-social]")) {
     a.href = SOCIAL[a.dataset.social];
@@ -106,9 +118,6 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
         () => { hint.textContent = `Add this link to your ${app} post: ${PAGE_URL}`; });
     });
   }
-  const defaultHint = () => (canShareFile
-    ? "Share to Instagram, TikTok, X, Messages…"
-    : "Save the video, then post it to Instagram, TikTok or X");
 
   function showClip(blob) {
     const ext = blob.type.includes("mp4") ? "mp4" : "webm";
@@ -117,9 +126,10 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
     player.src = url;
     saveLink.href = url;
     saveLink.download = file.name;
-    canShareFile = !!(navigator.canShare && navigator.canShare({ files: [file] }));
-    shareBtn.hidden = !canShareFile;
-    hint.textContent = defaultHint();
+    // The OS share sheet is the only way a web page can hand the video itself
+    // to Instagram/TikTok on phones; shown only where it supports files.
+    shareBtn.hidden = !(navigator.canShare && navigator.canShare({ files: [file] }));
+    hint.textContent = "";
     sheet.hidden = false;
     player.play().catch(() => {});
   }
@@ -129,7 +139,7 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
       // The link goes in the text: some apps drop `url` when files are attached.
       await navigator.share({ files: [file], title: "Happy Thanksgiving!", text: `${SHARE_TEXT} ${PAGE_URL}` });
     } catch (err) {
-      if (err.name !== "AbortError") hint.textContent = "Couldn't share — try Save instead";
+      if (err.name !== "AbortError") hint.textContent = "Couldn't share — try Download instead";
     }
   });
 
@@ -144,11 +154,15 @@ export function initRecording({ canvas, audioStream, button, sheet, onHint }) {
     setTimeout(() => { copyLabel.textContent = "Copy link"; }, 1500);
   });
 
-  retakeBtn.addEventListener("click", () => {
+  function closeSheet() {
+    if (sheet.hidden) return;
     player.pause();
     URL.revokeObjectURL(player.src);
     player.removeAttribute("src");
     file = null;
     sheet.hidden = true;
-  });
+  }
+  closeBtn.addEventListener("click", closeSheet);
+  // Modal convention: a tap outside the preview and buttons dismisses it.
+  sheet.addEventListener("click", (e) => { if (!body.contains(e.target)) closeSheet(); });
 }

@@ -409,9 +409,27 @@ function frame() {
 // Boot
 // ---------------------------------------------------------------------------
 
+// Loading progress: a step list on the start card, and once Start is tapped,
+// the status pill names whatever is still loading.
+const stepList = document.getElementById("loadSteps");
+let waitingOnLoad = false;
+
+function showPending() {
+  const pending = [...stepList.querySelectorAll("li.loading")].map((li) => li.textContent.toLowerCase());
+  if (waitingOnLoad && pending.length) setStatus(`Warming up the oven… loading ${pending.join(" & ")}`);
+}
+
+function step(key, promise) {
+  const li = stepList.querySelector(`[data-step="${key}"]`);
+  return promise.then(
+    (v) => { li.className = "done"; showPending(); return v; },
+    (err) => { li.className = "error"; throw err; },
+  );
+}
+
 const ready = Promise.all([
-  loadHands(),
-  loadTracker(),
+  step("hands", loadHands()),
+  step("tracker", loadTracker()),
   makeTitle(),
 ]);
 ready.catch((err) => {
@@ -422,7 +440,7 @@ ready.catch((err) => {
 document.getElementById("startBtn").addEventListener("click", async () => {
   initAudio();
   document.getElementById("start").hidden = true;
-  setStatus("Warming up the oven…");
+  setStatus("Starting camera…");
   try {
     await startSource();
   } catch (err) {
@@ -438,7 +456,10 @@ document.getElementById("startBtn").addEventListener("click", async () => {
     onHint: (msg) => { setStatus(msg); setTimeout(() => setStatus(""), 2000); },
   });
   frame();
+  waitingOnLoad = true;
+  showPending();
   await ready;
+  waitingOnLoad = false;
   setStatus("Show your hand ✋");
   // Gobble on load (the buffer may still be decoding, so give it a moment).
   setTimeout(gobble, 300);
